@@ -1,0 +1,55 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        minSdkVersion minSdkVersion
+        targetSdkVersion targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    api "com.android.support:appcompat-v7:$supportVersion"
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "com.android.support.test:runner:$runnerVersion"
+    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    api "com.android.support:design:$supportVersion"
+
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butterknifeVersion"
+    api "com.jakewharton:butterknife:$butterknifeVersion"
+    api "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    api "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
+    api "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+
+    api "com.alibaba:fastjson:$fastjsonVersion"
+    api "org.simple:androideventbus:$eventBusVersion"
+
+    annotationProcessor "com.google.dagger:dagger-compiler:$daggerVersion"
+    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
+    api "com.google.dagger:dagger:$daggerVersion"
+    api "com.google.dagger:dagger-android:$daggerVersion"
+    api "com.google.dagger:dagger-android-support:$daggerVersion"
+    annotationProcessor "com.google.dagger:dagger-android-processor:$daggerVersion"
+
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanaryVersion"
+    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanaryVersion"
+
+    api 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-11'
+    api 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-alpha-11'//没有使用特殊Header，可以不加这行
+
+    api project(':swipeback')
+}
