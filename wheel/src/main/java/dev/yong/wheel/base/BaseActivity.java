@@ -4,12 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.WindowManager;
 
 import org.simple.eventbus.EventBus;
 
@@ -23,13 +22,14 @@ import dagger.android.DispatchingAndroidInjector;
 import dagger.android.HasActivityInjector;
 import dagger.android.HasFragmentInjector;
 import dagger.android.support.HasSupportFragmentInjector;
+import dev.yong.swipeback.ISwipeBack;
+import dev.yong.swipeback.SwipeBackHelper;
+import dev.yong.swipeback.SwipeBackLayout;
 import dev.yong.wheel.AppManager;
 import dev.yong.wheel.network.Network;
 import dev.yong.wheel.network.NetworkReceiver;
 import dev.yong.wheel.utils.Logger;
-import dev.yong.swipeback.ISwipeBack;
-import dev.yong.swipeback.SwipeBackHelper;
-import dev.yong.swipeback.SwipeBackLayout;
+import dev.yong.wheel.utils.StatusBar;
 
 /**
  * Activity基类
@@ -63,13 +63,6 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
-        if (isSinkingStatusBar()) {
-            WindowManager.LayoutParams attrs = getWindow().getAttributes();
-            attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
-            getWindow().setAttributes(attrs);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        }
         if (isInject()) {
             try {
                 //注入当前Activity
@@ -85,6 +78,7 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
         }
         setContentView(layoutId);
         ButterKnife.bind(this);
+        //设置滑动返回
         SwipeBackHelper.with(this)
                 .alphaColor(alphaColor())
                 .hasAlpha(hasAlpha())
@@ -92,6 +86,8 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
                 .prevViewScrollable(prevViewScrollable())
                 .swipeListener(mSwipeListener)
                 .build();
+        //设置状态栏颜色
+        StatusBar.setColor(this, statusBarColor());
         if (AppManager.getInstance().isUseEventBus()) {
             EventBus.getDefault().register(this);
         }
@@ -202,8 +198,9 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
      *
      * @return true 全屏且沉侵，默认为false
      */
-    public boolean isSinkingStatusBar() {
-        return false;
+    @ColorInt
+    public int statusBarColor() {
+        return -1;
     }
 
     /**

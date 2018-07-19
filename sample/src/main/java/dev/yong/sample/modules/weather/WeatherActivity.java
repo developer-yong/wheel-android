@@ -1,5 +1,7 @@
 package dev.yong.sample.modules.weather;
 
+import android.support.v4.content.ContextCompat;
+
 import javax.inject.Inject;
 
 import dev.yong.sample.R;
@@ -28,5 +30,10 @@ public class WeatherActivity extends BaseActivity {
     @Override
     public boolean hasAlpha() {
         return true;
+    }
+
+    @Override
+    public int statusBarColor() {
+        return ContextCompat.getColor(this, R.color.colorPrimary);
     }
 }

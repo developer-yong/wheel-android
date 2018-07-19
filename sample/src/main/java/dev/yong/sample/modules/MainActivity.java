@@ -8,6 +8,7 @@ import dev.yong.sample.modules.login.LoginActivity;
 import dev.yong.wheel.base.BaseActivity;
 import dev.yong.wheel.permission.Permission;
 import dev.yong.wheel.utils.SnackUtils;
+import dev.yong.wheel.utils.StatusBar;
 
 
 /**
@@ -17,6 +18,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected int layoutId() {
+        StatusBar.translucent(this, false);
         return R.layout.activity_main;
     }
 
