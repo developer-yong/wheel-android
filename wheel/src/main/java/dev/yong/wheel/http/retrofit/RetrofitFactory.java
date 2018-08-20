@@ -2,14 +2,15 @@ package dev.yong.wheel.http.retrofit;
 
 import android.text.TextUtils;
 
+import java.util.Map;
+
 import dev.yong.wheel.http.HttpConfig;
 import dev.yong.wheel.http.HttpFactory;
+import dev.yong.wheel.http.HttpInterceptor;
 import dev.yong.wheel.http.HttpRequest;
 import dev.yong.wheel.http.UploadFile;
 import dev.yong.wheel.http.UploadListener;
 import dev.yong.wheel.http.retrofit.interceptor.ProgressInterceptor;
-
-import java.util.Map;
 
 import static dev.yong.wheel.http.retrofit.interceptor.ProgressInterceptor.PROGRESS_UPLOAD;
 
@@ -17,26 +18,15 @@ import static dev.yong.wheel.http.retrofit.interceptor.ProgressInterceptor.PROGR
 /**
  * @author coderyong
  */
-public class RetrofitFactory implements HttpFactory {
+public class RetrofitFactory implements HttpFactory<RetrofitRequest> {
 
     @Override
-    public HttpRequest createRequest(String url) {
-        return createRequest(url, null);
+    public HttpRequest createRequest(String url, Map<String, String> parameters, HttpInterceptor interceptor) {
+        return new RetrofitRequest(createService(url, RetrofitService.class), url, parameters, interceptor);
     }
 
     @Override
-    public HttpRequest createRequest(String url, Map<String, String> parameters) {
-        return new RetrofitRequest(createService(url, RequestService.class), url, parameters);
-    }
-
-    @Override
-    public HttpRequest createUpload(String url, UploadListener listener, UploadFile... files) {
-        return createUpload(url, null, listener, files);
-    }
-
-    @Override
-    public HttpRequest createUpload(String url, Map<String, String> parameters,
-                                    final UploadListener listener, UploadFile... files) {
+    public HttpRequest createUpload(String url, Map<String, String> parameters, HttpInterceptor interceptor, final UploadListener listener, UploadFile... files) {
         if (listener != null) {
             //添加进度监听拦截器
             RetrofitHelper.getInstance()
@@ -47,7 +37,7 @@ public class RetrofitFactory implements HttpFactory {
                         }
                     }));
         }
-        return new RetrofitUpload(createService(url, UploadService.class), url, parameters, files);
+        return new RetrofitUpload(createService(url, RetrofitService.class), url, parameters, interceptor, files);
     }
 
     /**
@@ -68,5 +58,4 @@ public class RetrofitFactory implements HttpFactory {
 
         return RetrofitHelper.getInstance().baseUrl(baseUrl).create(service);
     }
-
 }

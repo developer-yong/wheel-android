@@ -2,6 +2,7 @@ package dev.yong.sample.modules.weather;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -12,6 +13,9 @@ import dev.yong.sample.data.WeatherInfo;
 import dev.yong.sample.service.ApiCacheService;
 import dev.yong.sample.service.ApiService;
 import dev.yong.wheel.base.mvp.IModel;
+import dev.yong.wheel.cache.Cache;
+import dev.yong.wheel.http.Http;
+import dev.yong.wheel.http.HttpResponse;
 import dev.yong.wheel.http.retrofit.RetrofitHelper;
 import dev.yong.wheel.utils.TimeUtils;
 import io.reactivex.Observer;
@@ -65,27 +69,31 @@ public class WeatherModel implements IModel {
                 });
 //        final String url = "https://free-api.heweather.com/s6/weather";
 //        //获取缓存数据
-//        List<WeatherInfo> weatherList = Cache.getInstance().getList(url,WeatherInfo.class);
+//        List<WeatherInfo> weatherList = Cache.getInstance().getList(url, WeatherInfo.class);
 //        if (weatherList != null) {
 //            callBack.onSuccess(weatherList);
 //            return;
 //        }
 //        //获取网络数据
-//        Http.getInstance()
-//                .request(url)
+//        Http.request(url)
 //                .isCarryBasic(false)
 //                .addParameter("location", "auto_ip")
 //                .addParameter("key", "69bcb5a6d326411baccdad8ebaa06cba")
-//                .setResolveFactory(new WeatherResolveFactory())
-//                .get(new HttpResponse<List<Weather>>() {
+//                .get(new HttpResponse<BaseEntity<List<Weather>>>() {
+//
 //                    @Override
-//                    public void onSuccess(int code, List<Weather> weathers) {
-//                        if (code == 200) {
-//                            List<WeatherInfo> weatherList = createWeatherList(weathers.get(0));
-//                            Cache.getInstance().put(url, weatherList, 30, TimeUnit.SECONDS);
-//                            callBack.onSuccess(weatherList);
+//                    public void onSuccess(BaseEntity<List<Weather>> entity) {
+//                        if (entity == null) {
+//                            callBack.onSuccess(null);
 //                        } else {
-//                            callBack.onFail(getMessage());
+//                            List<Weather> weathers = entity.getData();
+//                            if (weathers != null) {
+//                                List<WeatherInfo> weatherList = createWeatherList(weathers.get(0));
+//                                Cache.getInstance().put(url, weatherList, 30, TimeUnit.SECONDS);
+//                                callBack.onSuccess(weatherList);
+//                            } else {
+//                                callBack.onFail(entity.getMessage());
+//                            }
 //                        }
 //                    }
 //

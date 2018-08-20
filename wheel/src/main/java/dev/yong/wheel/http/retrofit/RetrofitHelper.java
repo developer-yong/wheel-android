@@ -93,9 +93,6 @@ public class RetrofitHelper {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         //打印网络日志
         if (BuildConfig.DEBUG) {
-            // Log信息拦截器
-//            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
-//            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
             //设置 Debug Log 模式
             builder.addInterceptor(new LoggerInterceptor());
         }

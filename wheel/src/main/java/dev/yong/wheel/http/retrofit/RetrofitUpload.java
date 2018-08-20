@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import dev.yong.wheel.http.HttpInterceptor;
+import dev.yong.wheel.http.HttpRequest;
+import dev.yong.wheel.http.HttpResponse;
 import dev.yong.wheel.http.UploadFile;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -16,27 +19,17 @@ import retrofit2.Call;
  * @author CoderYong
  */
 
-public class RetrofitUpload extends RetrofitCall {
+public class RetrofitUpload extends RetrofitRequest {
 
-    private UploadService mService;
-    private String mUrl;
-    private Map<String, String> mParameters;
     private List<UploadFile> mFiles;
 
-    RetrofitUpload(UploadService service, String url, Map<String, String> parameters, UploadFile... files) {
-        this.mService = service;
-        this.mUrl = url;
-        this.mParameters = parameters;
+    RetrofitUpload(RetrofitService service, String url, Map<String, String> parameters, HttpInterceptor interceptor, UploadFile... files) {
+        super(service, url, parameters, interceptor);
         this.mFiles = Arrays.asList(files);
     }
 
     @Override
-    protected Call<ResponseBody> getCall() {
-        return null;
-    }
-
-    @Override
-    protected Call<ResponseBody> postCall() {
+    protected Call<ResponseBody> call(String method) {
         MultipartBody multipartBody = filesToMultipartBody(mFiles);
         return mParameters != null && mParameters.size() > 0 ?
                 mService.upload(mUrl, mParameters, multipartBody) : mService.upload(mUrl, multipartBody);

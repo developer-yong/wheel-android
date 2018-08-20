@@ -6,10 +6,15 @@ import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
+import java.util.Map;
+
 import dagger.android.AndroidInjector;
 import dagger.android.DaggerApplication;
 import dev.yong.sample.di.DaggerAppComponent;
 import dev.yong.wheel.AppManager;
+import dev.yong.wheel.http.Http;
+import dev.yong.wheel.http.HttpInterceptor;
+import dev.yong.wheel.http.HttpResponse;
 
 /**
  * @author coderyong
@@ -32,16 +37,25 @@ public class App extends DaggerApplication {
         super.onCreate();
         AppManager.init(this);
 //        //设置网络响应验证
-//        Http.getInstance().setResponseVerify(new ResponseVerify() {
+//        Http.getInstance().setHttpInterceptor(new HttpInterceptor() {
+//            @Override
+//            public void resetParameters(Map<String, String> parameters) {
+//
+//            }
 //
 //            @Override
-//            public void verify(@NonNull VerifyListener listener, int code, String message) {
-//                Preferences.getInstance(App.this).putString("login", "admin");
-//                if (!TextUtils.isEmpty(Preferences.getInstance(App.this).getString("login"))) {
-//                    listener.responseHandle();
-//                } else {
-//                    listener.onFail(code, message);
-//                }
+//            public void onVerify(Map<String, String> parameters, String responseBody, Callback listener) {
+//                Http.request("https://www.baidu.com/").get(new HttpResponse<String>() {
+//                    @Override
+//                    public void onSuccess(String s) {
+//                        listener.retry(parameters);
+//                    }
+//
+//                    @Override
+//                    public void onFail(Throwable t) {
+//                        listener.response(responseBody);
+//                    }
+//                });
 //            }
 //        });
 //        RetrofitHelper.getInstance().beforeInterceptor(new BeforeInterceptor() {

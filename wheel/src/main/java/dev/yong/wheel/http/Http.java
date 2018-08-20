@@ -2,9 +2,6 @@ package dev.yong.wheel.http;
 
 import android.text.TextUtils;
 
-
-import org.simple.eventbus.EventBus;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,8 +29,7 @@ public class Http {
 
 
     private HttpFactory httpFactory;
-    private BasicParameters basicParameters;
-    private ResponseVerify verify;
+    private HttpInterceptor interceptor;
 
     /**
      * 创建请求构建者
@@ -41,7 +37,7 @@ public class Http {
      * @param url 请求地址
      * @return 构建对象
      */
-    public HttpBuilder request(String url) {
+    public static HttpBuilder request(String url) {
         return new HttpBuilder(url);
     }
 
@@ -53,7 +49,7 @@ public class Http {
      * @param files    上传文件数组
      * @return 构建对象
      */
-    public HttpBuilder upload(String url, UploadListener listener, UploadFile... files) {
+    public static HttpBuilder upload(String url, UploadListener listener, UploadFile... files) {
         return new HttpBuilder(url, listener, files);
     }
 
@@ -66,38 +62,29 @@ public class Http {
         this.httpFactory = httpFactory;
     }
 
-    /**
-     * 设置基础参数处理实现
-     *
-     * @param basicParameters 基础参数处理实现类
-     */
-    public void setBasicParameters(BasicParameters basicParameters) {
-        this.basicParameters = basicParameters;
-    }
 
     /**
-     * 设置请求响应验证
+     * 设置请求拦截
      * <p>
-     * 例如token验证处理
+     * 设置基础参数或者token验证处理
      * </P>
      *
-     * @param verify 请求响应验证实现类
+     * @param interceptor 请求拦截实现类
      */
-    public void setResponseVerify(ResponseVerify verify) {
-        this.verify = verify;
+    public void setHttpInterceptor(HttpInterceptor interceptor) {
+        this.interceptor = interceptor;
     }
 
     /**
      * 普通请求构建者
      */
-    public class HttpBuilder {
+    public static class HttpBuilder {
 
         boolean isUpload = false;
 
         protected String url;
         Map<String, String> parameters;
         boolean isCarry = true;
-        ResolveFactory factory;
 
         private UploadListener listener;
         private UploadFile[] files;
@@ -170,53 +157,56 @@ public class Http {
             return this;
         }
 
-        /**
-         * 设置解析工厂实现类
-         *
-         * @param factory 解析工厂对象
-         * @return HttpBuilder
-         */
-        public HttpBuilder setResolveFactory(ResolveFactory factory) {
-            this.factory = factory;
-            return this;
-        }
-
         public void get() {
             get(null);
         }
 
-        public void get(HttpResponse response) {
+        public <T> void get(HttpResponse<T> response) {
             //创建GET请求
-            createHttpRequest(isUpload, response).get(response);
+            execute(HttpRequest.GET, response);
         }
 
         public void post() {
             post(null);
         }
 
-        public void post(HttpResponse response) {
+        public <T> void post(HttpResponse<T> response) {
             //创建POST请求
-            createHttpRequest(isUpload, response).post(response);
+            execute(HttpRequest.POST, response);
         }
 
-        private HttpRequest createHttpRequest(boolean isUpload, final HttpResponse response) {
+        public <T> void head(HttpResponse<T> response) {
+            //创建POST请求
+            execute(HttpRequest.HEAD, response);
+        }
+
+        public <T> void put(HttpResponse<T> response) {
+            execute(HttpRequest.PUT, response);
+        }
+
+        public <T> void delete(HttpResponse<T> response) {
+            execute(HttpRequest.DELETE, response);
+        }
+
+        public <T> void patch(HttpResponse<T> response) {
+            execute(HttpRequest.PATCH, response);
+        }
+
+        public <T> void execute(@HttpRequest.Method String method, HttpResponse<T> response) {
             if (isCarry) {
-                if (basicParameters == null) {
+                if (getInstance().interceptor == null) {
                     throw new IllegalStateException(
-                            "BasicParameters not initialized, Http.setBasicParameters(BasicParameters) not used");
+                            "HttpInterceptor not initialized, Http.setHttpInterceptor(HttpInterceptor) not used");
                 }
-                basicParameters.resetParameters(parameters);
+                getInstance().interceptor.resetParameters(parameters);
             }
-            if (httpFactory == null) {
-                httpFactory = new RetrofitFactory();
+            if (getInstance().httpFactory == null) {
+                getInstance().httpFactory = new RetrofitFactory();
             }
-            response.setFactory(factory != null ? factory : new DefaultResolveFactory());
-            if (verify != null) {
-                response.setVerify(verify);
-            }
-            return isUpload ?
-                    httpFactory.createUpload(url, parameters, listener, files) :
-                    httpFactory.createRequest(url, parameters);
+            HttpRequest request = isUpload ?
+                    getInstance().httpFactory.createUpload(url, parameters, getInstance().interceptor, listener, files) :
+                    getInstance().httpFactory.createRequest(url, parameters, getInstance().interceptor);
+            request.request(HttpRequest.GET, response);
         }
     }
 }
