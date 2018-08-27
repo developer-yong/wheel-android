@@ -2,7 +2,11 @@ package dev.yong.wheel.http.retrofit;
 
 import android.support.annotation.NonNull;
 
+import com.google.gson.Gson;
+
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 import dev.yong.wheel.http.HttpInterceptor;
@@ -19,11 +23,11 @@ import retrofit2.Response;
 
 public class RetrofitRequest implements HttpRequest {
 
-    protected RetrofitService mService;
-    protected String mUrl;
-    protected Map<String, String> mParameters;
-    protected HttpInterceptor mInterceptor;
+    RetrofitService mService;
+    String mUrl;
+    Map<String, String> mParameters;
 
+    private HttpInterceptor mInterceptor;
     protected HttpResponse mResponse;
 
     RetrofitRequest(RetrofitService service, String url, Map<String, String> parameters, HttpInterceptor interceptor) {
@@ -70,7 +74,7 @@ public class RetrofitRequest implements HttpRequest {
         private String mMethod;
         private HttpResponse<T> mResponse;
 
-        public HttpCallback(String method, HttpResponse<T> response) {
+        HttpCallback(String method, HttpResponse<T> response) {
             this.mMethod = method;
             this.mResponse = response;
         }
@@ -93,13 +97,14 @@ public class RetrofitRequest implements HttpRequest {
                                     mParameters = parameters;
                                     request(mMethod, mResponse);
                                 }
+
                                 @Override
                                 public void response(String responseBody) {
-                                    mResponse.responseHandle(responseBody);
+                                    mResponse.onSuccess(parse(responseBody));
                                 }
                             });
                         } else {
-                            mResponse.responseHandle(body);
+                            mResponse.onSuccess(parse(body));
                         }
                     } catch (IOException e) {
                         Logger.w(e, e.getMessage());
@@ -116,6 +121,17 @@ public class RetrofitRequest implements HttpRequest {
             if (mResponse != null) {
                 mResponse.onFail(t);
             }
+        }
+
+        T parse(String content) {
+            try {
+                Type type = ((ParameterizedType) mResponse.getClass()
+                        .getGenericInterfaces()[0]).getActualTypeArguments()[0];
+                return new Gson().fromJson(content, type);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
         }
     }
 }

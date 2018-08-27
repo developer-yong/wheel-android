@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import dev.yong.wheel.http.HttpInterceptor;
-import dev.yong.wheel.http.HttpRequest;
-import dev.yong.wheel.http.HttpResponse;
 import dev.yong.wheel.http.UploadFile;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
