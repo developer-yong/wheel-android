@@ -3,8 +3,6 @@ package dev.yong.wheel.http.retrofit;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import org.simple.eventbus.EventBus;
-
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
@@ -14,9 +12,8 @@ import dev.yong.wheel.http.retrofit.interceptor.LoggerInterceptor;
 import dev.yong.wheel.http.retrofit.interceptor.ProgressInterceptor;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -35,6 +32,8 @@ public class RetrofitHelper {
     private Retrofit mRetrofit;
     private BeforeInterceptor mBeforeInterceptor;
     private ProgressInterceptor mProgressInterceptor;
+    private OkHttpClient.Builder mClientBuilder;
+    private Converter.Factory mConverterFactory;
 
     private RetrofitHelper() {
     }
@@ -62,12 +61,22 @@ public class RetrofitHelper {
         return this;
     }
 
+    public RetrofitHelper clientBuilder(OkHttpClient.Builder clientBuilder) {
+        this.mClientBuilder = clientBuilder;
+        return this;
+    }
+
+    public RetrofitHelper setConverterFactory(Converter.Factory converterFactory) {
+        this.mConverterFactory = converterFactory;
+        return this;
+    }
+
     public <T> T create(Class<T> service) {
         if (mRetrofit == null) {
             if (TextUtils.isEmpty(mBaseUrl)) {
                 throw new IllegalStateException("BaseUrl not initialized, RetrofitHelper.baseUrl(String) not implemented");
             }
-            OkHttpClient.Builder builder = defaultClientBuilder();
+            OkHttpClient.Builder builder = mClientBuilder == null ? defaultClientBuilder() : mClientBuilder;
             if (mBeforeInterceptor != null) {
                 builder.addInterceptor(new Interceptor() {
                     @Override
@@ -80,7 +89,12 @@ public class RetrofitHelper {
             if (mProgressInterceptor != null) {
                 builder.addInterceptor(mProgressInterceptor);
             }
-            mRetrofit = defaultRetrofitBuilder()
+            //打印网络日志
+            if (BuildConfig.DEBUG) {
+                //设置 Debug Log 模式
+                builder.addInterceptor(new LoggerInterceptor());
+            }
+            mRetrofit = defaultRetrofitBuilder(mConverterFactory)
                     .baseUrl(mBaseUrl)
                     .client(builder.build())
                     .build();
@@ -91,11 +105,6 @@ public class RetrofitHelper {
 
     public static OkHttpClient.Builder defaultClientBuilder() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        //打印网络日志
-        if (BuildConfig.DEBUG) {
-            //设置 Debug Log 模式
-            builder.addInterceptor(new LoggerInterceptor());
-        }
 
         //设置超时
         builder.connectTimeout(CONNECT_TIMEOUT, TimeUnit.SECONDS);
@@ -108,9 +117,13 @@ public class RetrofitHelper {
     }
 
     public static Retrofit.Builder defaultRetrofitBuilder() {
+        return defaultRetrofitBuilder(GsonConverterFactory.create());
+    }
+
+    public static Retrofit.Builder defaultRetrofitBuilder(Converter.Factory factory) {
         return new Retrofit.Builder()
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create());
+                .addConverterFactory(factory == null ? GsonConverterFactory.create() : factory);
     }
 
 }

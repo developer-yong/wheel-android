@@ -129,9 +129,8 @@ public class RetrofitRequest implements HttpRequest {
                         .getGenericInterfaces()[0]).getActualTypeArguments()[0];
                 return new Gson().fromJson(content, type);
             } catch (Exception e) {
-                e.printStackTrace();
+                return null;
             }
-            return null;
         }
     }
 }

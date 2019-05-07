@@ -83,7 +83,7 @@ public class Logger {
         }
     }
 
-    public static void e(Throwable tr, String msg) {
+    public static void e(Throwable tr, String... msg) {
         if (DEBUG) {
             log(Log.ERROR, msg + "\n" + Log.getStackTraceString(tr));
         }
