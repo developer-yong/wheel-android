@@ -21,6 +21,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import dev.yong.wheel.utils.Logger;
+import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -70,7 +71,7 @@ public final class LoggerInterceptor implements Interceptor {
         if (headers.size() > 0) {
             StringBuilder headersMessage = new StringBuilder();
             for (int i = 0; i < headers.size(); i++) {
-                headersMessage.append("\n\t").append(headers.name(i)).append(": ").append(headers.value(i));
+                headersMessage.append("\n\t\t").append(headers.name(i)).append(": ").append(headers.value(i));
             }
             if (!"".equals(headersMessage.toString())) {
                 requestMessage += "\n\tHeaders: " + headersMessage.toString();
@@ -79,16 +80,28 @@ public final class LoggerInterceptor implements Interceptor {
 
         RequestBody requestBody = request.body();
         if (requestBody != null) {
+            if (requestBody instanceof FormBody) {
+                FormBody body = (FormBody) requestBody;
+                StringBuilder paramsMessage = new StringBuilder();
+                for (int i = 0; i < body.size(); i++) {
+                    paramsMessage.append("\n\t\t")
+                            .append(body.encodedName(i)).append(": ").append(body.encodedValue(i));
+                }
+                if (!"".equals(paramsMessage.toString())) {
+                    requestMessage += "\n\tParameters: {" + paramsMessage.toString() + "\n\t}";
+                }
+            }
+
             String bodyMessage = "";
             if (requestBody.contentType() != null) {
-                bodyMessage += "\n\tContent-Type: " + requestBody.contentType();
+                bodyMessage += "\n\t\tContent-Type: " + requestBody.contentType();
             }
             try {
                 if (requestBody.contentLength() != -1) {
-                    bodyMessage += "\n\tContent-Length: " + requestBody.contentType();
+                    bodyMessage += "\n\t\tContent-Length: " + requestBody.contentType();
                 }
             } catch (IOException e) {
-                bodyMessage += "\n\tContent-Length: unknown-length";
+                bodyMessage += "\n\t\tContent-Length: unknown-length";
             }
             if (!"".equals(bodyMessage)) {
                 requestMessage += "\n\tRequest-Body: " + bodyMessage;
