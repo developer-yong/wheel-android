@@ -86,8 +86,12 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
                 .prevViewScrollable(prevViewScrollable())
                 .swipeListener(mSwipeListener)
                 .build();
-        //设置状态栏颜色
-        StatusBar.setColor(this, statusBarColor());
+        if (statusBarIsTranslucent()) {
+            StatusBar.translucent(this, false, statusBarIsLight());
+        } else {
+            //设置状态栏颜色
+            StatusBar.setColor(this, statusBarColor(), statusBarIsLight());
+        }
         if (AppManager.getInstance().isUseEventBus()) {
             EventBus.getDefault().register(this);
         }
@@ -194,13 +198,30 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
     }
 
     /**
+     * 状态栏颜色
+     */
+    @ColorInt
+    public int statusBarColor() {
+        return 0;
+    }
+
+    /**
      * 是否沉侵状态栏
      *
      * @return true 全屏且沉侵，默认为false
      */
-    @ColorInt
-    public int statusBarColor() {
-        return -1;
+    public boolean statusBarIsTranslucent() {
+        return false;
+    }
+
+    /**
+     * 是否使用亮色状态栏主题
+     * <p>
+     * 用于状态栏字体颜色控制
+     * </P>
+     */
+    public boolean statusBarIsLight() {
+        return false;
     }
 
     /**

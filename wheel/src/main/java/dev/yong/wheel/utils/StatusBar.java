@@ -24,11 +24,21 @@ public class StatusBar {
      * @param color    状态栏颜色值
      */
     public static void setColor(Activity activity, @ColorInt int color) {
-        if (color != -1) {
+        setColor(activity, color, false);
+    }
+
+    /**
+     * 沉浸状态栏
+     *
+     * @param activity 需要设置的activity
+     * @param color    状态栏颜色值
+     */
+    public static void setColor(Activity activity, @ColorInt int color, boolean isLight) {
+        if (color != 0) {
             // 绘制一个和状态栏一样高的矩形
             View statusView = new View(activity);
             statusView.setBackgroundColor(color);
-            setView(activity, statusView);
+            setView(activity, statusView, isLight);
         }
     }
 
@@ -39,6 +49,16 @@ public class StatusBar {
      * @param statusView 状态栏View
      */
     public static void setView(Activity activity, View statusView) {
+        setView(activity, statusView, false);
+    }
+
+    /**
+     * 设置一个假的状态栏
+     *
+     * @param activity   需要设置的activity
+     * @param statusView 状态栏View
+     */
+    public static void setView(Activity activity, View statusView, boolean isLight) {
         //去除 ActionBar 阴影
         if (hasActionBar(activity)) {
             if (activity instanceof AppCompatActivity) {
@@ -55,7 +75,7 @@ public class StatusBar {
                 }
             }
         }
-        translucent(activity, false);
+        translucent(activity, false, isLight);
         ViewGroup contentLayout = activity.findViewById(android.R.id.content);
         // 设置Activity layout的fitsSystemWindows
         View child = contentLayout.getChildAt(0);
