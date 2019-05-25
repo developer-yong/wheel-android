@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,15 +17,14 @@ import org.simple.eventbus.EventBus;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DaggerApplication;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
 import dagger.android.support.HasSupportFragmentInjector;
+import dev.yong.swipeback.SwipeBackFragment;
 import dev.yong.wheel.AppManager;
 import dev.yong.wheel.utils.Logger;
-import dev.yong.swipeback.SwipeBackFragment;
 
 /**
  * @author CoderYong
@@ -72,13 +70,12 @@ public abstract class BaseFragment extends SwipeBackFragment implements HasSuppo
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public final void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         ButterKnife.bind(this, view);
         if (AppManager.getInstance().isUseEventBus()) {
             EventBus.getDefault().register(this);
         }
         init(view, savedInstanceState);
-        init();
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -100,6 +97,7 @@ public abstract class BaseFragment extends SwipeBackFragment implements HasSuppo
      * 用于视图、数据、监听等一些初始化操作
      */
     protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        init();
     }
 
     /**

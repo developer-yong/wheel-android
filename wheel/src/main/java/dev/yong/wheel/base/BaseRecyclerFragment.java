@@ -32,7 +32,6 @@ public abstract class BaseRecyclerFragment<V extends IView, P extends IPresenter
 
     @Override
     protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.init(view, savedInstanceState);
         if (useSmartRefresh()) {
             mRefreshLayout = view.findViewById(R.id.refresh);
             mRefreshLayout.setOnRefreshLoadMoreListener(this);
@@ -44,6 +43,7 @@ public abstract class BaseRecyclerFragment<V extends IView, P extends IPresenter
             mRecyclerView.addItemDecoration(decoration);
         }
         mRecyclerView.setLayoutManager(getLayoutManager());
+        super.init(view, savedInstanceState);
     }
 
     protected RecyclerView.LayoutManager getLayoutManager() {
