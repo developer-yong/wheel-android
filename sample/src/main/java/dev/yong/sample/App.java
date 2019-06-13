@@ -1,6 +1,9 @@
 package dev.yong.sample;
 
 
+import android.content.Context;
+import android.support.multidex.MultiDex;
+
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
@@ -78,6 +81,12 @@ public class App extends DaggerApplication {
 //                return request;
 //            }
 //        });
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     @Override

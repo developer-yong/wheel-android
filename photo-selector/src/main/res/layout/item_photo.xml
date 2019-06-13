@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dev.yong.photo.view.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_photo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/picture_photo"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/iv_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="5dp"
+        android:contentDescription="@string/picture_photo"
+        android:src="@drawable/ic_video"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/tv_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="5dp"
+        android:layout_toEndOf="@id/iv_video"
+        android:layout_toRightOf="@id/iv_video"
+        android:contentDescription="@string/picture_photo"
+        android:textColor="@android:color/white"
+        android:textSize="12sp" />
+
+    <View
+        android:id="@+id/view_black"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#5000"
+        android:visibility="invisible" />
+
+    <CheckBox
+        android:id="@+id/cb_photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:padding="-2dp"
+        android:scaleX="0.8"
+        android:scaleY="0.8" />
+
+</dev.yong.photo.view.SquareLayout>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dev.yong.photo.view.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/btn_camera_click_selector">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:drawableTop="@drawable/ic_camera"
+        android:drawablePadding="5dp"
+        android:gravity="center"
+        android:text="@string/take_photo"
+        android:textColor="#8a8a8a"
+        android:textSize="12sp" />
+
+</dev.yong.photo.view.SquareLayout>
