@@ -13,11 +13,6 @@ import dev.yong.wheel.base.BaseActivity;
  */
 public class LoginActivity extends BaseActivity {
 
-    @Inject
-    LoginFragment mLoginFragment;
-    @Inject
-    RegisterFragment mRegisterFragment;
-
     @Override
     protected int layoutId() {
         return R.layout.activity_login;
@@ -26,7 +21,7 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void init() {
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.layout_content, mLoginFragment).commit();
+                .add(R.id.layout_content, new LoginFragment()).commit();
     }
 
     @Override
@@ -40,7 +35,7 @@ public class LoginActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_register:
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.layout_content, mRegisterFragment).commit();
+                        .add(R.id.layout_content, new RegisterFragment()).commit();
                 break;
             default:
                 break;

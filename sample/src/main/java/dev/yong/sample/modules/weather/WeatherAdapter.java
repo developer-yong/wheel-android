@@ -3,8 +3,6 @@ package dev.yong.sample.modules.weather;
 import android.support.annotation.NonNull;
 import android.view.ViewGroup;
 
-import javax.inject.Inject;
-
 import dev.yong.sample.R;
 import dev.yong.sample.data.WeatherInfo;
 import dev.yong.wheel.base.adapter.BaseMultiItemRvAdapter;
@@ -19,7 +17,6 @@ import static dev.yong.sample.data.WeatherInfo.TYPE_WEATHER_SUGGEST;
  */
 public class WeatherAdapter extends BaseMultiItemRvAdapter<WeatherInfo> {
 
-    @Inject
     WeatherAdapter() {
     }
 

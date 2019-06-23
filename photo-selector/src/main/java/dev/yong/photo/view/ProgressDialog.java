@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import java.util.Objects;
 
-import dev.yong.wheel.R;
+import dev.yong.photo.R;
 
 /**
  * @author CoderYong

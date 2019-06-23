@@ -2,28 +2,20 @@ package dev.yong.sample.modules.weather;
 
 import java.util.List;
 
-import javax.inject.Inject;
-
-import dev.yong.sample.data.Weather;
 import dev.yong.sample.data.WeatherInfo;
-import dev.yong.wheel.base.mvp.BasePresenter;
 import dev.yong.wheel.base.mvp.IModel;
-import dev.yong.wheel.utils.Logger;
+import dev.yong.wheel.base.mvp.IPresenter;
 
 /**
  * @author coderyong
  */
-public class WeatherPresenter extends BasePresenter<WeatherContract.View, WeatherModel> {
+public class WeatherPresenter implements IPresenter<WeatherContract.View> {
 
-    @Inject
-    public WeatherPresenter(WeatherModel model) {
-        super(model);
-    }
+    private WeatherModel mModel;
+    private WeatherContract.View mView;
 
-    @Override
-    public void takeView(WeatherContract.View view) {
-        super.takeView(view);
-        loadWeatherList();
+    public WeatherPresenter() {
+        mModel = new WeatherModel();
     }
 
     public void loadWeatherList() {
@@ -40,4 +32,13 @@ public class WeatherPresenter extends BasePresenter<WeatherContract.View, Weathe
         });
     }
 
+    @Override
+    public void takeView(WeatherContract.View view) {
+        mView = view;
+    }
+
+    @Override
+    public void dropView() {
+
+    }
 }

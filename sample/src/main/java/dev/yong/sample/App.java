@@ -1,6 +1,7 @@
 package dev.yong.sample;
 
 
+import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
 
@@ -9,20 +10,12 @@ import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
-import java.util.Map;
-
-import dagger.android.AndroidInjector;
-import dagger.android.DaggerApplication;
-import dev.yong.sample.di.DaggerAppComponent;
 import dev.yong.wheel.AppManager;
-import dev.yong.wheel.http.Http;
-import dev.yong.wheel.http.HttpInterceptor;
-import dev.yong.wheel.http.HttpResponse;
 
 /**
  * @author coderyong
  */
-public class App extends DaggerApplication {
+public class App extends Application {
 
     static {
         //设置全局的Header构建器
@@ -87,10 +80,5 @@ public class App extends DaggerApplication {
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
-    }
-
-    @Override
-    protected AndroidInjector<? extends DaggerApplication> applicationInjector() {
-        return DaggerAppComponent.builder().application(this).build();
     }
 }

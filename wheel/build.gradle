@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
@@ -37,13 +41,6 @@ dependencies {
 
     api "com.alibaba:fastjson:1.2.40"
     api "org.simple:androideventbus:1.0.5.1"
-
-    annotationProcessor "com.google.dagger:dagger-compiler:2.16"
-    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
-    api "com.google.dagger:dagger:2.16"
-    api "com.google.dagger:dagger-android:2.16"
-    api "com.google.dagger:dagger-android-support:2.16"
-    annotationProcessor "com.google.dagger:dagger-android-processor:2.16"
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:1.5.4"
     releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:1.5.4"

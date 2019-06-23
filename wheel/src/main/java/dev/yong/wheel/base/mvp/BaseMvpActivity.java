@@ -1,6 +1,6 @@
 package dev.yong.wheel.base.mvp;
 
-import javax.inject.Inject;
+import android.os.Bundle;
 
 import dev.yong.wheel.base.BaseActivity;
 
@@ -9,17 +9,17 @@ import dev.yong.wheel.base.BaseActivity;
  *
  * @author CoderYong
  */
-public abstract class BaseMvpActivity<V extends IView, P extends IPresenter<V>> extends BaseActivity {
+public abstract class BaseMvpActivity<V, P extends IPresenter<V>> extends BaseActivity {
 
-    @Inject
     protected P mPresenter;
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (mPresenter != null) {
-            mPresenter.takeView(takeVew());
+    protected void init(Bundle savedInstanceState) {
+        if (mPresenter == null) {
+            mPresenter = providePresenter();
         }
+        mPresenter.takeView(provideVew());
+        super.init(savedInstanceState);
     }
 
     @Override
@@ -31,7 +31,14 @@ public abstract class BaseMvpActivity<V extends IView, P extends IPresenter<V>> 
     /**
      * Binds P with a V
      *
-     * @return V extends IView
+     * @return V
      */
-    protected abstract V takeVew();
+    protected abstract V provideVew();
+
+    /**
+     * Binds P
+     *
+     * @return P
+     */
+    protected abstract P providePresenter();
 }

@@ -2,8 +2,6 @@ package dev.yong.sample.modules.weather;
 
 import android.support.v4.content.ContextCompat;
 
-import javax.inject.Inject;
-
 import dev.yong.sample.R;
 import dev.yong.wheel.base.BaseActivity;
 
@@ -11,9 +9,6 @@ import dev.yong.wheel.base.BaseActivity;
  * @author coderyong
  */
 public class WeatherActivity extends BaseActivity {
-
-    @Inject
-    WeatherFragment mWeatherFragment;
 
     @Override
     protected int layoutId() {
@@ -24,7 +19,7 @@ public class WeatherActivity extends BaseActivity {
     protected void init() {
         super.init();
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.layout_content, mWeatherFragment).commit();
+                .add(R.id.layout_content, new WeatherFragment()).commit();
     }
 
     @Override

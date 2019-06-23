@@ -6,29 +6,18 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import org.simple.eventbus.EventBus;
 
-import javax.inject.Inject;
-
 import butterknife.ButterKnife;
-import dagger.android.AndroidInjection;
-import dagger.android.AndroidInjector;
-import dagger.android.DaggerApplication;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasActivityInjector;
-import dagger.android.HasFragmentInjector;
-import dagger.android.support.HasSupportFragmentInjector;
 import dev.yong.swipeback.ISwipeBack;
 import dev.yong.swipeback.SwipeBackHelper;
 import dev.yong.swipeback.SwipeBackLayout;
 import dev.yong.wheel.AppManager;
 import dev.yong.wheel.network.Network;
 import dev.yong.wheel.network.NetworkReceiver;
-import dev.yong.wheel.utils.Logger;
 import dev.yong.wheel.utils.StatusBar;
 
 /**
@@ -36,7 +25,7 @@ import dev.yong.wheel.utils.StatusBar;
  *
  * @author CoderYong
  */
-public abstract class BaseActivity extends AppCompatActivity implements NetworkReceiver.OnNetworkListener, ISwipeBack, HasActivityInjector, HasFragmentInjector, HasSupportFragmentInjector {
+public abstract class BaseActivity extends AppCompatActivity implements NetworkReceiver.OnNetworkListener, ISwipeBack {
 
     /**
      * 网络状态广播
@@ -54,23 +43,9 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
      */
     protected SwipeBackLayout.SwipeListener mSwipeListener;
 
-    @Inject
-    DispatchingAndroidInjector<Activity> mActivityInjector;
-    @Inject
-    DispatchingAndroidInjector<Fragment> mSupportFragmentInjector;
-    @Inject
-    DispatchingAndroidInjector<android.app.Fragment> mFrameworkFragmentInjector;
-
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
-        if (isInject()) {
-            try {
-                //注入当前Activity
-                AndroidInjection.inject(this);
-            } catch (Exception e) {
-                Logger.e(e, "https://google.github.io/dagger//android.html");
-            }
-        }
+
         super.onCreate(savedInstanceState);
         int layoutId = layoutId();
         if (layoutId == 0) {
@@ -102,7 +77,9 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
     @Override
     protected void onStart() {
         super.onStart();
-        mReceiver = NetworkReceiver.register(this, this);
+        if (mReceiver == null) {
+            mReceiver = NetworkReceiver.register(this, this);
+        }
     }
 
     @Override
@@ -114,21 +91,6 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
         if (AppManager.getInstance().isUseEventBus()) {
             EventBus.getDefault().unregister(this);
         }
-    }
-
-    @Override
-    public AndroidInjector<Activity> activityInjector() {
-        return mActivityInjector;
-    }
-
-    @Override
-    public AndroidInjector<Fragment> supportFragmentInjector() {
-        return mSupportFragmentInjector;
-    }
-
-    @Override
-    public AndroidInjector<android.app.Fragment> fragmentInjector() {
-        return mFrameworkFragmentInjector;
     }
 
     /**
@@ -277,15 +239,4 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
         return mSwipeBackEnable;
     }
 
-    /**
-     * 是否将当前Activity注入
-     * <p>
-     * 默认被注入，如果你不想注入当前Activity，返回false即可
-     * </P>
-     *
-     * @return true 注入，false不注入
-     */
-    protected boolean isInject() {
-        return getApplication() instanceof DaggerApplication;
-    }
 }

@@ -89,11 +89,6 @@ public class LoginFragment extends BaseMvpFragment<LoginContract.View, LoginPres
         startActivity(WeatherActivity.class);
     }
 
-    @Override
-    protected LoginContract.View takeVew() {
-        return this;
-    }
-
     @OnClick(R.id.btn_login)
     public void onViewClicked() {
         attemptLogin();
@@ -211,6 +206,16 @@ public class LoginFragment extends BaseMvpFragment<LoginContract.View, LoginPres
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
+    }
+
+    @Override
+    protected LoginContract.View provideVew() {
+        return this;
+    }
+
+    @Override
+    protected LoginPresenter providePresenter() {
+        return new LoginPresenter();
     }
 
     private interface ProfileQuery {

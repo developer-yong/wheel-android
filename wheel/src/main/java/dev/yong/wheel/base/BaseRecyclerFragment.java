@@ -16,12 +16,11 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
 import dev.yong.wheel.R;
 import dev.yong.wheel.base.mvp.BaseMvpFragment;
 import dev.yong.wheel.base.mvp.IPresenter;
-import dev.yong.wheel.base.mvp.IView;
 
 /**
  * @author coderyong
  */
-public abstract class BaseRecyclerFragment<V extends IView, P extends IPresenter<V>> extends BaseMvpFragment<V, P> implements OnRefreshLoadMoreListener {
+public abstract class BaseRecyclerFragment<V, P extends IPresenter<V>> extends BaseMvpFragment<V, P> implements OnRefreshLoadMoreListener {
 
     protected SmartRefreshLayout mRefreshLayout;
     protected RecyclerView mRecyclerView;
@@ -89,10 +88,20 @@ public abstract class BaseRecyclerFragment<V extends IView, P extends IPresenter
         return false;
     }
 
+    /**
+     * 设置布局管理器
+     *
+     * @param layoutManager layoutManager
+     */
     public void setLayoutManager(RecyclerView.LayoutManager layoutManager) {
         this.mLayoutManager = layoutManager;
     }
 
+    /**
+     * 设置分割线
+     *
+     * @param itemDecoration itemDecoration
+     */
     public void setItemDecoration(RecyclerView.ItemDecoration itemDecoration) {
         this.mItemDecoration = itemDecoration;
     }

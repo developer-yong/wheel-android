@@ -72,11 +72,11 @@ public class AppManager implements Thread.UncaughtExceptionHandler, Application.
         LeakCanary.install(application);
     }
 
-    public <T extends Application> T getApplication() {
+    public Application getApplication() {
         if (mApplication == null) {
             throw new IllegalStateException("Application not initialized, AppManager.init(Application) not implemented");
         }
-        return (T) mApplication;
+        return mApplication;
     }
 
     @Override

@@ -3,9 +3,9 @@ package dev.yong.wheel.base.mvp;
 /**
  * @author coderyong
  */
-public interface IPresenter<V extends IView> {
+public interface IPresenter<V> {
     /**
-     * Binds presenter with a view when resumed. The Presenter will perform initialization here.
+     * 使用视图
      *
      * @param view the view associated with this presenter
      */

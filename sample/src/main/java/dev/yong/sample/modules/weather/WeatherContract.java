@@ -4,14 +4,13 @@ import java.util.List;
 
 import dev.yong.sample.data.WeatherInfo;
 import dev.yong.wheel.base.mvp.IModel;
-import dev.yong.wheel.base.mvp.IView;
 
 /**
  * @author coderyong
  */
 public interface WeatherContract {
 
-    interface View extends IView {
+    interface View {
 
         /**
          * 显示错误信息

@@ -1,14 +1,13 @@
 package dev.yong.sample.modules.login;
 
 import dev.yong.wheel.base.mvp.IPresenter;
-import dev.yong.wheel.base.mvp.IView;
 
 /**
  * @author coderyong
  */
 public interface LoginContract {
 
-    interface View extends IView {
+    interface View {
 
         /**
          * 显示登录错误信息

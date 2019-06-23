@@ -17,16 +17,10 @@ import dev.yong.wheel.utils.SnackUtils;
  */
 public class WeatherFragment extends BaseRecyclerFragment<WeatherContract.View, WeatherPresenter> implements WeatherContract.View {
 
-    @Inject
     WeatherAdapter mAdapter;
 
     @Inject
     public WeatherFragment() {
-    }
-
-    @Override
-    protected WeatherContract.View takeVew() {
-        return this;
     }
 
     @Override
@@ -51,5 +45,15 @@ public class WeatherFragment extends BaseRecyclerFragment<WeatherContract.View, 
     public void onRefresh(@NonNull RefreshLayout refreshLayout) {
         super.onRefresh(refreshLayout);
         mPresenter.loadWeatherList();
+    }
+
+    @Override
+    protected WeatherContract.View provideVew() {
+        return this;
+    }
+
+    @Override
+    protected WeatherPresenter providePresenter() {
+        return new WeatherPresenter();
     }
 }

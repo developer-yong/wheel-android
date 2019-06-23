@@ -1,35 +1,25 @@
 package dev.yong.wheel.base;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.simple.eventbus.EventBus;
 
-import javax.inject.Inject;
-
 import butterknife.ButterKnife;
-import dagger.android.AndroidInjector;
-import dagger.android.DaggerApplication;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.support.AndroidSupportInjection;
-import dagger.android.support.HasSupportFragmentInjector;
 import dev.yong.swipeback.SwipeBackFragment;
 import dev.yong.wheel.AppManager;
-import dev.yong.wheel.utils.Logger;
 
 /**
  * @author CoderYong
  */
-public abstract class BaseFragment extends SwipeBackFragment implements HasSupportFragmentInjector {
+public abstract class BaseFragment extends SwipeBackFragment {
 
     protected Context mContext;
 
@@ -37,28 +27,6 @@ public abstract class BaseFragment extends SwipeBackFragment implements HasSuppo
      * 滑动返回是否可用
      */
     protected boolean mSwipeBackEnable = false;
-
-    @Inject
-    DispatchingAndroidInjector<Fragment> mChildFragmentInjector;
-
-    @Override
-    public void onAttach(Context context) {
-        mContext = context;
-        if (isInject()) {
-            try {
-                //注入当前Fragment
-                AndroidSupportInjection.inject(this);
-            } catch (Exception e) {
-                Logger.e(e, "https://google.github.io/dagger//android.html");
-            }
-        }
-        super.onAttach(context);
-    }
-
-    @Override
-    public AndroidInjector<Fragment> supportFragmentInjector() {
-        return mChildFragmentInjector;
-    }
 
     @Nullable
     @Override
@@ -126,24 +94,6 @@ public abstract class BaseFragment extends SwipeBackFragment implements HasSuppo
     @Override
     public boolean isSupportSwipeBack() {
         return super.isSupportSwipeBack() && mSwipeBackEnable;
-    }
-
-
-    /**
-     * 是否将当前Fragment注入
-     * <p>
-     * 默认被注入，如果你不想注入当前Fragment，返回false即可
-     * </P>
-     *
-     * @return true 注入，false不注入
-     */
-    protected boolean isInject() {
-        Activity activity = getActivity();
-        if (activity == null) {
-            return AppManager.getInstance().getApplication() instanceof DaggerApplication;
-        } else {
-            return activity.getApplication() instanceof DaggerApplication;
-        }
     }
 }
 

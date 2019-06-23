@@ -5,24 +5,22 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
-import javax.inject.Inject;
-
 import dev.yong.wheel.base.BaseFragment;
 
 /**
  * @author CoderYong
  */
-public abstract class BaseMvpFragment<V extends IView, P extends IPresenter<V>> extends BaseFragment {
+public abstract class BaseMvpFragment<V, P extends IPresenter<V>> extends BaseFragment {
 
-    @Inject
     protected P mPresenter;
 
     @Override
     protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.init(view, savedInstanceState);
-        if (mPresenter != null) {
-            mPresenter.takeView(takeVew());
+        if (mPresenter == null) {
+            mPresenter = providePresenter();
         }
+        mPresenter.takeView(provideVew());
+        super.init(view, savedInstanceState);
     }
 
     @Override
@@ -36,13 +34,15 @@ public abstract class BaseMvpFragment<V extends IView, P extends IPresenter<V>> 
     /**
      * Binds P with a V
      *
-     * @return V extends IView
+     * @return V
      */
-    protected abstract V takeVew();
+    protected abstract V provideVew();
 
-    @Override
-    protected boolean isInject() {
-        return true;
-    }
+    /**
+     * Binds P
+     *
+     * @return P
+     */
+    protected abstract P providePresenter();
 }
 

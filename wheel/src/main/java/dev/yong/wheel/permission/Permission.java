@@ -1,6 +1,7 @@
 package dev.yong.wheel.permission;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Build;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public class Permission {
 
-    static final String TAG = "Permissions";
+    private static String TAG = "Permissions";
 
     public static Builder with(Activity activity) {
         return new Builder(activity);
@@ -43,17 +44,22 @@ public class Permission {
         public void request(PermissionGrantedListener listener) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
                 if (listener != null) {
+                    TAG = listener.toString();
                     listener.onGranted(true);
                 }
             } else {
-                PermissionsFragment fragment = findPermissionsFragment(activity);
-                fragment.requestPermissions(listener, permissions);
+                if (listener != null) {
+                    TAG = listener.toString();
+                }
+                Fragment fragment = findPermissionsFragment(activity);
+                if (fragment instanceof PermissionsFragment) {
+                    ((PermissionsFragment) fragment).requestPermissions(listener, permissions);
+                }
             }
         }
 
-        private PermissionsFragment findPermissionsFragment(Activity activity) {
-            PermissionsFragment fragment = (PermissionsFragment)
-                    activity.getFragmentManager().findFragmentByTag(TAG);
+        private Fragment findPermissionsFragment(Activity activity) {
+            Fragment fragment = activity.getFragmentManager().findFragmentByTag(TAG);
             if (fragment == null) {
                 fragment = new PermissionsFragment();
                 FragmentManager fragmentManager = activity.getFragmentManager();

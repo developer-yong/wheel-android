@@ -3,10 +3,6 @@ package dev.yong.sample.modules.login;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 
-import javax.inject.Inject;
-
-import dev.yong.wheel.utils.Logger;
-
 /**
  * @author coderyong
  */
@@ -25,8 +21,7 @@ public class LoginPresenter implements LoginContract.Presenter {
 
     private LoginContract.View mView;
 
-    @Inject
-    public LoginPresenter() {
+    LoginPresenter() {
     }
 
     @Override

@@ -52,8 +52,4 @@ public class MainActivity extends BaseActivity {
         return false;
     }
 
-    @Override
-    protected boolean isInject() {
-        return false;
-    }
 }
