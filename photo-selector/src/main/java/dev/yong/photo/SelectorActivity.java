@@ -33,7 +33,6 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
     private CoordinatorLayout mLayoutDirectory;
     private BottomSheetBehavior mBehavior;
 
-    private List<Directory> mDirectories;
     private PhotoAdapter mPhotoAdapter;
 
     private boolean isOriginalImage = false;
@@ -69,6 +68,9 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
         mBtnOriginal.setOnClickListener(this);
         mBtnPreview.setOnClickListener(this);
 
+        mBtnOriginal.setVisibility(PhotoSelector.getInstance().isSupportCompress() ? View.VISIBLE : View.GONE);
+        mBtnOriginal.setChecked(!PhotoSelector.getInstance().isCompress());
+
         mBehavior = BottomSheetBehavior.from(findViewById(R.id.scrollView));
         mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         mBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
@@ -101,13 +103,10 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
     private void loadPhotoList() {
         mPhotoAdapter = new PhotoAdapter(PhotoSelector.getInstance().getMediaFiles(), this);
         mPhotoAdapter.setShowCamera(PhotoSelector.getInstance().enableCamera());
-        mPhotoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-                Intent intent = new Intent(SelectorActivity.this, PreviewActivity.class);
-                intent.putExtra("position", position);
-                startActivity(intent);
-            }
+        mPhotoAdapter.setOnItemClickListener(position -> {
+            Intent intent = new Intent(SelectorActivity.this, PreviewActivity.class);
+            intent.putExtra("position", position);
+            startActivity(intent);
         });
         GridView gvImage = findViewById(R.id.gv_image);
         gvImage.setAdapter(mPhotoAdapter);
@@ -117,14 +116,11 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
             mBtnDirectory.setClickable(true);
             SpreadListView lvDirectory = findViewById(R.id.lv_directory);
             DirectoryAdapter adapter = new DirectoryAdapter(directories, this);
-            adapter.setOnDirectorySelectedListener(new DirectoryAdapter.OnDirectorySelectedListener() {
-                @Override
-                public void onSelected(Directory directory) {
-                    mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                    mBtnDirectory.setText(directory.getName());
-                    PhotoSelector.getInstance().setParentDir(directory.getPath());
-                    mPhotoAdapter.replaceData(PhotoSelector.getInstance().getDirMediaFiles());
-                }
+            adapter.setOnDirectorySelectedListener(directory -> {
+                mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                mBtnDirectory.setText(directory.getName());
+                PhotoSelector.getInstance().setParentDir(directory.getPath());
+                mPhotoAdapter.replaceData(PhotoSelector.getInstance().getDirMediaFiles());
             });
             lvDirectory.setAdapter(adapter);
         } else {
@@ -136,7 +132,7 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
     public void onCount(int selectCount) {
         mBtnConfirm.setEnabled(selectCount > 0);
         mBtnConfirm.setText(String.format(Locale.getDefault(),
-                "确定(%d/%d)", selectCount, PhotoSelector.getInstance().maxSelectCount()));
+                getString(R.string.confirm), selectCount, PhotoSelector.getInstance().maxSelectCount()));
         mBtnPreview.setClickable(selectCount > 0);
         mBtnPreview.setText(selectCount == 0 ? getString(R.string.preview) :
                 String.format(Locale.getDefault(), "%s(%d)", getString(R.string.preview), selectCount));

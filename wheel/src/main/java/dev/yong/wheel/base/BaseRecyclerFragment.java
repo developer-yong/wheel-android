@@ -1,5 +1,6 @@
 package dev.yong.wheel.base;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,6 +26,10 @@ public abstract class BaseRecyclerFragment<V extends IView, P extends IPresenter
     protected SmartRefreshLayout mRefreshLayout;
     protected RecyclerView mRecyclerView;
 
+    protected RecyclerView.LayoutManager mLayoutManager;
+    protected RecyclerView.ItemDecoration mItemDecoration;
+    protected Drawable mDivider;
+
     @Override
     protected int createLayoutId() {
         return useSmartRefresh() ? R.layout.layout_refresh_recycler : R.layout.layout_recycler;
@@ -32,26 +37,30 @@ public abstract class BaseRecyclerFragment<V extends IView, P extends IPresenter
 
     @Override
     protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.init(view, savedInstanceState);
         if (useSmartRefresh()) {
             mRefreshLayout = view.findViewById(R.id.refresh);
             mRefreshLayout.setOnRefreshLoadMoreListener(this);
         }
         mRecyclerView = view.findViewById(R.id.recycler);
-
-        RecyclerView.ItemDecoration decoration = getDividerItemDecoration();
-        if (decoration != null) {
-            mRecyclerView.addItemDecoration(decoration);
+        if (useItemDecoration()) {
+            RecyclerView.ItemDecoration itemDecoration = getDividerItemDecoration();
+            if (mDivider != null) {
+                if (itemDecoration instanceof DividerItemDecoration) {
+                    ((DividerItemDecoration) itemDecoration).setDrawable(mDivider);
+                }
+            }
+            mRecyclerView.addItemDecoration(itemDecoration);
         }
         mRecyclerView.setLayoutManager(getLayoutManager());
-        super.init(view, savedInstanceState);
     }
 
     protected RecyclerView.LayoutManager getLayoutManager() {
-        return new LinearLayoutManager(mContext);
+        return mLayoutManager == null ? new LinearLayoutManager(mContext) : mLayoutManager;
     }
 
     protected RecyclerView.ItemDecoration getDividerItemDecoration() {
-        return new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL);
+        return mItemDecoration == null ? new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL) : mItemDecoration;
     }
 
     @Override
@@ -69,5 +78,31 @@ public abstract class BaseRecyclerFragment<V extends IView, P extends IPresenter
      */
     protected boolean useSmartRefresh() {
         return true;
+    }
+
+    /**
+     * 是否使用ItemDecoration
+     *
+     * @return 默认为false
+     */
+    protected boolean useItemDecoration() {
+        return false;
+    }
+
+    public void setLayoutManager(RecyclerView.LayoutManager layoutManager) {
+        this.mLayoutManager = layoutManager;
+    }
+
+    public void setItemDecoration(RecyclerView.ItemDecoration itemDecoration) {
+        this.mItemDecoration = itemDecoration;
+    }
+
+    /**
+     * 设置分割线
+     *
+     * @param divider 分割线
+     */
+    public void setDividerDrawable(Drawable divider) {
+        this.mDivider = divider;
     }
 }

@@ -19,10 +19,10 @@ public abstract class BaseMvpFragment<V extends IView, P extends IPresenter<V>> 
 
     @Override
     protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.init(view, savedInstanceState);
         if (mPresenter != null) {
             mPresenter.takeView(takeVew());
         }
-        super.init(view, savedInstanceState);
     }
 
     @Override

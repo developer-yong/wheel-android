@@ -17,4 +17,6 @@
     <string name="picture_and_video">图片和视频</string>
     <string name="all_picture">所有图片</string>
     <string name="all_video">所有视频</string>
+
+    <string name="confirm">确定(%d/%d)</string>
 </resources>

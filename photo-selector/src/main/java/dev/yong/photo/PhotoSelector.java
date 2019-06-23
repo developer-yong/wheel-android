@@ -16,7 +16,8 @@ import java.util.Map;
 
 import dev.yong.photo.bean.Directory;
 import dev.yong.photo.bean.MediaFile;
-import dev.yong.photo.compress.CompressListener;
+import dev.yong.photo.compress.CompressFactory;
+import dev.yong.photo.view.ProgressDialog;
 
 /**
  * @author coderyong
@@ -31,8 +32,8 @@ public class PhotoSelector {
 
     private Activity mActivity;
     private OnSelectCountListener mSelectCountListener;
-    private CompressListener mCompressListener;
     private OnCompleteListener mCompleteListener;
+    private CompressFactory mCompressFactory;
 
     private List<MediaFile> mMediaFiles;
     private List<MediaFile> mSelectMediaFiles = new ArrayList<>();
@@ -92,13 +93,22 @@ public class PhotoSelector {
     }
 
     /**
-     * 配置压缩
+     * 配置压缩工厂实现
      *
-     * @param compressListener 压缩监听类
+     * @param compressFactory 压缩工厂实现类
      */
-    public PhotoSelector configCompress(CompressListener compressListener) {
-        this.mCompressListener = compressListener;
-        this.isCompress = compressListener != null;
+    public PhotoSelector configCompressFactory(CompressFactory compressFactory) {
+        this.mCompressFactory = compressFactory;
+        return this;
+    }
+
+    /**
+     * 配置是否压缩
+     *
+     * @param isCompress 是否压缩
+     */
+    public PhotoSelector configCompress(boolean isCompress) {
+        this.isCompress = isSupportCompress() && isCompress;
         return this;
     }
 
@@ -154,26 +164,37 @@ public class PhotoSelector {
 
     void onSelectConfirm(Context context) {
         if (mCompleteListener != null) {
-            if (isCompress) {
-                mCompressListener.compress(mActivity, mMediaFiles, mCompleteListener);
-            } else {
-                List<File> selectFiles = new ArrayList<>();
-                if (mMediaFiles != null) {
-                    for (MediaFile file : mMediaFiles) {
-                        if (file.isSelected()) {
-                            selectFiles.add(new File(file.getPath()));
-                        }
+            if (isSupportCompress() && isCompress) {
+                ProgressDialog dialog = new ProgressDialog(context);
+                dialog.show("正在压缩...");
+                mCompressFactory.compress(mActivity, mMediaFiles, dialog, (context1, selectPaths) -> {
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
                     }
-                }
-                if (context != null && mActivity != null) {
-                    Intent intent = new Intent(context, mActivity.getClass());
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    context.startActivity(intent);
-                }
-                mCompleteListener.onComplete(selectFiles);
+                    completeSelect(context1);
+                });
+            } else {
+                completeSelect(context);
             }
         }
         reset();
+    }
+
+    private void completeSelect(Context context) {
+        List<String> selectFiles = new ArrayList<>();
+        if (mMediaFiles != null) {
+            for (MediaFile file : mMediaFiles) {
+                if (file.isSelected()) {
+                    selectFiles.add(file.getPath());
+                }
+            }
+        }
+        if (context != null && mActivity != null) {
+            Intent intent = new Intent(context, mActivity.getClass());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            context.startActivity(intent);
+        }
+        mCompleteListener.onComplete(selectFiles);
     }
 
     void reset() {
@@ -195,6 +216,10 @@ public class PhotoSelector {
 
     boolean isCompress() {
         return isCompress;
+    }
+
+    boolean isSupportCompress() {
+        return mCompressFactory != null;
     }
 
     MediaFile.Type mediaType() {
@@ -295,8 +320,8 @@ public class PhotoSelector {
         /**
          * 选择确认时被调用
          *
-         * @param selectFiles 用户所选择的文件集合
+         * @param selectPaths 用户所选择的文件集合
          */
-        void onComplete(List<File> selectFiles);
+        void onComplete(List<String> selectPaths);
     }
 }

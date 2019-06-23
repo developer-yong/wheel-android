@@ -1,5 +1,6 @@
 package dev.yong.wheel.utils;
 
+import android.os.Looper;
 import android.widget.Toast;
 
 import dev.yong.wheel.AppManager;
@@ -27,7 +28,14 @@ public class ToastUtils {
     public static void show(CharSequence text, int duration) {
         long intervals = 2000;
         if (System.currentTimeMillis() - sTime > intervals) {
-            Toast.makeText(AppManager.getInstance().getApplication(), text, duration).show();
+            try {
+                Toast.makeText(AppManager.getInstance().getApplication(), text, duration).show();
+            } catch (Exception e) {
+                //解决在子线程中调用Toast的异常情况处理
+                Looper.prepare();
+                Toast.makeText(AppManager.getInstance().getApplication(), text, duration).show();
+                Looper.loop();
+            }
             sTime = System.currentTimeMillis();
         }
     }

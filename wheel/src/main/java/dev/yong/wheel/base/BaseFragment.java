@@ -76,6 +76,7 @@ public abstract class BaseFragment extends SwipeBackFragment implements HasSuppo
             EventBus.getDefault().register(this);
         }
         init(view, savedInstanceState);
+        init();
         super.onViewCreated(view, savedInstanceState);
     }
 
@@ -97,7 +98,6 @@ public abstract class BaseFragment extends SwipeBackFragment implements HasSuppo
      * 用于视图、数据、监听等一些初始化操作
      */
     protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        init();
     }
 
     /**

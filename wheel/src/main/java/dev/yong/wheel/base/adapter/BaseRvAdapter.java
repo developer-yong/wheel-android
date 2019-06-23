@@ -28,7 +28,8 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
     private SparseArray<View> mSpecialItems = new SparseArray<>();
 
     private OnItemClickListener mListener;
-    private List<T> newList;
+
+    private boolean isVertical = true;
 
     /**
      * 子类必须实现该方法，返回列表Item布局资源Id
@@ -48,21 +49,25 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
         if (layoutResId == 0) {
             throw new Resources.NotFoundException("Not found layout resources, resources id: " + layoutResId);
         }
-        View view = mSpecialItems.get(viewType,
-                View.inflate(parent.getContext(), layoutResId, null));
+        View view = mSpecialItems.get(viewType, View.inflate(parent.getContext(), layoutResId, null));
+        if (isVertical) {
+            view.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         if (mSpecialItems.size() > 0) {
-            View view = mSpecialItems.get(position);
-            if (view != null) {
-                return;
+            if (position == 0) {
+                if (mSpecialItems.get(position - 1) != null) {
+                    return;
+                }
             } else {
                 int diff = 0;
-                for (int i = 0; i < position; i++) {
-                    view = mSpecialItems.get(position);
+                for (int i = -1; i < position; i++) {
+                    View view = mSpecialItems.get(i);
                     if (view != null) {
                         diff++;
                     }
@@ -92,6 +97,11 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
 
     @Override
     public int getItemViewType(int position) {
+        if (mSpecialItems.size() > 0) {
+            if (position == 0 && mSpecialItems.get(position - 1) != null) {
+                return -1;
+            }
+        }
         return mSpecialItems.get(position) == null ? super.getItemViewType(position) : position;
     }
 
@@ -121,6 +131,9 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
      * @param view     布局view
      */
     public void addView(int position, View view) {
+        if (position == 0) {
+            position = -1;
+        }
         mSpecialItems.put(position, view);
     }
 
@@ -130,7 +143,7 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
      * @param resId 资源id
      */
     public void addHeaderView(int resId) {
-        addView(0, resId);
+        addView(-1, resId);
     }
 
     /**
@@ -139,7 +152,7 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
      * @param view 布局view
      */
     public void addHeaderView(View view) {
-        addView(0, view);
+        addView(-1, view);
     }
 
     /**
@@ -195,6 +208,10 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.mListener = listener;
+    }
+
+    public void setVertical(boolean vertical) {
+        isVertical = vertical;
     }
 
     public interface OnItemClickListener {

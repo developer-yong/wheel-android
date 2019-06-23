@@ -1,24 +1,32 @@
 package dev.yong.photo.adapter;
 
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
+import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+import dev.yong.photo.R;
 import dev.yong.photo.bean.MediaFile;
 import dev.yong.photo.view.photoview.PhotoView;
 
 /**
- *
  * @author coderyong
  */
 public class PreviewPageAdapter extends PagerAdapter {
+
+    private MediaController mMediaController;
+    private MediaPlayer mMediaPlayer;
+    private OnItemClickListener mOnItemClickListener;
 
     private List<MediaFile> mediaFiles;
 
@@ -34,18 +42,65 @@ public class PreviewPageAdapter extends PagerAdapter {
     @NonNull
     @Override
     public View instantiateItem(@NonNull ViewGroup container, int position) {
-        PhotoView photoView = new PhotoView(container.getContext());
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        photoView.setLayoutParams(params);
-        photoView.enable();
-        String path = mediaFiles.get(position).getPath();
-        photoView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        Glide.with(container.getContext())
-                .load(path)
-                .into(photoView);
-        container.addView(photoView);
-        return photoView;
+        MediaFile file = mediaFiles.get(position);
+        if (file.getType() == MediaFile.Type.IMAGE) {
+            PhotoView photoView = new PhotoView(container.getContext());
+            photoView.setLayoutParams(params);
+            photoView.enable();
+            String path = file.getPath();
+            photoView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            Glide.with(container)
+                    .load(path)
+                    .into(photoView);
+            if (mOnItemClickListener != null) {
+                photoView.setOnClickListener(v -> mOnItemClickListener.onItemClick(position));
+            }
+            container.addView(photoView);
+            return photoView;
+        } else {
+            View view = View.inflate(container.getContext(), R.layout.layout_video, null);
+            final VideoView videoView = view.findViewById(R.id.video);
+            final PhotoView photoView = view.findViewById(R.id.image);
+            final ImageButton button = view.findViewById(R.id.btn_play);
+
+            final String path = file.getPath();
+            photoView.enable();
+            photoView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+            Glide.with(container)
+                    .load(path)
+                    .into(photoView);
+            if (mOnItemClickListener != null) {
+                photoView.setOnClickListener(v -> mOnItemClickListener.onItemClick(position));
+            }
+            button.setOnClickListener(v -> {
+                if (!videoView.isPlaying()) {
+                    videoView.setVideoPath(path);
+                    videoView.start();
+                    photoView.setVisibility(View.GONE);
+                    v.setVisibility(View.GONE);
+                }
+            });
+            if (mMediaController != null) {
+                videoView.setMediaController(mMediaController);
+            }
+            videoView.setOnCompletionListener(mp -> {
+                if (mMediaPlayer != null) {
+                    mMediaPlayer.release();
+                    mMediaPlayer = null;
+                    mMediaPlayer = mp;
+                }
+                if (!mp.isPlaying()) {
+                    photoView.setVisibility(View.VISIBLE);
+                    button.setVisibility(View.VISIBLE);
+                }
+            });
+
+            container.addView(view);
+            return view;
+        }
     }
 
     /**
@@ -66,5 +121,24 @@ public class PreviewPageAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view == object;
+    }
+
+    public void setMediaController(MediaController controller) {
+        mMediaController = controller;
+    }
+
+    public void stopVideo() {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+            mMediaPlayer.stop();
+            mMediaPlayer.reset();
+        }
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        mOnItemClickListener = listener;
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(int position);
     }
 }

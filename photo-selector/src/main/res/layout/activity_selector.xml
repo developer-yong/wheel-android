@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#313335"
+    android:background="@color/color_bottom"
     tools:context=".SelectorActivity">
 
     <include
@@ -16,11 +16,11 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="48dp"
-        android:horizontalSpacing="1dp"
         android:background="@android:color/white"
+        android:divider="@android:color/darker_gray"
+        android:horizontalSpacing="1dp"
         android:numColumns="4"
         android:verticalSpacing="1dp"
-        android:divider="@android:color/darker_gray"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintTop_toBottomOf="@+id/action_bar" />
@@ -68,7 +68,8 @@
         android:text="@string/picture_all"
         android:textColor="@drawable/btn_text_selector"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gv_image" />
+        app:layout_constraintTop_toBottomOf="@+id/gv_image"
+        tools:ignore="MissingConstraints" />
 
     <RadioButton
         android:id="@+id/rb_original"
