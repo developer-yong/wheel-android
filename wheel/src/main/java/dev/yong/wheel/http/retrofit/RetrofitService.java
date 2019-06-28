@@ -82,7 +82,5 @@ public interface RetrofitService {
 
     @Multipart
     @POST
-    Call<ResponseBody> upload(@Url String url,
-                              @QueryMap Map<String, String> map,
-                              @Part() List<MultipartBody.Part> parts);
+    Call<ResponseBody> upload(@Url String url, @QueryMap Map<String, String> map, @Part() List<MultipartBody.Part> parts);
 }

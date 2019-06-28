@@ -9,7 +9,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.FrameLayout;
 
 import dev.yong.wheel.R;
@@ -45,7 +44,7 @@ public class ElasticLayout extends FrameLayout {
      */
     private float mDragOffset = 0.5F;
     private boolean mIsDragging;
-    private int mDragMode = MODE_BOTH;
+    private int mDragMode;
 
     private OnDragListener mOnDragListener;
     private OnTouchListener mDelegateTouchListener;

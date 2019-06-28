@@ -206,7 +206,7 @@ public class Http {
             HttpRequest request = isUpload ?
                     getInstance().httpFactory.createUpload(url, parameters, getInstance().interceptor, listener, files) :
                     getInstance().httpFactory.createRequest(url, parameters, getInstance().interceptor);
-            request.request(HttpRequest.GET, response);
+            request.request(method, response);
         }
     }
 }

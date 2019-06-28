@@ -94,7 +94,7 @@ public abstract class SwipeBackFragment extends Fragment {
         FragmentManager manager = getFragmentManager();
         if (manager != null) {
             List<Fragment> fragments = manager.getFragments();
-            if (fragments != null && fragments.size() > 1) {
+            if (fragments.size() > 1) {
                 int index = fragments.indexOf(this);
                 for (int i = index - 1; i >= 0; i--) {
                     Fragment fragment = fragments.get(i);
