@@ -25,7 +25,6 @@ import dev.yong.photo.bean.MediaFile;
  */
 public class PhotoAdapter extends BaseAdapter {
 
-    private static final String TAG = PhotoAdapter.class.getSimpleName();
     private List<MediaFile> mMediaFiles;
     private LayoutInflater mInflater;
 
@@ -64,9 +63,11 @@ public class PhotoAdapter extends BaseAdapter {
         if (isShowCamera) {
             if (position == 0) {
                 convertView = mInflater.inflate(R.layout.item_camera, parent, false);
-                if (mOnCameraClickListener != null) {
-                    mOnCameraClickListener.onCameraClick();
-                }
+                convertView.setOnClickListener(v -> {
+                    if (mOnCameraClickListener != null) {
+                        mOnCameraClickListener.onCameraClick();
+                    }
+                });
                 return convertView;
             }
             position--;
@@ -74,10 +75,10 @@ public class PhotoAdapter extends BaseAdapter {
         if (convertView == null || convertView.getTag() == null) {
             holder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.item_photo, parent, false);
-            holder.ivPhoto = (ImageView) convertView.findViewById(R.id.iv_photo);
-            holder.ivVideo = (ImageView) convertView.findViewById(R.id.iv_video);
-            holder.tvDuration = (TextView) convertView.findViewById(R.id.tv_duration);
-            holder.cbPhoto = (CheckBox) convertView.findViewById(R.id.cb_photo);
+            holder.ivPhoto = convertView.findViewById(R.id.iv_photo);
+            holder.ivVideo = convertView.findViewById(R.id.iv_video);
+            holder.tvDuration = convertView.findViewById(R.id.tv_duration);
+            holder.cbPhoto = convertView.findViewById(R.id.cb_photo);
             holder.viewBlack = convertView.findViewById(R.id.view_black);
             convertView.setTag(holder);
         } else {
@@ -97,33 +98,25 @@ public class PhotoAdapter extends BaseAdapter {
         }
         Glide.with(parent.getContext()).load(mediaFile.getPath()).into(holder.ivPhoto);
         final int item = position;
-        holder.cbPhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                MediaFile mediaFile = mMediaFiles.get(item);
-                boolean isSuccess;
-                if (holder.cbPhoto.isChecked()) {
-                    isSuccess = PhotoSelector.getInstance().addSelected(mediaFile);
-                    if (!isSuccess) {
-                        holder.cbPhoto.setChecked(false);
-                    }
-                } else {
-                    isSuccess = PhotoSelector.getInstance().removeSelected(mediaFile);
+        holder.cbPhoto.setOnClickListener(v -> {
+            MediaFile mediaFile1 = mMediaFiles.get(item);
+            boolean isSuccess;
+            if (holder.cbPhoto.isChecked()) {
+                isSuccess = PhotoSelector.getInstance().addSelected(mediaFile1);
+                if (!isSuccess) {
+                    holder.cbPhoto.setChecked(false);
                 }
-                if (isSuccess) {
-                    zoom(holder.ivPhoto, mediaFile.isSelected());
-                    holder.viewBlack.setVisibility(mediaFile.isSelected() ? View.VISIBLE : View.INVISIBLE);
-                }
+            } else {
+                isSuccess = PhotoSelector.getInstance().removeSelected(mediaFile1);
+            }
+            if (isSuccess) {
+                zoom(holder.ivPhoto, mediaFile1.isSelected());
+                holder.viewBlack.setVisibility(mediaFile1.isSelected() ? View.VISIBLE : View.INVISIBLE);
             }
         });
 
         if (mOnItemClickListener != null) {
-            holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnItemClickListener.onItemClick(item);
-                }
-            });
+            holder.ivPhoto.setOnClickListener(v -> mOnItemClickListener.onItemClick(item));
         }
         return convertView;
     }

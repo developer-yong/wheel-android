@@ -1,1 +1,1 @@
-include ':sample', ':wheel', ':swipeback', ':photo-selector'
+include ':sample', ':wheel', ':photo-selector'

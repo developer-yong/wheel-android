@@ -21,6 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/ic_play" />
+        android:background="@drawable/ic_video_play" />
 
 </FrameLayout>

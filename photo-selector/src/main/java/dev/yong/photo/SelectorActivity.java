@@ -1,17 +1,31 @@
 package dev.yong.photo;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Environment;
+import android.provider.MediaStore;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.FileProvider;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.GridView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,7 +38,10 @@ import dev.yong.photo.view.SpreadListView;
 /**
  * @author coderyong
  */
-public class SelectorActivity extends AppCompatActivity implements View.OnClickListener, PhotoSelector.OnSelectCountListener {
+public class SelectorActivity extends AppCompatActivity implements View.OnClickListener, PhotoSelector.OnSelectCountListener, PhotoAdapter.OnCameraClickListener {
+
+    private static final int PERMISSION_CODE = 0x01;
+    private static final int TAKE_PHOTO = 0x02;
 
     private TextView mBtnConfirm;
     private TextView mBtnDirectory;
@@ -37,9 +54,24 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
 
     private boolean isOriginalImage = false;
 
+    private File mPhotoFile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Window window = getWindow();
+        //4.4 全透明状态栏
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+        //5.0 全透明实现
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(R.color.color_action_bar));
+        }
         setContentView(R.layout.activity_selector);
 
         mBtnConfirm = findViewById(R.id.btn_confirm);
@@ -49,6 +81,8 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
         mBtnPreview = findViewById(R.id.tv_preview);
         mLayoutDirectory = findViewById(R.id.layout_directory);
 
+        //ActionBar添加状态栏高度
+        findViewById(R.id.action_bar).setPadding(0, getStatusBarHeight(), 0, 0);
         //设置标题
         String title = getString(R.string.picture_and_video);
         mBtnDirectory.setText(R.string.picture_and_video);
@@ -94,9 +128,13 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onStart() {
         super.onStart();
-        PhotoSelector.getInstance().setOnSelectCountListener(this);
-        if (mPhotoAdapter != null) {
-            mPhotoAdapter.notifyDataSetChanged();
+        if (PhotoSelector.getInstance().isFinish()) {
+            finish();
+        } else {
+            PhotoSelector.getInstance().setOnSelectCountListener(this);
+            if (mPhotoAdapter != null) {
+                mPhotoAdapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -108,6 +146,7 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
             intent.putExtra("position", position);
             startActivity(intent);
         });
+        mPhotoAdapter.setOnCameraClickListener(this);
         GridView gvImage = findViewById(R.id.gv_image);
         gvImage.setAdapter(mPhotoAdapter);
 
@@ -161,13 +200,100 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(intent);
             }
         } else if (id == R.id.btn_confirm) {
-            PhotoSelector.getInstance().onSelectConfirm(this);
+            onBackPressed();
+            PhotoSelector.getInstance().onSelectConfirm();
         }
     }
 
     @Override
-    public void onBackPressed() {
+    public void onCameraClick() {
+        /*申请读取存储的权限*/
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
+            } else {
+                takePhoto();
+            }
+        } else {
+            takePhoto();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            takePhoto();
+        }
+    }
+
+    /**
+     * 拍照
+     */
+    private void takePhoto() {
+        //打开相机的Intent
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        //判断系统是否可以打开相机
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            String imageFileName = "JPEG_" + new SimpleDateFormat(
+                    "yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + "_";
+            try {
+                mPhotoFile = File.createTempFile(imageFileName, ".jpg",
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (mPhotoFile != null) {
+                Uri uri;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    /*7.0以上要通过FileProvider将File转化为Uri*/
+                    uri = FileProvider.getUriForFile(this, "dev.yong.photo.fileprovider", mPhotoFile);
+                } else {
+                    /*7.0以下则直接使用Uri的fromFile方法将File转化为Uri*/
+                    uri = Uri.fromFile(mPhotoFile);
+                }
+                //将用于输出的文件Uri传递给相机
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                startActivityForResult(intent, TAKE_PHOTO);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == TAKE_PHOTO) {
+            if (mPhotoFile != null && mPhotoFile.exists()) {
+                MediaFile mediaFile = new MediaFile();
+                mediaFile.setType(MediaFile.Type.IMAGE);
+                mediaFile.setName(mPhotoFile.getName());
+                mediaFile.setPath(mPhotoFile.getAbsolutePath());
+                mediaFile.setSize(mPhotoFile.length());
+                mediaFile.setLastModified(mPhotoFile.lastModified());
+                PhotoSelector.getInstance().addSelected(mediaFile);
+                onBackPressed();
+                PhotoSelector.getInstance().onSelectConfirm();
+            }
+        }
+    }
+
+    /**
+     * 获取状态栏高度
+     */
+    public int getStatusBarHeight() {
+        // 获得状态栏高度
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        return getResources().getDimensionPixelSize(resourceId);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         PhotoSelector.getInstance().reset();
+    }
+
+    @Override
+    public void onBackPressed() {
         super.onBackPressed();
     }
 }

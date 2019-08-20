@@ -4,8 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.RequiresPermission;
+import android.net.wifi.WifiManager;
+import androidx.annotation.RequiresPermission;
 import android.telephony.TelephonyManager;
+
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 /**
  * 网络相关工具类
@@ -240,5 +247,42 @@ public class Network {
             default:
                 return "NETWORK_UNKNOWN";
         }
+    }
+
+    /**
+     * 回去IP地址
+     *
+     * @param context 上下文
+     * @return IP地址
+     */
+    public static String getIpAddress(Context context) {
+        NetworkInfo info = ((ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
+        if (info != null && info.isConnected()) {
+            if (info.getType() == ConnectivityManager.TYPE_MOBILE) {
+                try {
+                    for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+                        NetworkInterface intf = en.nextElement();
+                        for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                            InetAddress inetAddress = enumIpAddr.nextElement();
+                            if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+                                return inetAddress.getHostAddress();
+                            }
+                        }
+                    }
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                }
+
+            } else if (info.getType() == ConnectivityManager.TYPE_WIFI) {
+                int ip = ((WifiManager) context.getApplicationContext()
+                        .getSystemService(Context.WIFI_SERVICE)).getConnectionInfo().getIpAddress();
+                return (ip & 0xFF) + "." +
+                        ((ip >> 8) & 0xFF) + "." +
+                        ((ip >> 16) & 0xFF) + "." +
+                        (ip >> 24 & 0xFF);
+            }
+        }
+        return "0.0.0.0";
     }
 }

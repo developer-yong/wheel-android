@@ -1,6 +1,6 @@
 package dev.yong.sample.modules.weather;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.ViewGroup;
 
 import dev.yong.sample.R;
@@ -16,9 +16,6 @@ import static dev.yong.sample.data.WeatherInfo.TYPE_WEATHER_SUGGEST;
  * @author coderyong
  */
 public class WeatherAdapter extends BaseMultiItemRvAdapter<WeatherInfo> {
-
-    WeatherAdapter() {
-    }
 
     @Override
     protected int layoutResId(@NonNull ViewGroup parent, int viewType) {

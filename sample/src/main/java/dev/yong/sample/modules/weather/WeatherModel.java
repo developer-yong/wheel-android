@@ -10,63 +10,19 @@ import dev.yong.sample.R;
 import dev.yong.sample.data.BaseEntity;
 import dev.yong.sample.data.Weather;
 import dev.yong.sample.data.WeatherInfo;
-import dev.yong.sample.service.ApiCacheService;
-import dev.yong.sample.service.ApiService;
 import dev.yong.wheel.base.mvp.IModel;
 import dev.yong.wheel.cache.Cache;
-import dev.yong.wheel.http.Http;
-import dev.yong.wheel.http.HttpResponse;
-import dev.yong.wheel.http.retrofit.RetrofitHelper;
+import dev.yong.wheel.http.Callback;
+import dev.yong.wheel.http.HttpHelper;
 import dev.yong.wheel.utils.TimeUtils;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
-import io.rx_cache2.DynamicKey;
-import io.rx_cache2.EvictDynamicKey;
-import io.rx_cache2.Reply;
 
 /**
  * @author coderyong
  */
 public class WeatherModel implements IModel {
 
-    @Inject
-    public WeatherModel() {
-    }
-
-    public void loadWeatherList(String city, final ModelCallBack<List<WeatherInfo>> callBack) {
+    void loadWeatherList(String city, ModelCallBack<List<WeatherInfo>> callBack) {
         //获取网络数据
-//        ApiCacheService.CacheProviders.getApiCache()
-//                .getWeatherList(RetrofitHelper.getInstance()
-//                        .baseUrl(ApiService.URL_BASE)
-//                        .create(ApiService.class).getWeatherList(city), new DynamicKey(city), new EvictDynamicKey(true))
-//                .map(Reply::getData)
-//                .map(BaseEntity::getData)
-//                .map(weathers -> createWeatherList(weathers.get(0)))
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Observer<List<WeatherInfo>>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onNext(List<WeatherInfo> weatherList) {
-//                        callBack.onSuccess(weatherList);
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        callBack.onFail(e.getMessage());
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//
-//                    }
-//                });
         final String url = "https://free-api.heweather.com/s6/weather";
         //获取缓存数据
         List<WeatherInfo> weatherList = Cache.getInstance().getList(url, WeatherInfo.class);
@@ -75,14 +31,12 @@ public class WeatherModel implements IModel {
             return;
         }
         //获取网络数据
-        Http.request(url)
-                .isCarryBasic(false)
+        HttpHelper.connect(url)
                 .addParameter("location", "auto_ip")
                 .addParameter("key", "69bcb5a6d326411baccdad8ebaa06cba")
-                .get(new HttpResponse<BaseEntity<List<Weather>>>() {
-
+                .get(new Callback<BaseEntity<List<Weather>>>() {
                     @Override
-                    public void onSuccess(BaseEntity<List<Weather>> entity) {
+                    public void onResponse(BaseEntity<List<Weather>> entity) {
                         if (entity == null) {
                             callBack.onSuccess(null);
                         } else {
@@ -98,7 +52,7 @@ public class WeatherModel implements IModel {
                     }
 
                     @Override
-                    public void onFail(Throwable t) {
+                    public void onFailure(Throwable t) {
                         callBack.onFail(t.getMessage());
                     }
                 });

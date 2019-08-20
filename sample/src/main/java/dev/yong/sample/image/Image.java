@@ -172,7 +172,7 @@ public class Image {
          * @param imageView imageView
          */
         public void into(ImageView imageView) {
-            RequestCreator creator = Picasso.with(helper.mContext).load(uri);
+            RequestCreator creator = Picasso.get().load(uri);
             if (targetWidth != 0 && targetHeight != 0) {
                 creator.resize(targetWidth, targetHeight);
             }

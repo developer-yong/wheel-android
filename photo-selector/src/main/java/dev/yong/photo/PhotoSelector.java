@@ -2,7 +2,6 @@ package dev.yong.photo;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -11,12 +10,14 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import dev.yong.photo.bean.Directory;
 import dev.yong.photo.bean.MediaFile;
 import dev.yong.photo.compress.CompressFactory;
+import dev.yong.photo.compress.DefaultCompressFactory;
 import dev.yong.photo.view.ProgressDialog;
 
 /**
@@ -26,9 +27,11 @@ public class PhotoSelector {
 
     private boolean enableCamera = false;
     private boolean enableCrop = false;
-    private boolean isCompress = true;
+    private boolean isCompress = false;
     private MediaFile.Type type;
     private int maxSelectCount = 9;
+    private int minFileSize = 1024;
+    private int maxFileSize = 10485760;
 
     private Activity mActivity;
     private OnSelectCountListener mSelectCountListener;
@@ -38,6 +41,8 @@ public class PhotoSelector {
     private List<MediaFile> mMediaFiles;
     private List<MediaFile> mSelectMediaFiles = new ArrayList<>();
     private SparseArray<MediaFile> mMediaFileMap = new SparseArray<>();
+
+    private boolean isFinish = false;
 
     @SuppressLint("StaticFieldLeak")
     private static PhotoSelector sInstance = null;
@@ -57,19 +62,32 @@ public class PhotoSelector {
     }
 
     public void select(Activity activity, OnCompleteListener listener) {
+        setFinish(false);
         if (activity == null) {
             throw new IllegalArgumentException("Activity must be not null");
         }
         mActivity = activity;
         if (type == MediaFile.Type.IMAGE) {
-            mMediaFiles = Utils.getAllLocalImages(activity);
+            mMediaFiles = Utils.getAllLocalImages(mActivity);
         } else if (type == MediaFile.Type.VIDEO) {
-            mMediaFiles = Utils.getAllLocalVideos(activity);
+            mMediaFiles = Utils.getAllLocalVideos(mActivity);
         } else {
-            mMediaFiles = Utils.getAllLocalMediaFiles(activity);
+            mMediaFiles = Utils.getAllLocalMediaFiles(mActivity);
+        }
+        if (mMediaFiles != null) {
+            Iterator<MediaFile> iterator = mMediaFiles.iterator();
+            while (iterator.hasNext()) {
+                MediaFile file = iterator.next();
+                if (file.getSize() < minFileSize) {
+                    iterator.remove();
+                }
+                if (file.getSize() > maxFileSize) {
+                    iterator.remove();
+                }
+            }
         }
         mCompleteListener = listener;
-        activity.startActivity(new Intent(activity, SelectorActivity.class));
+        mActivity.startActivity(new Intent(mActivity, SelectorActivity.class));
     }
 
     /**
@@ -108,6 +126,9 @@ public class PhotoSelector {
      * @param isCompress 是否压缩
      */
     public PhotoSelector configCompress(boolean isCompress) {
+        if (isCompress && mCompressFactory == null) {
+            mCompressFactory = new DefaultCompressFactory();
+        }
         this.isCompress = isSupportCompress() && isCompress;
         return this;
     }
@@ -129,6 +150,26 @@ public class PhotoSelector {
      */
     public PhotoSelector configMaxSelectCount(int count) {
         this.maxSelectCount = count;
+        return this;
+    }
+
+    /**
+     * 配置最小字节数
+     *
+     * @param byteSize 默认1024B
+     */
+    public PhotoSelector configMinByte(int byteSize) {
+        this.minFileSize = byteSize;
+        return this;
+    }
+
+    /**
+     * 配置最大字节数
+     *
+     * @param byteSize 默认10485760B
+     */
+    public PhotoSelector configMaxByte(int byteSize) {
+        this.maxFileSize = byteSize;
         return this;
     }
 
@@ -162,48 +203,53 @@ public class PhotoSelector {
         this.mSelectCountListener = listener;
     }
 
-    void onSelectConfirm(Context context) {
+    void onSelectConfirm() {
         if (mCompleteListener != null) {
             if (isSupportCompress() && isCompress) {
-                ProgressDialog dialog = new ProgressDialog(context);
+                ProgressDialog dialog = new ProgressDialog(mActivity);
                 dialog.show("正在压缩...");
-                mCompressFactory.compress(mActivity, mMediaFiles, dialog, (context1, selectPaths) -> {
-                    if (dialog.isShowing()) {
-                        dialog.dismiss();
-                    }
-                    completeSelect(context1);
+                mCompressFactory.compress(mActivity, mSelectMediaFiles, (selectPaths) -> {
+                    dialog.dismiss();
+                    mCompleteListener.onComplete(selectPaths);
+                    reset();
                 });
             } else {
-                completeSelect(context);
-            }
-        }
-        reset();
-    }
-
-    private void completeSelect(Context context) {
-        List<String> selectFiles = new ArrayList<>();
-        if (mMediaFiles != null) {
-            for (MediaFile file : mMediaFiles) {
-                if (file.isSelected()) {
-                    selectFiles.add(file.getPath());
+                List<String> selectFiles = new ArrayList<>();
+                if (mSelectMediaFiles != null) {
+                    for (MediaFile file : mSelectMediaFiles) {
+                        if (file.isSelected()) {
+                            selectFiles.add(file.getPath());
+                        }
+                    }
                 }
+                mCompleteListener.onComplete(selectFiles);
+                reset();
             }
         }
-        if (context != null && mActivity != null) {
-            Intent intent = new Intent(context, mActivity.getClass());
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            context.startActivity(intent);
-        }
-        mCompleteListener.onComplete(selectFiles);
+        setFinish(true);
     }
 
     void reset() {
-        mMediaFiles = null;
+        enableCamera = false;
+        enableCrop = false;
+        isCompress = false;
+        maxSelectCount = 9;
+        type = null;
         mActivity = null;
-        mCompleteListener = null;
         mSelectCountListener = null;
+        mCompleteListener = null;
+        mCompressFactory = null;
+        mMediaFiles = null;
         mSelectMediaFiles.clear();
         mMediaFileMap.clear();
+    }
+
+    public boolean isFinish() {
+        return isFinish;
+    }
+
+    public void setFinish(boolean finish) {
+        isFinish = finish;
     }
 
     boolean enableCamera() {
@@ -281,6 +327,14 @@ public class PhotoSelector {
     }
 
     public boolean addSelected(MediaFile mediaFile) {
+        if (mSelectMediaFiles.size() > 0 && mSelectMediaFiles.get(0).getType() != mediaFile.getType()) {
+            Toast.makeText(mActivity, "图片和视频不能同时选择", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (mSelectMediaFiles.size() > 0 && mSelectMediaFiles.get(0).getType() == MediaFile.Type.VIDEO) {
+            Toast.makeText(mActivity, "您最多只能选择一个视频", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (mSelectMediaFiles.size() == maxSelectCount) {
             Toast.makeText(mActivity, "您最多只能选择" + maxSelectCount + "张", Toast.LENGTH_SHORT).show();
             return false;

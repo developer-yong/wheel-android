@@ -4,7 +4,7 @@ package dev.yong.swipeback;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 import java.lang.reflect.Method;
 

@@ -22,7 +22,7 @@ import android.widget.Scroller;
 /**
  * @author coderyong
  */
-public class PhotoView extends android.support.v7.widget.AppCompatImageView {
+public class PhotoView extends androidx.appcompat.widget.AppCompatImageView {
 
     private final static int MIN_ROTATE = 35;
     private final static int ANIM_DURING = 340;

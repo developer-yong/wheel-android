@@ -4,9 +4,9 @@ import android.app.Activity;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.ColorInt;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.ColorInt;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -118,14 +118,15 @@ public class StatusBar {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.TRANSPARENT);
         }
+        int barHeight = 0;
         if (addBarHeight) {
-            int barHeight = getHeight(activity);
+            barHeight = getHeight(activity);
             if (hasActionBar(activity)) {
                 barHeight += getActionBarHeight(activity);
             }
-            ViewGroup rootView = window.getDecorView().findViewById(android.R.id.content);
-            rootView.setPadding(0, barHeight, 0, 0);
         }
+        ViewGroup rootView = window.getDecorView().findViewById(android.R.id.content);
+        rootView.setPadding(0, barHeight, 0, 0);
     }
 
     private static boolean hasActionBar(Activity activity) {

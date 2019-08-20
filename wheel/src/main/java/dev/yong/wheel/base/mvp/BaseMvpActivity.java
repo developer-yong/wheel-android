@@ -18,7 +18,7 @@ public abstract class BaseMvpActivity<V, P extends IPresenter<V>> extends BaseAc
         if (mPresenter == null) {
             mPresenter = providePresenter();
         }
-        mPresenter.takeView(provideVew());
+        mPresenter.takeView(provideView());
         super.init(savedInstanceState);
     }
 
@@ -33,7 +33,7 @@ public abstract class BaseMvpActivity<V, P extends IPresenter<V>> extends BaseAc
      *
      * @return V
      */
-    protected abstract V provideVew();
+    protected abstract V provideView();
 
     /**
      * Binds P
@@ -42,3 +42,4 @@ public abstract class BaseMvpActivity<V, P extends IPresenter<V>> extends BaseAc
      */
     protected abstract P providePresenter();
 }
+

@@ -17,7 +17,7 @@
         android:layout_alignParentBottom="true"
         android:layout_margin="5dp"
         android:contentDescription="@string/picture_photo"
-        android:src="@drawable/ic_video"
+        android:src="@drawable/ic_video_media"
         android:visibility="gone" />
 
     <TextView

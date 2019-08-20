@@ -298,6 +298,6 @@ public class FileUtils {
      * @param path 文件绝对路径
      */
     public static String getSuffix(String path) {
-        return path.substring(path.lastIndexOf("."), path.length());
+        return path.substring(path.lastIndexOf("."));
     }
 }

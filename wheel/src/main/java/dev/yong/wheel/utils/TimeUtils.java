@@ -1,6 +1,6 @@
 package dev.yong.wheel.utils;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -39,7 +39,7 @@ public class TimeUtils {
      * @return 字符串日期
      */
     public static String getCurrentDate() {
-        return getDate(System.currentTimeMillis(), DEFAULT_FORMAT);
+        return getDateFromMillis(System.currentTimeMillis(), DEFAULT_FORMAT);
     }
 
     /**
@@ -49,7 +49,42 @@ public class TimeUtils {
      * @return 字符串日期
      */
     public static String getCurrentDate(String strFormat) {
-        return getDate(System.currentTimeMillis(), strFormat);
+        return getDateFromMillis(System.currentTimeMillis(), strFormat);
+    }
+
+
+    /**
+     * 获默认格式日期（默认格式为 年-月-日 时：分：秒）
+     * <p>默认格式为 yyyy-MM-dd HH:mm:ss</p>
+     *
+     * @param second 秒时间戳
+     * @return 字符串日期
+     */
+    public static String getDateFromSecond(long second) {
+        return getDateFromMillis(second + "000", DEFAULT_FORMAT);
+    }
+
+    /**
+     * 获默认格式日期（默认格式为 年-月-日 时：分：秒）
+     * <p>默认格式为 yyyy-MM-dd HH:mm:ss</p>
+     *
+     * @param secondStr 字符串秒时间戳
+     * @return 字符串日期
+     */
+    public static String getDateFromSecond(String secondStr) {
+        return getDateFromMillis(secondStr + "000", DEFAULT_FORMAT);
+    }
+
+    /**
+     * 获取格式日期（默认格式为 年-月-日 时：分：秒）
+     * <p>默认格式为 yyyy-MM-dd HH:mm:ss</p>
+     *
+     * @param second    秒时间戳
+     * @param strFormat 日期格式
+     * @return 字符串日期
+     */
+    public static String getDateFromSecond(long second, String strFormat) {
+        return getDateFromMillis(second + "000", strFormat);
     }
 
     /**
@@ -59,8 +94,8 @@ public class TimeUtils {
      * @param millis 毫秒时间戳
      * @return 字符串日期
      */
-    public static String getDate(long millis) {
-        return getDate(millis + "", DEFAULT_FORMAT);
+    public static String getDateFromMillis(long millis) {
+        return getDateFromMillis(millis + "", DEFAULT_FORMAT);
     }
 
     /**
@@ -70,8 +105,8 @@ public class TimeUtils {
      * @param millisStr 字符串毫秒时间戳
      * @return 字符串日期
      */
-    public static String getDate(String millisStr) {
-        return getDate(millisStr, DEFAULT_FORMAT);
+    public static String getDateFromMillis(String millisStr) {
+        return getDateFromMillis(millisStr, DEFAULT_FORMAT);
     }
 
     /**
@@ -82,8 +117,8 @@ public class TimeUtils {
      * @param strFormat 日期格式
      * @return 字符串日期
      */
-    public static String getDate(long millis, String strFormat) {
-        return getDate(millis + "", strFormat);
+    public static String getDateFromMillis(long millis, String strFormat) {
+        return getDateFromMillis(millis + "", strFormat);
     }
 
     /**
@@ -94,7 +129,7 @@ public class TimeUtils {
      * @param strFormat 日期格式
      * @return 字符串日期
      */
-    public static String getDate(String millisStr, String strFormat) {
+    public static String getDateFromMillis(String millisStr, String strFormat) {
         try {
             SimpleDateFormat format = new SimpleDateFormat(strFormat, Locale.getDefault());
             return format.format(new Date(Long.parseLong(millisStr)));
@@ -102,6 +137,29 @@ public class TimeUtils {
             e.printStackTrace();
             throw new IllegalStateException("Invalid timestamp");
         }
+    }
+
+    /**
+     * 获取默认时间戳（默认格式为 年-月-日 时：分：秒）
+     * <p>默认格式为 yyyy-MM-dd HH:mm:ss</p>
+     *
+     * @param date 日期
+     * @return 时间戳
+     */
+    public static long getSecond(String date) {
+        return getSecond(date, DEFAULT_FORMAT);
+    }
+
+    /**
+     * 获取时间戳（默认格式为 年-月-日 时：分：秒）
+     * <p>默认格式为 yyyy-MM-dd HH:mm:ss</p>
+     *
+     * @param date      日期
+     * @param strFormat 日期格式
+     * @return 时间戳
+     */
+    public static long getSecond(String date, String strFormat) {
+        return getMillis(date, strFormat) / 1000;
     }
 
     /**
@@ -367,6 +425,7 @@ public class TimeUtils {
     }
 
     private static int[] UNITS = {DAY, HOUR, MINUTE, SECOND, MILLISECOND};
+
     private static String millis2FitTimeSpan(long millis, @Unit int unit) {
         int precision = 4;
         for (int i = 0; i < UNITS.length; i++) {
@@ -541,8 +600,8 @@ public class TimeUtils {
      *                 </ul>
      * @return 返回间隔获取的时间戳
      */
-    public static String getDate(long millis, long timeSpan, @Unit int unit) {
-        return getDate(getMillis(millis, timeSpan, unit), DEFAULT_FORMAT);
+    public static String getDateFromMillis(long millis, long timeSpan, @Unit int unit) {
+        return getDateFromMillis(getMillis(millis, timeSpan, unit), DEFAULT_FORMAT);
     }
 
     /**
@@ -561,8 +620,8 @@ public class TimeUtils {
      *                  </ul>
      * @return 返回间隔获取的时间戳
      */
-    public static String getDate(long millis, String strFormat, long timeSpan, @Unit int unit) {
-        return getDate(getMillis(millis, timeSpan, unit), strFormat);
+    public static String getDateFromMillis(long millis, String strFormat, long timeSpan, @Unit int unit) {
+        return getDateFromMillis(getMillis(millis, timeSpan, unit), strFormat);
     }
 
     /**
@@ -580,8 +639,8 @@ public class TimeUtils {
      *                 </ul>
      * @return 返回间隔获取的时间戳
      */
-    public static String getDate(String date, long timeSpan, @Unit int unit) {
-        return getDate(getMillis(date, timeSpan, unit));
+    public static String getDateFromMillis(String date, long timeSpan, @Unit int unit) {
+        return getDateFromMillis(getMillis(date, timeSpan, unit));
     }
 
     /**
@@ -600,8 +659,8 @@ public class TimeUtils {
      *                  </ul>
      * @return 返回间隔获取的时间戳
      */
-    public static String getDate(String date, String strFormat, long timeSpan, @Unit int unit) {
-        return getDate(getMillis(date, strFormat, timeSpan, unit));
+    public static String getDateFromMillis(String date, String strFormat, long timeSpan, @Unit int unit) {
+        return getDateFromMillis(getMillis(date, strFormat, timeSpan, unit));
     }
 
     /**
@@ -637,7 +696,7 @@ public class TimeUtils {
      * @return 返回间隔获取的时间戳
      */
     public static String getDateByNow(long timeSpan, @Unit int unit) {
-        return getDate(getMillisByNow(timeSpan, unit));
+        return getDateFromMillis(getMillisByNow(timeSpan, unit));
     }
 
     /**
@@ -656,7 +715,7 @@ public class TimeUtils {
      * @return 返回间隔获取的时间戳
      */
     public static String getDateByNow(String strFormat, long timeSpan, @Unit int unit) {
-        return getDate(getMillisByNow(timeSpan, unit), strFormat);
+        return getDateFromMillis(getMillisByNow(timeSpan, unit), strFormat);
     }
 
     /**

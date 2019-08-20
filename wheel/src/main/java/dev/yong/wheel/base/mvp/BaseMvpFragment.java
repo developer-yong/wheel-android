@@ -1,8 +1,8 @@
 package dev.yong.wheel.base.mvp;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.View;
 
 import dev.yong.wheel.base.BaseFragment;
@@ -19,7 +19,7 @@ public abstract class BaseMvpFragment<V, P extends IPresenter<V>> extends BaseFr
         if (mPresenter == null) {
             mPresenter = providePresenter();
         }
-        mPresenter.takeView(provideVew());
+        mPresenter.takeView(provideView());
         super.init(view, savedInstanceState);
     }
 
@@ -36,7 +36,7 @@ public abstract class BaseMvpFragment<V, P extends IPresenter<V>> extends BaseFr
      *
      * @return V
      */
-    protected abstract V provideVew();
+    protected abstract V provideView();
 
     /**
      * Binds P

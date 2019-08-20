@@ -1,6 +1,6 @@
 package dev.yong.sample.modules.weather;
 
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 
 import dev.yong.sample.R;
 import dev.yong.wheel.base.BaseActivity;

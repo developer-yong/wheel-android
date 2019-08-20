@@ -5,16 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.annotation.ColorInt;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.ColorInt;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import org.simple.eventbus.EventBus;
 
 import butterknife.ButterKnife;
-import dev.yong.swipeback.ISwipeBack;
-import dev.yong.swipeback.SwipeBackHelper;
-import dev.yong.swipeback.SwipeBackLayout;
+import dev.yong.wheel.swipeback.ISwipeBack;
+import dev.yong.wheel.swipeback.SwipeBackHelper;
+import dev.yong.wheel.swipeback.SwipeBackLayout;
 import dev.yong.wheel.AppManager;
 import dev.yong.wheel.network.Network;
 import dev.yong.wheel.network.NetworkReceiver;
@@ -45,7 +45,6 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         int layoutId = layoutId();
         if (layoutId == 0) {
@@ -222,6 +221,11 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
         return true;
     }
 
+    /**
+     * 设置滑动返回监听
+     *
+     * @param listener listener
+     */
     public void setSwipeListener(SwipeBackLayout.SwipeListener listener) {
         mSwipeListener = listener;
     }
@@ -238,5 +242,4 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
     public boolean isSupportSwipeBack() {
         return mSwipeBackEnable;
     }
-
 }

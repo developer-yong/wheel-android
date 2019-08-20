@@ -3,14 +3,20 @@ package dev.yong.sample;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+
 import dev.yong.wheel.AppManager;
+import dev.yong.wheel.http.HttpHelper;
+import dev.yong.wheel.http.interceptor.LoggerInterceptor;
+import okhttp3.Cache;
 
 /**
  * @author coderyong
@@ -32,48 +38,12 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         AppManager.init(this);
-//        //设置网络响应验证
-//        Http.getInstance().setHttpInterceptor(new HttpInterceptor() {
-//            @Override
-//            public void resetParameters(Map<String, String> parameters) {
-//
-//            }
-//
-//            @Override
-//            public void onVerify(Map<String, String> parameters, String responseBody, Callback listener) {
-//                Http.request("https://www.baidu.com/").get(new HttpResponse<String>() {
-//                    @Override
-//                    public void onSuccess(String s) {
-//                        listener.retry(parameters);
-//                    }
-//
-//                    @Override
-//                    public void onFail(Throwable t) {
-//                        listener.response(responseBody);
-//                    }
-//                });
-//            }
-//        });
-//        RetrofitHelper.getInstance().beforeInterceptor(new BeforeInterceptor() {
-//
-//            @NonNull
-//            @Override
-//            public Response onResponseBefore(Interceptor.Chain chain, Response response) {
-//
-//                try {
-//                    return chain.proceed(chain.request());
-//                } catch (IOException e) {
-//                    return response;
-//                }
-//            }
-//
-//            @NonNull
-//            @Override
-//            public Request onRequestBefore(Request request) {
-//
-//                return request;
-//            }
-//        });
+//        HttpHelper.okHttp()
+//                .addInterceptor(new LoggerInterceptor())
+//                .connectTimeout(30, TimeUnit.SECONDS)
+//                .readTimeout(30, TimeUnit.SECONDS)
+//                .retryOnConnectionFailure(true)
+//                .build();
     }
 
     @Override

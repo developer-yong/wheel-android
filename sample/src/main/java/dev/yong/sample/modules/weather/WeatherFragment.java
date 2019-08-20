@@ -1,12 +1,10 @@
 package dev.yong.sample.modules.weather;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 
 import java.util.List;
-
-import javax.inject.Inject;
 
 import dev.yong.sample.data.WeatherInfo;
 import dev.yong.wheel.base.BaseRecyclerFragment;
@@ -17,17 +15,15 @@ import dev.yong.wheel.utils.SnackUtils;
  */
 public class WeatherFragment extends BaseRecyclerFragment<WeatherContract.View, WeatherPresenter> implements WeatherContract.View {
 
-    WeatherAdapter mAdapter;
-
-    @Inject
-    public WeatherFragment() {
-    }
+    private WeatherAdapter mAdapter;
 
     @Override
     protected void init() {
         super.init();
+        mAdapter = new WeatherAdapter();
         mRefreshLayout.setEnableLoadMore(false);
         mRecyclerView.setAdapter(mAdapter);
+        mPresenter.loadWeatherList();
     }
 
     @Override
@@ -48,7 +44,7 @@ public class WeatherFragment extends BaseRecyclerFragment<WeatherContract.View, 
     }
 
     @Override
-    protected WeatherContract.View provideVew() {
+    protected WeatherContract.View provideView() {
         return this;
     }
 

@@ -7,7 +7,6 @@ public abstract class BaseMultiItemRvAdapter<T extends BaseMultiItemRvAdapter.It
 
     @Override
     public int getItemViewType(int position) {
-        if (mList == null) return super.getItemViewType(position);
         ItemType type = mList.get(position);
         return type != null ? type.itemType() : super.getItemViewType(position);
     }

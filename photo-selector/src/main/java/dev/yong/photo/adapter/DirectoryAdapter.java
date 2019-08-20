@@ -54,10 +54,10 @@ public class DirectoryAdapter extends BaseAdapter {
         if (convertView == null) {
             holder = new ViewHolder();
             convertView = mInflater.inflate(R.layout.item_directory, parent, false);
-            holder.ivPic = (ImageView) convertView.findViewById(R.id.iv_directory_pic);
-            holder.tvName = (TextView) convertView.findViewById(R.id.tv_directory_name);
-            holder.tvNum = (TextView) convertView.findViewById(R.id.tv_directory_num);
-            holder.rbSelect = (RadioButton) convertView.findViewById(R.id.rb_select);
+            holder.ivPic = convertView.findViewById(R.id.iv_directory_pic);
+            holder.tvName = convertView.findViewById(R.id.tv_directory_name);
+            holder.tvNum = convertView.findViewById(R.id.tv_directory_num);
+            holder.rbSelect = convertView.findViewById(R.id.rb_select);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -71,16 +71,13 @@ public class DirectoryAdapter extends BaseAdapter {
         holder.rbSelect.setChecked(directory.isSelected());
         holder.rbSelect.setVisibility(
                 holder.rbSelect.isChecked() ? View.VISIBLE : View.INVISIBLE);
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                for (int i = 0; i < mDirectories.size(); i++) {
-                    mDirectories.get(i).setSelected(i == position);
-                }
-                notifyDataSetChanged();
-                if (mListener != null) {
-                    mListener.onSelected(mDirectories.get(position));
-                }
+        convertView.setOnClickListener(v -> {
+            for (int i = 0; i < mDirectories.size(); i++) {
+                mDirectories.get(i).setSelected(i == position);
+            }
+            notifyDataSetChanged();
+            if (mListener != null) {
+                mListener.onSelected(mDirectories.get(position));
             }
         });
         return convertView;
