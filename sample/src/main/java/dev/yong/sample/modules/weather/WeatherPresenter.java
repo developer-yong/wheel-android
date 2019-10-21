@@ -22,12 +22,12 @@ public class WeatherPresenter implements IPresenter<WeatherContract.View> {
         mModel.loadWeatherList("auto_ip", new IModel.ModelCallBack<List<WeatherInfo>>() {
             @Override
             public void onSuccess(List<WeatherInfo> weathers) {
-                mView.showWeatherList(weathers);
+                mView.showList(true, weathers);
             }
 
             @Override
             public void onFail(String errorMessage) {
-                mView.showErrorMessage(errorMessage);
+                mView.showMessage(errorMessage);
             }
         });
     }
@@ -39,6 +39,5 @@ public class WeatherPresenter implements IPresenter<WeatherContract.View> {
 
     @Override
     public void dropView() {
-
     }
 }

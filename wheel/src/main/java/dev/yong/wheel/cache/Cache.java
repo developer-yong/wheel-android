@@ -1,20 +1,23 @@
 package dev.yong.wheel.cache;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.JsonSyntaxException;
 
 import org.simple.eventbus.EventBus;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import dev.yong.wheel.AppManager;
+import dev.yong.wheel.utils.Gson;
 
 import static dev.yong.wheel.cache.CacheConfig.CACHE_DIR;
 import static dev.yong.wheel.cache.CacheConfig.MAX_COUNT;
@@ -27,6 +30,7 @@ public class Cache {
 
     private static Map<String, Cache> sInstanceMap = new HashMap<>();
     private CacheManager mManager;
+    private File mCacheFile;
 
     public static Cache getInstance() {
         return getInstance(MAX_SIZE, MAX_SIZE);
@@ -73,6 +77,7 @@ public class Cache {
         if (!cacheDir.exists() && !cacheDir.mkdirs()) {
             throw new RuntimeException("can't make dirs in " + cacheDir.getAbsolutePath());
         }
+        mCacheFile = cacheDir;
         mManager = new CacheManager(cacheDir, maxSize, maxCount);
         EventBus.getDefault().register(this);
     }
@@ -118,7 +123,7 @@ public class Cache {
      * @param unit    时间单位
      */
     public void put(String key, List<?> value, long timeout, TimeUnit unit) {
-        mManager.put(key, JSON.toJSONString(value), timeout, unit);
+        mManager.put(key, Gson.toJson(value), timeout, unit);
     }
 
     /**
@@ -150,8 +155,13 @@ public class Cache {
      * @param <T> 数据内容 T extends Serializable
      * @return T
      */
+    @SuppressWarnings("unchecked")
     public <T extends Serializable> T getSerializable(String key) {
-        return (T) mManager.getSerializable(key);
+        try {
+            return (T) mManager.getSerializable(key);
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
 
     /**
@@ -165,13 +175,17 @@ public class Cache {
     }
 
     /**
-     * 获取String数据
+     * 获取List数据
      *
      * @param key 缓存文件key
-     * @return String
+     * @return List
      */
-    public <T> List<T> getList(String key, Class<T> tClass) {
-        return JSON.parseArray(mManager.getString(key), tClass);
+    public <T> List<T> getList(String key, Type type) {
+        try {
+            return Gson.fromJson(mManager.getString(key), type);
+        } catch (JsonSyntaxException e) {
+            return null;
+        }
     }
 
     /**
@@ -207,7 +221,16 @@ public class Cache {
     /**
      * 清除缓存文件夹
      */
-    public void clear() {
-        mManager.clear();
+    public boolean clear() {
+        return mManager.clear();
+    }
+
+    /**
+     * 获取缓存路径
+     *
+     * @return CacheDir AbsolutePath
+     */
+    public String getCacheDir() {
+        return mCacheFile.getAbsolutePath();
     }
 }

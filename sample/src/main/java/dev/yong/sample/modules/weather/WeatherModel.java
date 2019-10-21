@@ -1,5 +1,7 @@
 package dev.yong.sample.modules.weather;
 
+import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +17,7 @@ import dev.yong.wheel.cache.Cache;
 import dev.yong.wheel.http.Callback;
 import dev.yong.wheel.http.HttpHelper;
 import dev.yong.wheel.utils.TimeUtils;
+import okhttp3.ResponseBody;
 
 /**
  * @author coderyong
@@ -25,7 +28,7 @@ public class WeatherModel implements IModel {
         //获取网络数据
         final String url = "https://free-api.heweather.com/s6/weather";
         //获取缓存数据
-        List<WeatherInfo> weatherList = Cache.getInstance().getList(url, WeatherInfo.class);
+        List<WeatherInfo> weatherList = Cache.getInstance().getList(url, new TypeToken<List<WeatherInfo>>(){}.getType());
         if (weatherList != null) {
             callBack.onSuccess(weatherList);
             return;
@@ -52,7 +55,7 @@ public class WeatherModel implements IModel {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(Throwable t, ResponseBody responseBody) {
                         callBack.onFail(t.getMessage());
                     }
                 });
@@ -132,9 +135,7 @@ public class WeatherModel implements IModel {
             case "晴":
                 return R.mipmap.type_two_sunny;
             case "阴":
-                return R.mipmap.type_two_cloudy;
             case "多云":
-                return R.mipmap.type_two_cloudy;
             case "少云":
                 return R.mipmap.type_two_cloudy;
             case "晴间多云":
@@ -142,9 +143,7 @@ public class WeatherModel implements IModel {
             case "小雨":
                 return R.mipmap.type_two_light_rain;
             case "中雨":
-                return R.mipmap.type_two_rain;
             case "大雨":
-                return R.mipmap.type_two_rain;
             case "阵雨":
                 return R.mipmap.type_two_rain;
             case "雷阵雨":

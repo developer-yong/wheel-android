@@ -1,6 +1,5 @@
 package dev.yong.wheel.cache;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,9 +28,9 @@ class CacheManager {
     private final long mMaxSize;
     private final int mMaxCount;
     private final Map<String, File> mCacheFiles = Collections
-            .synchronizedMap(new HashMap<String, File>());
+            .synchronizedMap(new HashMap<>());
     private final Map<File, Long> mLastModified = Collections
-            .synchronizedMap(new HashMap<File, Long>());
+            .synchronizedMap(new HashMap<>());
 
     CacheManager(File cacheDir, long maxSize, int maxCount) {
         this.mCacheDir = cacheDir;
@@ -46,22 +45,19 @@ class CacheManager {
      * 计算 cacheSize和cacheCount
      */
     private void calculateCacheSizeAndCacheCount() {
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                int size = 0;
-                int count = 0;
-                File[] cachedFiles = mCacheDir.listFiles();
-                if (cachedFiles != null) {
-                    for (File cachedFile : cachedFiles) {
-                        size += cachedFile.length();
-                        count += 1;
-                        mLastModified.put(cachedFile, cachedFile.lastModified());
-                        mCacheFiles.put(getFileKey(cachedFile), cachedFile);
-                    }
-                    mCacheSize.set(size);
-                    mCacheCount.set(count);
+        Executors.newSingleThreadExecutor().execute(() -> {
+            int size = 0;
+            int count = 0;
+            File[] cachedFiles = mCacheDir.listFiles();
+            if (cachedFiles != null) {
+                for (File cachedFile : cachedFiles) {
+                    size += cachedFile.length();
+                    count += 1;
+                    mLastModified.put(cachedFile, cachedFile.lastModified());
+                    mCacheFiles.put(getFileKey(cachedFile), cachedFile);
                 }
+                mCacheSize.set(size);
+                mCacheCount.set(count);
             }
         });
     }
@@ -215,7 +211,7 @@ class CacheManager {
      * @param key 缓存文件key
      * @return Serializable 数据
      */
-    public Serializable getSerializable(String key) {
+    Serializable getSerializable(String key) {
         byte[] data = getByte(key);
         if (data != null) {
             ByteArrayInputStream in = null;
@@ -248,9 +244,8 @@ class CacheManager {
      * @param key 缓存文件key
      * @return byte 数据
      */
-    public byte[] getByte(String key) {
+    byte[] getByte(String key) {
         RandomAccessFile accessFile = null;
-        boolean removeFile = false;
         try {
             File file = get(key);
             if (file == null || !file.exists()) {
@@ -280,7 +275,7 @@ class CacheManager {
      * @param key 文件保存的Key
      * @return true：到期了 false：还没有到期
      */
-    public boolean isObsolete(String key) {
+    boolean isObsolete(String key) {
         File file = getFile(key);
         if (file == null) {
             return true;
@@ -304,22 +299,41 @@ class CacheManager {
      * @param key 缓存文件key
      * @return 是否移除成功
      */
-    public boolean remove(String key) {
+    boolean remove(String key) {
         return getFile(key).delete();
     }
 
     /**
      * 清除缓存文件夹
      */
-    public void clear() {
+    boolean clear() {
         mLastModified.clear();
         mCacheFiles.clear();
         mCacheSize.set(0);
-        File[] files = mCacheDir.listFiles();
-        if (files != null) {
-            for (File f : files) {
-                f.deleteOnExit();
+        return deleteFile(mCacheDir);
+    }
+
+    /**
+     * 遍历删除文件
+     *
+     * @param file 文件目录
+     */
+    private boolean deleteFile(File file) {
+        if (file == null) {
+            return false;
+        }
+        if (file.isFile()) {
+            return file.delete();
+        } else {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (!deleteFile(f)) {
+                        return false;
+                    }
+                }
             }
+            return true;
         }
     }
 
@@ -351,7 +365,6 @@ class CacheManager {
             }
         }
         if (oldestFile != null) {
-            long fileSize = oldestFile.length();
             if (oldestFile.delete()) {
                 mLastModified.remove(oldestFile);
                 mCacheFiles.remove(getFileKey(oldestFile));

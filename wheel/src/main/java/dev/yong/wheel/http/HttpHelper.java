@@ -52,7 +52,7 @@ public class HttpHelper {
         if (TextUtils.isEmpty(url)) {
             throw new NullPointerException("Url must be not null");
         }
-        if (!url.matches("http(s)?://([\\w-]+\\.)+[\\w-]+(/[\\w- ./?%&#=]*)?")) {
+        if (!url.matches("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]")) {
             throw new IllegalStateException("Invalid url");
         }
         return new RequestBuilder(url);

@@ -5,20 +5,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+
 import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
 
 import org.simple.eventbus.EventBus;
 
 import butterknife.ButterKnife;
-import dev.yong.wheel.swipeback.ISwipeBack;
-import dev.yong.wheel.swipeback.SwipeBackHelper;
-import dev.yong.wheel.swipeback.SwipeBackLayout;
 import dev.yong.wheel.AppManager;
 import dev.yong.wheel.network.Network;
 import dev.yong.wheel.network.NetworkReceiver;
+import dev.yong.wheel.swipeback.ISwipeBack;
+import dev.yong.wheel.swipeback.SwipeBackHelper;
+import dev.yong.wheel.swipeback.SwipeBackLayout;
 import dev.yong.wheel.utils.StatusBar;
+import dev.yong.wheel.view.ProgressDialog;
 
 /**
  * Activity基类
@@ -35,31 +38,31 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
      */
     protected NetworkReceiver mReceiver;
     /**
-     * 滑动返回是否可用
-     */
-    protected boolean mSwipeBackEnable = true;
-    /**
      * 滑动返回监听
      */
     protected SwipeBackLayout.SwipeListener mSwipeListener;
+
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected final void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int layoutId = layoutId();
         if (layoutId == 0) {
-            throw new Resources.NotFoundException("Not found layout resources, resources id: " + layoutId);
+            throw new Resources.NotFoundException("Not found menu_add resources, resources id: " + layoutId);
         }
         setContentView(layoutId);
         ButterKnife.bind(this);
         //设置滑动返回
-        SwipeBackHelper.with(this)
-                .alphaColor(alphaColor())
-                .hasAlpha(hasAlpha())
-                .hasShadow(hasShadow())
-                .prevViewScrollable(prevViewScrollable())
-                .swipeListener(mSwipeListener)
-                .build();
+        if (isSupportSwipeBack()) {
+            SwipeBackHelper.with(this)
+                    .alphaColor(alphaColor())
+                    .hasAlpha(hasAlpha())
+                    .hasShadow(hasShadow())
+                    .prevViewScrollable(prevViewScrollable())
+                    .swipeListener(mSwipeListener)
+                    .build();
+        }
         if (statusBarIsTranslucent()) {
             StatusBar.translucent(this, false, statusBarIsLight());
         } else {
@@ -110,6 +113,21 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
      * 用于视图、数据、监听等一些初始化操作
      */
     protected void init(Bundle savedInstanceState) {
+    }
+
+    protected void showMessageDialog(String message) {
+        if (!TextUtils.isEmpty(message)) {
+            if (mProgressDialog == null) {
+                mProgressDialog = new ProgressDialog(this);
+            }
+            mProgressDialog.show(message);
+        }
+    }
+
+    protected void closeMessageDialog() {
+        if (mProgressDialog != null) {
+            mProgressDialog.dismiss();
+        }
     }
 
     /**
@@ -240,6 +258,6 @@ public abstract class BaseActivity extends AppCompatActivity implements NetworkR
      */
     @Override
     public boolean isSupportSwipeBack() {
-        return mSwipeBackEnable;
+        return true;
     }
 }

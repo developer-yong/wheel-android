@@ -20,8 +20,6 @@ public class WeatherAdapter extends BaseMultiItemRvAdapter<WeatherInfo> {
     @Override
     protected int layoutResId(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
-            case TYPE_CURR_WEATHER:
-                return R.layout.item_temperature;
             case TYPE_WEATHER_SUGGEST:
                 return R.layout.item_suggestion;
             case TYPE_FUTURE_WEATHER:

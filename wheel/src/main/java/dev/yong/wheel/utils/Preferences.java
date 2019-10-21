@@ -13,8 +13,6 @@ import java.util.Set;
 
 public class Preferences {
 
-    private static final String TAG = Preferences.class.getSimpleName();
-
     @SuppressLint("StaticFieldLeak")
     private static Preferences sInstance;
 
@@ -22,7 +20,7 @@ public class Preferences {
     private Context mContext;
 
     private Preferences(Context context) {
-        mContext = context;
+        mContext = context.getApplicationContext();
     }
 
     public static Preferences getInstance(Context context, String name) {
@@ -36,12 +34,12 @@ public class Preferences {
                 }
             }
         }
-        sInstance.mPreferences = context.getSharedPreferences(name, Context.MODE_PRIVATE);
+        sInstance.mPreferences = sInstance.mContext.getSharedPreferences(name, Context.MODE_PRIVATE);
         return sInstance;
     }
 
     public static Preferences getInstance(Context context) {
-        return getInstance(context,"config");
+        return getInstance(context, "config");
     }
 
     public SharedPreferences.Editor getSPEditor() {
@@ -81,7 +79,7 @@ public class Preferences {
     }
 
     public Set<String> getStringSet(String key) {
-        return mPreferences.getStringSet(key, new HashSet<String>());
+        return mPreferences.getStringSet(key, new HashSet<>());
     }
 
     public void putStringSet(String key, Set<String> setValue) {
@@ -97,13 +95,15 @@ public class Preferences {
         return mContext.getSharedPreferences(key, Context.MODE_PRIVATE);
     }
 
-//    public <T> T getObjectJson(String key, Class<T> clazz) {
-//        String objectStr = getString(key);
-//        if (TextUtils.isEmpty(objectStr)) return null;
-//        return JSON.parseObject(objectStr, clazz);
-//    }
-//
-//    public void putObjectJson(String key, Object object) {
-//        putString(key, JSON.toJSONString(object));
-//    }
+    public <T> T getObject(String key, Class<T> clazz) {
+        return Gson.fromJson(getString(key), clazz);
+    }
+
+    public void putObject(String key, Object object) {
+        putString(key, Gson.toJson(object));
+    }
+
+    public void clear() {
+        mPreferences.edit().clear().apply();
+    }
 }

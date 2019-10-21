@@ -52,7 +52,7 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
         mContext = parent.getContext();
         int layoutResId = layoutResId(parent, viewType);
         if (layoutResId == 0) {
-            throw new Resources.NotFoundException("Not found layout resources, resources id: " + layoutResId);
+            throw new Resources.NotFoundException("Not found menu_add resources, resources id: " + layoutResId);
         }
         View view = mSpecialItems.get(viewType,
                 LayoutInflater.from(mContext).inflate(layoutResId, parent, false));
@@ -209,9 +209,11 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
     public void replaceData(List<T> list) {
         if (mList == null) {
             mList = list;
-        } else if (list != null && !list.isEmpty() && list != mList) {
+        } else {
             this.mList.clear();
-            this.mList.addAll(list);
+            if (list != null) {
+                this.mList.addAll(list);
+            }
         }
         notifyDataSetChanged();
     }
