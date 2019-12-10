@@ -31,8 +31,9 @@ public interface BeforeInterceptor extends Interceptor {
     @NonNull
     Request onRequestBefore(Request request);
 
+    @NonNull
     @Override
-    default Response intercept(Chain chain) throws IOException {
+    default Response intercept(@NonNull Chain chain) throws IOException {
         return onResponseBefore(chain, chain.proceed(onRequestBefore(chain.request())));
     }
 }

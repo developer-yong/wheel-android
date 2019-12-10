@@ -2,14 +2,14 @@ package dev.yong.wheel.base.mvp;
 
 import android.os.Bundle;
 
-import dev.yong.wheel.base.BaseActivity;
+import dev.yong.wheel.base.BaseRecyclerActivity;
 
 /**
  * MVPActivity基类
  *
  * @author CoderYong
  */
-public abstract class BaseMvpActivity<V, P extends IPresenter<V>> extends BaseActivity {
+public abstract class BaseMvpRecyclerActivity<T, V, P extends IPresenter<V>> extends BaseRecyclerActivity<T> {
 
     protected P mPresenter = providePresenter();
 

@@ -2,16 +2,18 @@ package dev.yong.wheel.base.adapter;
 
 import android.content.Context;
 import android.content.res.Resources;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import dev.yong.wheel.AppManager;
@@ -23,8 +25,6 @@ import static android.widget.ListPopupWindow.WRAP_CONTENT;
  * @author CoderYong
  */
 public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
-
-    private static final String TAG = BaseRvAdapter.class.getSimpleName();
 
     protected Context mContext;
 
@@ -94,12 +94,7 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
         onBindView(holder, position);
         if (mListener != null) {
             final int item = position;
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mListener.onItemClick(item);
-                }
-            });
+            holder.itemView.setOnClickListener(view -> mListener.onItemClick(item));
         }
     }
 
@@ -195,6 +190,18 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
         addView(-2, view);
     }
 
+    @SafeVarargs
+    public final void addData(T... t) {
+        if (t != null) {
+            if (mList == null) {
+                mList = Arrays.asList(t);
+            } else {
+                this.mList.addAll(Arrays.asList(t));
+            }
+            notifyDataSetChanged();
+        }
+    }
+
     public void addData(List<T> list) {
         if (list != null) {
             if (mList == null) {
@@ -216,6 +223,13 @@ public abstract class BaseRvAdapter<T> extends RecyclerView.Adapter<ViewHolder> 
             }
         }
         notifyDataSetChanged();
+    }
+
+    public T getChildAt(int position) {
+        if (mList != null) {
+            return mList.get(position);
+        }
+        return null;
     }
 
     public List<T> getData() {

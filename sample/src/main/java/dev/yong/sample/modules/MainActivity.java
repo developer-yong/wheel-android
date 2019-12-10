@@ -18,13 +18,15 @@ public class MainActivity extends BaseActivity {
         return R.layout.activity_main;
     }
 
+    @OnClick(R.id.btn_start)
+    public void onViewClicked() {
+        startActivity(WeatherActivity.class);
+    }
+
     @Override
     public boolean isSupportSwipeBack() {
         return false;
     }
 
-    @OnClick(R.id.btn_start)
-    public void onViewClicked() {
-        startActivity(WeatherActivity.class);
-    }
+
 }

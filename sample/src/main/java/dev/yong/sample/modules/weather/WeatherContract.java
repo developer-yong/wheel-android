@@ -1,15 +1,19 @@
 package dev.yong.sample.modules.weather;
 
+import java.util.List;
+
 import dev.yong.sample.data.WeatherInfo;
 import dev.yong.wheel.base.mvp.IModel;
-import dev.yong.wheel.base.mvp.ListView;
 
 /**
  * @author coderyong
  */
 public interface WeatherContract {
 
-    interface View extends ListView<WeatherInfo> {
+    interface View {
+        void showMessage(String message);
+
+        void showList(boolean isRefresh, List<WeatherInfo> infos);
     }
 
     interface Model extends IModel {

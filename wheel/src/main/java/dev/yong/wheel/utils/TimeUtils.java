@@ -15,7 +15,7 @@ import java.util.Locale;
  */
 public class TimeUtils {
 
-    private static final String DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public static final int MILLISECOND = 1;
     public static final int SECOND = 1000;

@@ -1,12 +1,8 @@
 package dev.yong.sample.modules.weather;
 
-import com.google.gson.reflect.TypeToken;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
 
 import dev.yong.sample.R;
 import dev.yong.sample.data.BaseEntity;
@@ -15,7 +11,7 @@ import dev.yong.sample.data.WeatherInfo;
 import dev.yong.wheel.base.mvp.IModel;
 import dev.yong.wheel.cache.Cache;
 import dev.yong.wheel.http.Callback;
-import dev.yong.wheel.http.HttpHelper;
+import dev.yong.wheel.http.OkHttpHelper;
 import dev.yong.wheel.utils.TimeUtils;
 import okhttp3.ResponseBody;
 
@@ -28,15 +24,15 @@ public class WeatherModel implements IModel {
         //获取网络数据
         final String url = "https://free-api.heweather.com/s6/weather";
         //获取缓存数据
-        List<WeatherInfo> weatherList = Cache.getInstance().getList(url, new TypeToken<List<WeatherInfo>>(){}.getType());
+        List<WeatherInfo> weatherList = Cache.getInstance().getList(url, WeatherInfo.class);
         if (weatherList != null) {
             callBack.onSuccess(weatherList);
             return;
         }
         //获取网络数据
-        HttpHelper.connect(url)
-                .addParameter("location", "auto_ip")
-                .addParameter("key", "69bcb5a6d326411baccdad8ebaa06cba")
+        OkHttpHelper.request(url)
+                .addQueryParameter("location", "auto_ip")
+                .addQueryParameter("key", "69bcb5a6d326411baccdad8ebaa06cba")
                 .get(new Callback<BaseEntity<List<Weather>>>() {
                     @Override
                     public void onResponse(BaseEntity<List<Weather>> entity) {

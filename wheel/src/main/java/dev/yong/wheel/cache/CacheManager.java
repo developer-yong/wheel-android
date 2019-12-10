@@ -277,7 +277,7 @@ class CacheManager {
      */
     boolean isObsolete(String key) {
         File file = getFile(key);
-        if (file == null) {
+        if (file == null || !file.exists()) {
             return true;
         }
         long timeout = getFileTimeout(file);
@@ -300,7 +300,8 @@ class CacheManager {
      * @return 是否移除成功
      */
     boolean remove(String key) {
-        return getFile(key).delete();
+        File file = getFile(key);
+        return file == null || !file.exists() || file.delete();
     }
 
     /**

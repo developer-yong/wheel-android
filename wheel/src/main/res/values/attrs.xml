@@ -2,9 +2,15 @@
 <resources>
     <declare-styleable name="ElasticLayout">
         <attr name="drag_mode" format="enum">
-            <enum name="both" value="0"/>
-            <enum name="top" value="1"/>
-            <enum name="bottom" value="2"/>
+            <enum name="both" value="0" />
+            <enum name="top" value="1" />
+            <enum name="bottom" value="2" />
         </attr>
+    </declare-styleable>
+
+    <declare-styleable name="CheckImageView">
+        <attr name="android:checked" />
+        <attr name="checked_background" format="reference" />
+        <attr name="checked_src" format="reference" />
     </declare-styleable>
 </resources>

@@ -14,6 +14,6 @@ public class BasePresenter<V> implements IPresenter<V> {
 
     @Override
     public void dropView() {
-
+        mView = null;
     }
 }

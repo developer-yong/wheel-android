@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
+
 import androidx.annotation.RequiresPermission;
 
 /**
@@ -58,6 +59,7 @@ public class Bluetooth {
     public static void open(Activity activity) {
         // 请求打开 Bluetooth
         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        intent.setClass(activity, activity.getClass());
         // 设置 Bluetooth 设备可以被其它 Bluetooth 设备扫描到
         intent.setAction(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         // 设置 Bluetooth 设备可见时间(默认为120秒)

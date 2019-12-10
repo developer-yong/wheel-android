@@ -1,9 +1,10 @@
 package dev.yong.wheel.base.mvp;
 
 import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.view.View;
 
 import dev.yong.wheel.base.BaseFragment;
 
@@ -12,14 +13,15 @@ import dev.yong.wheel.base.BaseFragment;
  */
 public abstract class BaseMvpFragment<V, P extends IPresenter<V>> extends BaseFragment {
 
-    protected P mPresenter;
-
+    protected P mPresenter = providePresenter();
     @Override
     protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (mPresenter == null) {
             mPresenter = providePresenter();
         }
-        mPresenter.takeView(provideView());
+        if (mPresenter != null) {
+            mPresenter.takeView(provideView());
+        }
         super.init(view, savedInstanceState);
     }
 

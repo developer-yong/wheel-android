@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
@@ -58,20 +59,17 @@ public class PermissionsFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_CODE: {
-                // If request is cancelled, the result arrays are empty.
-                if (mPermissionGrantedListener != null) {
-                    mPermissionGrantedListener.onGranted(
-                            grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
-                }
-                break;
+        if (requestCode == PERMISSIONS_REQUEST_CODE) {// If request is cancelled, the result arrays are empty.
+            if (mPermissionGrantedListener != null) {
+                mPermissionGrantedListener.onGranted(
+                        grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
             }
-            default:
-                if (mPermissionGrantedListener != null) {
-                    mPermissionGrantedListener.onGranted(checkPermission(Arrays.asList(permissions)));
-                }
-                break;
+        } else {
+            if (mPermissionGrantedListener != null) {
+                mPermissionGrantedListener.onGranted(checkPermission(Arrays.asList(permissions)));
+            }
         }
+        getFragmentManager().beginTransaction().remove(this).commit();
+        getFragmentManager().popBackStackImmediate();
     }
 }

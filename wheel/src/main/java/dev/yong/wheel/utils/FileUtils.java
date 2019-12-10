@@ -18,7 +18,6 @@ import java.security.MessageDigest;
 import java.text.DecimalFormat;
 
 import dev.yong.wheel.AppManager;
-import dev.yong.wheel.BuildConfig;
 
 /**
  * @author CoderYong
@@ -292,7 +291,12 @@ public class FileUtils {
     public static File move(File file, String path) {
         if (file != null && file.exists() && !path.equals(file.getParent())) {
             File newFile = new File(path, file.getName());
-            newFile.deleteOnExit();
+            if (!newFile.getParentFile().exists()) {
+                newFile.getParentFile().mkdirs();
+            }
+            if (newFile.exists()) {
+                newFile.delete();
+            }
             return file.renameTo(newFile) ? newFile : file;
         }
         return file;

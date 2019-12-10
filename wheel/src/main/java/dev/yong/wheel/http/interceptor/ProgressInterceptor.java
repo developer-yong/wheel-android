@@ -13,8 +13,8 @@ import okhttp3.Response;
  */
 public class ProgressInterceptor implements Interceptor {
 
-    public static int PROGRESS_UPLOAD = 0x01;
-    public static int PROGRESS_DOWNLOAD = 0x02;
+    public static int PROGRESS_REQUEST = 0x01;
+    public static int PROGRESS_RESPONSE = 0x02;
 
     private ProgressListener mListener;
     private int mType;
@@ -31,10 +31,11 @@ public class ProgressInterceptor implements Interceptor {
         this.mListener = listener;
     }
 
+    @NonNull
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
 
-        if (mType == PROGRESS_UPLOAD) {
+        if (mType == PROGRESS_REQUEST) {
             Request original = chain.request();
 
             Request request = original.newBuilder()
@@ -53,7 +54,7 @@ public class ProgressInterceptor implements Interceptor {
         }
     }
 
-   public interface ProgressListener {
+    public interface ProgressListener {
         /**
          * 进度监听
          *

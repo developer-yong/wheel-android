@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -96,11 +97,19 @@ public class Preferences {
     }
 
     public <T> T getObject(String key, Class<T> clazz) {
-        return Gson.fromJson(getString(key), clazz);
+        return JSON.parseObject(getString(key), clazz);
     }
 
     public void putObject(String key, Object object) {
-        putString(key, Gson.toJson(object));
+        putString(key, JSON.toJson(object));
+    }
+
+    public <T> T getList(String key, Class<T> clazz) {
+        return JSON.parseObject(getString(key), clazz);
+    }
+
+    public void putList(String key, List<?> list) {
+        putString(key, JSON.toJson(list));
     }
 
     public void clear() {

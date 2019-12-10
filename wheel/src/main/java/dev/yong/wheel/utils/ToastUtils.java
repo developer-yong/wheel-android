@@ -1,6 +1,7 @@
 package dev.yong.wheel.utils;
 
 import android.os.Looper;
+import android.view.Gravity;
 import android.widget.Toast;
 
 import dev.yong.wheel.AppManager;
@@ -19,6 +20,8 @@ public class ToastUtils {
 
     private static long sTime = -1;
 
+    public static int GRAVITY = Gravity.NO_GRAVITY;
+
     /**
      * Toast提示
      *
@@ -29,11 +32,15 @@ public class ToastUtils {
         long intervals = 2000;
         if (System.currentTimeMillis() - sTime > intervals) {
             try {
-                Toast.makeText(AppManager.getInstance().getApplication(), text, duration).show();
+                Toast toast = Toast.makeText(AppManager.getInstance().getApplication(), text, duration);
+                toast.setGravity(GRAVITY, 0, 0);
+                toast.show();
             } catch (Exception e) {
                 //解决在子线程中调用Toast的异常情况处理
                 Looper.prepare();
-                Toast.makeText(AppManager.getInstance().getApplication(), text, duration).show();
+                Toast toast = Toast.makeText(AppManager.getInstance().getApplication(), text, duration);
+                toast.setGravity(GRAVITY, 0, 0);
+                toast.show();
                 Looper.loop();
             }
             sTime = System.currentTimeMillis();

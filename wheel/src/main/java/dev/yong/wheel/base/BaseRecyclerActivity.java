@@ -6,8 +6,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,32 +17,29 @@ import java.util.List;
 import dev.yong.wheel.R;
 import dev.yong.wheel.base.adapter.BaseRvAdapter;
 
-/**
- * @author coderyong
- */
-public abstract class BaseRecyclerFragment<T> extends BaseFragment {
+public abstract class BaseRecyclerActivity<T> extends BaseActivity {
 
     protected FrameLayout mLayoutContainer;
     protected SmartRefreshLayout mRefreshLayout;
     protected RecyclerView mRecyclerView;
-    private TextView mTvEmpty;
+    protected TextView mTvEmpty;
 
     protected BaseRvAdapter<T> mAdapter;
 
     @Override
-    protected int createLayoutId() {
+    protected int layoutId() {
         return useSmartRefresh() ? R.layout.layout_refresh_recycler : R.layout.layout_recycler;
     }
 
     @Override
-    protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.init(view, savedInstanceState);
-        mLayoutContainer = view.findViewById(R.id.layout_container);
+    protected void init(Bundle savedInstanceState) {
+        super.init(savedInstanceState);
+        mLayoutContainer = findViewById(R.id.layout_container);
         if (useSmartRefresh()) {
-            mRefreshLayout = view.findViewById(R.id.refresh);
+            mRefreshLayout = findViewById(R.id.refresh);
         }
-        mRecyclerView = view.findViewById(R.id.recycler);
-        mTvEmpty = view.findViewById(R.id.tv_empty);
+        mRecyclerView = findViewById(R.id.recycler);
+        mTvEmpty = findViewById(R.id.tv_empty);
         if (useItemDecoration()) {
             RecyclerView.ItemDecoration itemDecoration = provideItemDecoration();
             Drawable dividerDrawable = provideDividerDrawable();
@@ -79,7 +74,6 @@ public abstract class BaseRecyclerFragment<T> extends BaseFragment {
         closeMessageDialog();
         if (mRefreshLayout != null) {
             mRefreshLayout.finishRefresh();
-            mRefreshLayout.finishLoadMore();
         }
         showEmpty(mAdapter.getItemCount() == 0);
     }
@@ -98,7 +92,12 @@ public abstract class BaseRecyclerFragment<T> extends BaseFragment {
         showEmpty(mAdapter.getItemCount() == 0);
     }
 
-    public void showEmpty(boolean isEmpty) {
+    /**
+     * 显示空页面
+     *
+     * @param isEmpty 是否为空
+     */
+    protected void showEmpty(boolean isEmpty) {
         if (mTvEmpty != null) {
             mTvEmpty.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
         }
@@ -131,7 +130,7 @@ public abstract class BaseRecyclerFragment<T> extends BaseFragment {
      * @return RecyclerView.LayoutManager
      */
     protected RecyclerView.LayoutManager provideLayoutManager() {
-        return new LinearLayoutManager(mContext);
+        return new LinearLayoutManager(this);
     }
 
     /**
@@ -141,7 +140,7 @@ public abstract class BaseRecyclerFragment<T> extends BaseFragment {
      * @return RecyclerView.ItemDecoration
      */
     protected RecyclerView.ItemDecoration provideItemDecoration() {
-        return new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL);
+        return new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
     }
 
     /**
@@ -161,4 +160,5 @@ public abstract class BaseRecyclerFragment<T> extends BaseFragment {
     protected boolean useItemDecoration() {
         return false;
     }
+
 }

@@ -1,9 +1,10 @@
 package dev.yong.wheel.base.adapter;
 
 import android.graphics.Rect;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import android.view.View;
 
 import static androidx.recyclerview.widget.RecyclerView.ItemDecoration;
 

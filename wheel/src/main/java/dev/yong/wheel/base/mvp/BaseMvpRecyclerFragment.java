@@ -1,31 +1,33 @@
 package dev.yong.wheel.base.mvp;
 
 import android.os.Bundle;
+import android.view.View;
 
-import dev.yong.wheel.base.BaseActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import dev.yong.wheel.base.BaseRecyclerFragment;
 
 /**
- * MVPActivity基类
- *
  * @author CoderYong
  */
-public abstract class BaseMvpActivity<V, P extends IPresenter<V>> extends BaseActivity {
+public abstract class BaseMvpRecyclerFragment<T, V, P extends IPresenter<V>> extends BaseRecyclerFragment<T> {
 
     protected P mPresenter = providePresenter();
 
     @Override
-    protected void init(Bundle savedInstanceState) {
+    protected void init(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (mPresenter == null) {
             mPresenter = providePresenter();
         }
         if (mPresenter != null) {
             mPresenter.takeView(provideView());
         }
-        super.init(savedInstanceState);
+        super.init(view, savedInstanceState);
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         if (mPresenter != null) {
             mPresenter.dropView();

@@ -2,18 +2,20 @@ package dev.yong.wheel.base.adapter;
 
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import androidx.annotation.IdRes;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.util.Linkify;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
+
+import androidx.annotation.IdRes;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @author CoderYong
@@ -81,6 +83,16 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         text.setTypeface(typeface);
         text.setPaintFlags(text.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
         return this;
+    }
+
+    /**
+     * 获取EditText
+     *
+     * @param viewId EditText 资源id
+     * @return EditText
+     */
+    public EditText edit(@IdRes int viewId) {
+        return get(viewId);
     }
 
     /**

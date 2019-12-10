@@ -176,7 +176,7 @@ public class Logger {
                 ")";
     }
 
-    private static void log(int priority, String... msgs) {
+    private static synchronized void log(int priority, String... msgs) {
         TEMP_TAG = '@';
         if (DEBUG && msgs != null) {
             Log.println(priority, resolveTag(TAG), TOP_BORDER);
@@ -232,7 +232,7 @@ public class Logger {
      * @param priority {@link Log#println(int, String, String)}
      * @param msg      日志内容
      */
-    private static void longLog(int priority, String msg) {
+    private static synchronized void longLog(int priority, String msg) {
         if (!TextUtils.isEmpty(msg)) {
             int maxLength = 3072;
             if (msg.length() > maxLength) {

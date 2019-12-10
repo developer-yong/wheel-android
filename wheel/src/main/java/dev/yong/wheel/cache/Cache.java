@@ -4,20 +4,17 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.JsonSyntaxException;
-
 import org.simple.eventbus.EventBus;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import dev.yong.wheel.AppManager;
-import dev.yong.wheel.utils.Gson;
+import dev.yong.wheel.utils.JSON;
 
 import static dev.yong.wheel.cache.CacheConfig.CACHE_DIR;
 import static dev.yong.wheel.cache.CacheConfig.MAX_COUNT;
@@ -123,7 +120,7 @@ public class Cache {
      * @param unit    时间单位
      */
     public void put(String key, List<?> value, long timeout, TimeUnit unit) {
-        mManager.put(key, Gson.toJson(value), timeout, unit);
+        mManager.put(key, JSON.toJson(value), timeout, unit);
     }
 
     /**
@@ -180,12 +177,8 @@ public class Cache {
      * @param key 缓存文件key
      * @return List
      */
-    public <T> List<T> getList(String key, Type type) {
-        try {
-            return Gson.fromJson(mManager.getString(key), type);
-        } catch (JsonSyntaxException e) {
-            return null;
-        }
+    public <T> List<T> getList(String key, Class<T> clazz) {
+        return JSON.parseArray(mManager.getString(key), clazz);
     }
 
     /**

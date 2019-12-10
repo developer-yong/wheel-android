@@ -4,20 +4,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.simple.eventbus.EventBus;
 
 import butterknife.ButterKnife;
-import dev.yong.wheel.swipeback.SwipeBackFragment;
 import dev.yong.wheel.AppManager;
+import dev.yong.wheel.swipeback.SwipeBackFragment;
 import dev.yong.wheel.view.ProgressDialog;
 
 /**
@@ -26,11 +25,6 @@ import dev.yong.wheel.view.ProgressDialog;
 public abstract class BaseFragment extends SwipeBackFragment {
 
     protected Context mContext;
-
-    /**
-     * 滑动返回是否可用
-     */
-    protected boolean mSwipeBackEnable = false;
 
     /**
      * 进度弹窗
@@ -123,7 +117,7 @@ public abstract class BaseFragment extends SwipeBackFragment {
 
     @Override
     public boolean isSupportSwipeBack() {
-        return super.isSupportSwipeBack() && mSwipeBackEnable;
+        return false;
     }
 }
 
