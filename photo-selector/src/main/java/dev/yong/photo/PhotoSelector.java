@@ -281,7 +281,7 @@ public class PhotoSelector {
     }
 
     List<Directory> getDirectories() {
-        if (mMediaFiles != null) {
+        if (mMediaFiles != null && !mMediaFiles.isEmpty()) {
             Map<String, Directory> directoryMap = new HashMap<>(16);
             for (MediaFile file : mMediaFiles) {
                 String parent = new File(file.getPath()).getParent();

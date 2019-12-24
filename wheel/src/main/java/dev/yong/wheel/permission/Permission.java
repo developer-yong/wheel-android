@@ -1,9 +1,10 @@
 package dev.yong.wheel.permission;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
 import android.os.Build;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,15 +17,15 @@ public class Permission {
 
     private static String TAG = "Permissions";
 
-    public static Builder with(Activity activity) {
+    public static Builder with(FragmentActivity activity) {
         return new Builder(activity);
     }
 
     public static class Builder {
-        Activity activity;
+        FragmentActivity activity;
         List<String> permissions;
 
-        Builder(Activity activity) {
+        Builder(FragmentActivity activity) {
             if (activity == null) {
                 throw new IllegalStateException("Activity must not be null");
             }
@@ -58,11 +59,11 @@ public class Permission {
             }
         }
 
-        private Fragment findPermissionsFragment(Activity activity) {
-            Fragment fragment = activity.getFragmentManager().findFragmentByTag(TAG);
+        private Fragment findPermissionsFragment(FragmentActivity activity) {
+            Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag(TAG);
             if (fragment == null) {
                 fragment = new PermissionsFragment();
-                FragmentManager fragmentManager = activity.getFragmentManager();
+                FragmentManager fragmentManager = activity.getSupportFragmentManager();
                 fragmentManager.beginTransaction()
                         .add(fragment, TAG)
                         .commitAllowingStateLoss();

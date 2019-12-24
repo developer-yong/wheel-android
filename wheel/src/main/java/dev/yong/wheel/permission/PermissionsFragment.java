@@ -1,6 +1,5 @@
 package dev.yong.wheel.permission;
 
-import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,13 +44,15 @@ public class PermissionsFragment extends Fragment {
     }
 
     private boolean checkPermission(List<String> permissions) {
-        boolean isGranted = true;
+        boolean isGranted = getActivity() != null;
 
-        for (String permission : permissions) {
-            if (ActivityCompat.checkSelfPermission(
-                    getActivity(), permission) != PackageManager.PERMISSION_GRANTED) {
-                isGranted = false;
-                break;
+        if (getActivity() != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(
+                        getActivity(), permission) != PackageManager.PERMISSION_GRANTED) {
+                    isGranted = false;
+                    break;
+                }
             }
         }
         return isGranted;
@@ -69,7 +71,9 @@ public class PermissionsFragment extends Fragment {
                 mPermissionGrantedListener.onGranted(checkPermission(Arrays.asList(permissions)));
             }
         }
-        getFragmentManager().beginTransaction().remove(this).commit();
-        getFragmentManager().popBackStackImmediate();
+        if (getFragmentManager() != null) {
+            getFragmentManager().beginTransaction().remove(this).commit();
+            getFragmentManager().popBackStackImmediate();
+        }
     }
 }
