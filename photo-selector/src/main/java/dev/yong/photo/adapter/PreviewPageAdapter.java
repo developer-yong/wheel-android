@@ -1,8 +1,6 @@
 package dev.yong.photo.adapter;
 
 import android.media.MediaPlayer;
-import androidx.annotation.NonNull;
-import androidx.viewpager.widget.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -11,13 +9,16 @@ import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
+import androidx.annotation.NonNull;
+import androidx.viewpager.widget.PagerAdapter;
+
 import com.bumptech.glide.Glide;
+import com.github.chrisbanes.photoview.PhotoView;
 
 import java.util.List;
 
 import dev.yong.photo.R;
 import dev.yong.photo.bean.MediaFile;
-import dev.yong.photo.view.photoview.PhotoView;
 
 /**
  * @author coderyong
@@ -48,7 +49,6 @@ public class PreviewPageAdapter extends PagerAdapter {
         if (file.getType() == MediaFile.Type.IMAGE) {
             PhotoView photoView = new PhotoView(container.getContext());
             photoView.setLayoutParams(params);
-            photoView.enable();
             String path = file.getPath();
             photoView.setScaleType(ImageView.ScaleType.FIT_CENTER);
             Glide.with(container)
@@ -66,7 +66,6 @@ public class PreviewPageAdapter extends PagerAdapter {
             final ImageButton button = view.findViewById(R.id.btn_play);
 
             final String path = file.getPath();
-            photoView.enable();
             photoView.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
             Glide.with(container)

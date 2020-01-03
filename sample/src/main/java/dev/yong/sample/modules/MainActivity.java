@@ -2,12 +2,10 @@ package dev.yong.sample.modules;
 
 import android.Manifest;
 
-import java.util.List;
-
 import butterknife.OnClick;
 import dev.yong.photo.PhotoSelector;
+import dev.yong.photo.bean.MediaFile;
 import dev.yong.sample.R;
-import dev.yong.sample.modules.weather.WeatherActivity;
 import dev.yong.wheel.base.BaseActivity;
 import dev.yong.wheel.permission.Permission;
 import dev.yong.wheel.utils.Logger;
@@ -30,9 +28,12 @@ public class MainActivity extends BaseActivity {
         Permission.with(this)
                 .check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .request(granted -> {
-                    PhotoSelector.getInstance().select(this, selectPaths -> {
-                        Logger.e(selectPaths.toArray(new String[]{}));
-                    });
+                    PhotoSelector.getInstance()
+                            .configMediaType(MediaFile.Type.IMAGE)
+                            .configCameraEnable(true)
+                            .select(this, selectPaths -> {
+                                Logger.e(selectPaths.toArray(new String[]{}));
+                            });
                 });
 //        startActivity(WeatherActivity.class);
     }

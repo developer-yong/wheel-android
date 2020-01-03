@@ -54,23 +54,6 @@ public class DefaultCompressFactory implements CompressFactory {
             } catch (IOException e) {
                 selectPaths.addAll(imageFiles);
             }
-//            for (String videoPath : videoFiles) {
-//                try {
-//                    File cachePath = new File(mContext.getCacheDir(), "video");
-//                    delete(cachePath);
-//                    if (cachePath.exists() || cachePath.mkdir()) {
-//                        String compressPath = Compressor.with(mContext)
-//                                .compressVideo(videoPath, cachePath.getAbsolutePath());
-//                        if (compressPath != null) {
-//                            selectPaths.add(compressPath);
-//                        } else {
-//                            selectPaths.add(videoPath);
-//                        }
-//                    }
-//                } catch (Exception e) {
-//                    Log.e("视频压缩", "doInBackground: ", e);
-//                }
-//            }
             selectPaths.addAll(videoFiles);
             return selectPaths;
         }

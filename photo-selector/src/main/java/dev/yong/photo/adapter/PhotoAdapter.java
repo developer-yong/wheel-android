@@ -3,6 +3,7 @@ package dev.yong.photo.adapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,15 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import dev.yong.photo.PhotoSelector;
 import dev.yong.photo.R;
 import dev.yong.photo.bean.MediaFile;
+import top.zibin.luban.Luban;
 
 /**
  * @author CoderYong
