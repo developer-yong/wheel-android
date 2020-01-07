@@ -1,9 +1,14 @@
 package dev.yong.photo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Build;
 import android.provider.BaseColumns;
 import android.provider.MediaStore;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,12 +118,38 @@ class Utils {
         List<MediaFile> mediaFiles = new ArrayList<>();
         mediaFiles.addAll(getAllLocalImages(context));
         mediaFiles.addAll(getAllLocalVideos(context));
-        Collections.sort(mediaFiles, new Comparator<MediaFile>() {
-            @Override
-            public int compare(MediaFile o1, MediaFile o2) {
-                return (int) (o2.getLastModified() - o1.getLastModified());
-            }
-        });
+        Collections.sort(mediaFiles, (o1, o2) -> (int) (o2.getLastModified() - o1.getLastModified()));
         return mediaFiles;
     }
+
+    /**
+     * 全屏实现
+     *
+     * @param activity 作用Activity
+     */
+    static void fullScreen(Activity activity) {
+        Window window = activity.getWindow();
+        //4.4 全透明状态栏
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+        //5.0 全透明实现
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(activity.getResources().getColor(R.color.color_action_bar));
+        }
+    }
+
+    /**
+     * 获取状态栏高度
+     */
+    static int getStatusBarHeight(Context context) {
+        // 获得状态栏高度
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        return context.getResources().getDimensionPixelSize(resourceId);
+    }
+
 }

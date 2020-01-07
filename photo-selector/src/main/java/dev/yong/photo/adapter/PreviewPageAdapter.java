@@ -1,20 +1,22 @@
 package dev.yong.photo.adapter;
 
-import android.media.MediaPlayer;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
 
+import java.io.File;
 import java.util.List;
 
 import dev.yong.photo.R;
@@ -25,8 +27,6 @@ import dev.yong.photo.bean.MediaFile;
  */
 public class PreviewPageAdapter extends PagerAdapter {
 
-    private MediaController mMediaController;
-    private MediaPlayer mMediaPlayer;
     private OnItemClickListener mOnItemClickListener;
 
     private List<MediaFile> mediaFiles;
@@ -61,7 +61,6 @@ public class PreviewPageAdapter extends PagerAdapter {
             return photoView;
         } else {
             View view = View.inflate(container.getContext(), R.layout.layout_video, null);
-            final VideoView videoView = view.findViewById(R.id.video);
             final PhotoView photoView = view.findViewById(R.id.image);
             final ImageButton button = view.findViewById(R.id.btn_play);
 
@@ -75,28 +74,18 @@ public class PreviewPageAdapter extends PagerAdapter {
                 photoView.setOnClickListener(v -> mOnItemClickListener.onItemClick(position));
             }
             button.setOnClickListener(v -> {
-                if (!videoView.isPlaying()) {
-                    videoView.setVideoPath(path);
-                    videoView.start();
-                    photoView.setVisibility(View.GONE);
-                    v.setVisibility(View.GONE);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                Uri uri;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    /*7.0以上要通过FileProvider将File转化为Uri*/
+                    uri = FileProvider.getUriForFile(v.getContext(), "dev.yong.photo.fileprovider", new File(path));
+                } else {
+                    /*7.0以下则直接使用Uri的fromFile方法将File转化为Uri*/
+                    uri = Uri.parse(path);
                 }
+                intent.setDataAndType(uri, "video/*");
+                v.getContext().startActivity(intent);
             });
-            if (mMediaController != null) {
-                videoView.setMediaController(mMediaController);
-            }
-            videoView.setOnCompletionListener(mp -> {
-                if (mMediaPlayer != null) {
-                    mMediaPlayer.release();
-                    mMediaPlayer = null;
-                    mMediaPlayer = mp;
-                }
-                if (!mp.isPlaying()) {
-                    photoView.setVisibility(View.VISIBLE);
-                    button.setVisibility(View.VISIBLE);
-                }
-            });
-
             container.addView(view);
             return view;
         }
@@ -120,17 +109,6 @@ public class PreviewPageAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view == object;
-    }
-
-    public void setMediaController(MediaController controller) {
-        mMediaController = controller;
-    }
-
-    public void stopVideo() {
-        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-            mMediaPlayer.stop();
-            mMediaPlayer.reset();
-        }
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {

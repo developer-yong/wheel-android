@@ -1,27 +1,28 @@
 package dev.yong.photo;
 
 import android.content.Intent;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
-import android.widget.MediaController;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.viewpager.widget.ViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import dev.yong.photo.adapter.PreviewPageAdapter;
+import dev.yong.photo.bean.Directory;
 import dev.yong.photo.bean.MediaFile;
 
 
@@ -29,6 +30,8 @@ import dev.yong.photo.bean.MediaFile;
  * @author coderyong
  */
 public class PreviewActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final int PHOTO_CROP = 0x03;
 
     private FrameLayout mActionBar;
     private ConstraintLayout mLayoutBottom;
@@ -38,39 +41,16 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
     private CheckBox mCbSelect;
     private ViewPager mPager;
 
-    private boolean isOriginalImage = false;
     private boolean isPreviewSelected = false;
     private int mCurrentPosition = 0;
     private List<MediaFile> mMediaFiles;
     private PreviewPageAdapter mPageAdapter;
 
-    public PreviewActivity() {
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Window window = getWindow();
-        //4.4 全透明状态栏
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
-        //5.0 全透明实现
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(getResources().getColor(R.color.color_action_bar));
-        }
+        Utils.fullScreen(this);
         setContentView(R.layout.activity_preview);
-
-        Intent intent = getIntent();
-
-        isPreviewSelected = intent.getBooleanExtra("isPreviewSelected", isPreviewSelected);
-        mCurrentPosition = intent.getIntExtra("position", mCurrentPosition);
-        List<MediaFile> selectedMediaFiles = PhotoSelector.getInstance().getSelectedMediaFiles();
-        mMediaFiles = isPreviewSelected ? selectedMediaFiles : PhotoSelector.getInstance().getDirMediaFiles();
 
         mActionBar = findViewById(R.id.action_bar);
         mLayoutBottom = findViewById(R.id.layout_bottom);
@@ -80,40 +60,57 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         mCbSelect = findViewById(R.id.cb_select);
         mPager = findViewById(R.id.pager);
 
+        //ActionBar添加状态栏高度
+        mActionBar.setPadding(0, Utils.getStatusBarHeight(this), 0, 0);
         findViewById(R.id.btn_back).setOnClickListener(this);
-        mTvTitle.setText(String.format(Locale.getDefault(), "%d/%d", mCurrentPosition + 1, mMediaFiles.size()));
-        mBtnOriginal.setVisibility(PhotoSelector.getInstance().isCompress() ? View.VISIBLE : View.GONE);
         mBtnConfirm.setOnClickListener(this);
         mBtnOriginal.setOnClickListener(this);
         mCbSelect.setOnClickListener(this);
-        //ActionBar添加状态栏高度
-        mActionBar.setPadding(0, getStatusBarHeight(), 0, 0);
-        mBtnOriginal.setVisibility(PhotoSelector.getInstance().isSupportCompress() ? View.VISIBLE : View.GONE);
-        mBtnOriginal.setChecked(!PhotoSelector.getInstance().isCompress());
 
-        if (mMediaFiles == null) {
-            mMediaFiles = new ArrayList<>();
-        }
+        initMediaFiles();
+
+        mTvTitle.setText(String.format(Locale.getDefault(), "%d/%d", mCurrentPosition + 1, mMediaFiles.size()));
+        int selectedCount = PhotoSelector.getInstance().selectedCount();
+        mBtnConfirm.setEnabled(selectedCount > 0);
+        mBtnConfirm.setText(String.format(Locale.getDefault(),
+                "确定(%d/%d)", selectedCount, PhotoSelector.getInstance().maxSelectCount()));
+        mBtnOriginal.setVisibility(PhotoSelector.getInstance().enableCompress() ? View.VISIBLE : View.GONE);
+        mBtnOriginal.setChecked(!mMediaFiles.get(mCurrentPosition).isCompress());
         mCbSelect.setChecked(mMediaFiles.get(mCurrentPosition).isSelected());
         mPageAdapter = new PreviewPageAdapter(mMediaFiles);
-        mPageAdapter.setMediaController(new MediaController(this));
         mPager.setAdapter(mPageAdapter);
         mPager.setCurrentItem(mCurrentPosition);
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                mPageAdapter.stopVideo();
+                mBtnOriginal.setChecked(!mMediaFiles.get(position).isCompress());
                 mCbSelect.setChecked(mMediaFiles.get(position).isSelected());
                 mTvTitle.setText(String.format(Locale.getDefault(), "%d/%d", position + 1, mMediaFiles.size()));
             }
         });
 
-        PhotoSelector.getInstance().setOnSelectCountListener(selectCount -> {
-            mBtnConfirm.setEnabled(selectCount > 0);
-            mBtnConfirm.setText(String.format(Locale.getDefault(),
-                    "确定(%d/%d)", selectCount, PhotoSelector.getInstance().maxSelectCount()));
-        });
         mPageAdapter.setOnItemClickListener(position -> showAction());
+    }
+
+    private void initMediaFiles() {
+        Intent intent = getIntent();
+        isPreviewSelected = intent.getBooleanExtra("isPreviewSelected", isPreviewSelected);
+        mCurrentPosition = intent.getIntExtra("position", mCurrentPosition);
+        Directory directory = (Directory) intent.getSerializableExtra("directory");
+        if (isPreviewSelected) {
+            if (mMediaFiles == null) {
+                mMediaFiles = new ArrayList<>();
+            }
+            for (MediaFile mediaFile : PhotoSelector.getInstance().getMediaFiles()) {
+                if (mediaFile.isSelected()) {
+                    mMediaFiles.add(mediaFile);
+                }
+            }
+        } else if (directory != null) {
+            mMediaFiles = directory.getMediaFiles();
+        } else {
+            mMediaFiles = PhotoSelector.getInstance().getMediaFiles();
+        }
     }
 
     @Override
@@ -122,21 +119,36 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         if (id == R.id.btn_back) {
             onBackPressed();
         } else if (id == R.id.rb_original) {
-            isOriginalImage = !isOriginalImage;
-            mBtnOriginal.setChecked(isOriginalImage);
-            PhotoSelector.getInstance().configCompress(!isOriginalImage);
+            mMediaFiles.get(mPager.getCurrentItem()).setCompress(!mBtnOriginal.isChecked());
         } else if (id == R.id.cb_select) {
             if (mCbSelect.isChecked()) {
-                if (!PhotoSelector.getInstance().addSelected(mMediaFiles.get(mPager.getCurrentItem()))) {
+                int maxCount = PhotoSelector.getInstance().maxSelectCount();
+                if (PhotoSelector.getInstance().selectedCount() == maxCount) {
                     mCbSelect.setChecked(false);
+                    Toast.makeText(this, "您最多只能选择" + maxCount + "个", Toast.LENGTH_SHORT).show();
+                    return;
                 }
-            } else {
-                PhotoSelector.getInstance().removeSelected(mMediaFiles.get(mPager.getCurrentItem()));
             }
+            mMediaFiles.get(mPager.getCurrentItem()).setSelected(mCbSelect.isChecked());
+            int selectedCount = PhotoSelector.getInstance().selectedCount();
+            mBtnConfirm.setEnabled(selectedCount > 0);
+            mBtnConfirm.setText(String.format(Locale.getDefault(),
+                    "确定(%d/%d)", selectedCount, PhotoSelector.getInstance().maxSelectCount()));
         } else if (id == R.id.btn_confirm) {
-            PhotoSelector.getInstance().onSelectConfirm();
+            PhotoSelector.getInstance().finish();
             onBackPressed();
         }
+    }
+
+    private void photoCrop(String photoPath) {
+        // 调用系统中自带的图片剪裁
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.setDataAndType(Uri.parse(photoPath), "image/*");
+        // 下面这个crop=true是设置在开启的Intent中设置显示的VIEW可裁剪
+        intent.putExtra("crop", "true");
+        intent.putExtra("return-data", true);
+        startActivityForResult(intent, PHOTO_CROP);
     }
 
     private void showAction() {
@@ -153,22 +165,5 @@ public class PreviewActivity extends AppCompatActivity implements View.OnClickLi
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
-    }
-
-    /**
-     * 获取状态栏高度
-     */
-    public int getStatusBarHeight() {
-        // 获得状态栏高度
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        return getResources().getDimensionPixelSize(resourceId);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (mPageAdapter != null) {
-            mPageAdapter.stopVideo();
-        }
-        super.onBackPressed();
     }
 }

@@ -22,6 +22,10 @@ public class MediaFile implements Serializable {
      */
     private String path;
     /**
+     * 压缩文件路径
+     */
+    private String compressPath;
+    /**
      * 文件日期
      */
     private String date;
@@ -70,6 +74,14 @@ public class MediaFile implements Serializable {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getCompressPath() {
+        return compressPath;
+    }
+
+    public void setCompressPath(String compressPath) {
+        this.compressPath = compressPath;
     }
 
     public String getDate() {

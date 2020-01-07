@@ -2,7 +2,10 @@ package dev.yong.sample.modules;
 
 import android.Manifest;
 
+import java.util.List;
+
 import butterknife.OnClick;
+import dev.yong.photo.OnSelectedListener;
 import dev.yong.photo.PhotoSelector;
 import dev.yong.photo.bean.MediaFile;
 import dev.yong.sample.R;
@@ -27,14 +30,13 @@ public class MainActivity extends BaseActivity {
     public void onViewClicked() {
         Permission.with(this)
                 .check(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .request(granted -> {
-                    PhotoSelector.getInstance()
-                            .configMediaType(MediaFile.Type.IMAGE)
-                            .configCameraEnable(true)
-                            .select(this, selectPaths -> {
-                                Logger.e(selectPaths.toArray(new String[]{}));
-                            });
-                });
+                .request(granted -> PhotoSelector.getInstance()
+                        .enableCamera(true)
+                        .select(this, selectPaths -> {
+                            for (String path : selectPaths) {
+                                Logger.e(path);
+                            }
+                        }));
 //        startActivity(WeatherActivity.class);
     }
 

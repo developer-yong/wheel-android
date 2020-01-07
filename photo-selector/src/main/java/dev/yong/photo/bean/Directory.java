@@ -1,15 +1,18 @@
 package dev.yong.photo.bean;
 
+import java.io.Serializable;
+import java.util.List;
+
 /**
  * @author coderyong
  */
-public class Directory {
+public class Directory implements Serializable {
 
     private String pic;
     private String name;
     private String path;
-    private int number;
     private boolean isSelected;
+    private List<MediaFile> mediaFiles;
 
     public String getPic() {
         return pic;
@@ -32,16 +35,8 @@ public class Directory {
     }
 
     public void setPath(String path) {
-        setName(path.substring(path.lastIndexOf("/") + 1, path.length()));
+        setName(path.substring(path.lastIndexOf("/") + 1));
         this.path = path;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    public void setNumber(int number) {
-        this.number = number;
     }
 
     public boolean isSelected() {
@@ -50,5 +45,13 @@ public class Directory {
 
     public void setSelected(boolean selected) {
         isSelected = selected;
+    }
+
+    public List<MediaFile> getMediaFiles() {
+        return mediaFiles;
+    }
+
+    public void setMediaFiles(List<MediaFile> mediaFiles) {
+        this.mediaFiles = mediaFiles;
     }
 }

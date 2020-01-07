@@ -67,7 +67,7 @@ public class DirectoryAdapter extends BaseAdapter {
             Glide.with(convertView.getContext()).load(directory.getPic()).into(holder.ivPic);
         }
         holder.tvName.setText(directory.getName());
-        holder.tvNum.setText(String.format(Locale.getDefault(), "%d张", directory.getNumber()));
+        holder.tvNum.setText(String.format(Locale.getDefault(), "%d张", directory.getMediaFiles().size()));
         holder.rbSelect.setChecked(directory.isSelected());
         holder.rbSelect.setVisibility(
                 holder.rbSelect.isChecked() ? View.VISIBLE : View.INVISIBLE);

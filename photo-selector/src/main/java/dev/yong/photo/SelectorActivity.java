@@ -9,25 +9,28 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.GridView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.GridView;
-import android.widget.RadioButton;
-import android.widget.TextView;
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import dev.yong.photo.adapter.DirectoryAdapter;
 import dev.yong.photo.adapter.PhotoAdapter;
@@ -38,58 +41,42 @@ import dev.yong.photo.view.SpreadListView;
 /**
  * @author coderyong
  */
-public class SelectorActivity extends AppCompatActivity implements View.OnClickListener, PhotoSelector.OnSelectCountListener, PhotoAdapter.OnCameraClickListener {
+public class SelectorActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int PERMISSION_CODE = 0x01;
     private static final int TAKE_PHOTO = 0x02;
 
     private TextView mBtnConfirm;
     private TextView mBtnDirectory;
-    private RadioButton mBtnOriginal;
     private TextView mBtnPreview;
     private CoordinatorLayout mLayoutDirectory;
     private BottomSheetBehavior mBehavior;
 
     private PhotoAdapter mPhotoAdapter;
-
-    private boolean isOriginalImage = false;
-
+    private Directory mSelectedDirectory;
     private File mPhotoFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Window window = getWindow();
-        //4.4 全透明状态栏
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
-        //5.0 全透明实现
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(getResources().getColor(R.color.color_action_bar));
-        }
+        Utils.fullScreen(this);
         setContentView(R.layout.activity_selector);
 
         mBtnConfirm = findViewById(R.id.btn_confirm);
         mBtnDirectory = findViewById(R.id.tv_directory);
-        mBtnOriginal = findViewById(R.id.rb_original);
-        mBtnOriginal.setVisibility(PhotoSelector.getInstance().isCompress() ? View.VISIBLE : View.GONE);
         mBtnPreview = findViewById(R.id.tv_preview);
         mLayoutDirectory = findViewById(R.id.layout_directory);
 
         //ActionBar添加状态栏高度
-        findViewById(R.id.action_bar).setPadding(0, getStatusBarHeight(), 0, 0);
+        findViewById(R.id.action_bar).setPadding(0, Utils.getStatusBarHeight(this), 0, 0);
         //设置标题
+        MediaFile.Type mediaType = PhotoSelector.getInstance().mediaType();
         String title = getString(R.string.picture_and_video);
         mBtnDirectory.setText(R.string.picture_and_video);
-        if (PhotoSelector.getInstance().mediaType() == MediaFile.Type.IMAGE) {
+        if (mediaType == MediaFile.Type.IMAGE) {
             title = getString(R.string.picture);
             mBtnDirectory.setText(getString(R.string.all_picture));
-        } else if (PhotoSelector.getInstance().mediaType() == MediaFile.Type.VIDEO) {
+        } else if (mediaType == MediaFile.Type.VIDEO) {
             title = getString(R.string.video);
             mBtnDirectory.setText(getString(R.string.all_video));
         }
@@ -99,11 +86,7 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
         mLayoutDirectory.setOnClickListener(this);
         mLayoutDirectory.setClickable(false);
         mBtnDirectory.setOnClickListener(this);
-        mBtnOriginal.setOnClickListener(this);
         mBtnPreview.setOnClickListener(this);
-
-        mBtnOriginal.setVisibility(PhotoSelector.getInstance().isSupportCompress() ? View.VISIBLE : View.GONE);
-        mBtnOriginal.setChecked(!PhotoSelector.getInstance().isCompress());
 
         mBehavior = BottomSheetBehavior.from(findViewById(R.id.scrollView));
         mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
@@ -131,7 +114,6 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
         if (PhotoSelector.getInstance().isFinish()) {
             finish();
         } else {
-            PhotoSelector.getInstance().setOnSelectCountListener(this);
             if (mPhotoAdapter != null) {
                 mPhotoAdapter.notifyDataSetChanged();
             }
@@ -141,25 +123,49 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
     private void loadPhotoList() {
         mPhotoAdapter = new PhotoAdapter(PhotoSelector.getInstance().getMediaFiles(), this);
         mPhotoAdapter.setShowCamera(PhotoSelector.getInstance().enableCamera());
+        //选择监听
+        mPhotoAdapter.setOnItemCheckedChangeListener((mediaFile, isChecked) -> {
+            int selectedCount = PhotoSelector.getInstance().selectedCount();
+            mBtnConfirm.setEnabled(selectedCount > 0);
+            mBtnConfirm.setText(String.format(Locale.getDefault(),
+                    getString(R.string.confirm), selectedCount, PhotoSelector.getInstance().maxSelectCount()));
+            mBtnPreview.setClickable(selectedCount > 0);
+            mBtnPreview.setText(selectedCount == 0 ? getString(R.string.preview) :
+                    String.format(Locale.getDefault(), "%s(%d)", getString(R.string.preview), selectedCount));
+        });
+        //预览点击
         mPhotoAdapter.setOnItemClickListener(position -> {
             Intent intent = new Intent(SelectorActivity.this, PreviewActivity.class);
             intent.putExtra("position", position);
+            intent.putExtra("directory", mSelectedDirectory);
             startActivity(intent);
         });
-        mPhotoAdapter.setOnCameraClickListener(this);
+        //拍照点击
+        mPhotoAdapter.setOnCameraClickListener(() -> {
+            /*申请读取存储的权限*/
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
+                } else {
+                    takePhoto();
+                }
+            } else {
+                takePhoto();
+            }
+        });
         GridView gvImage = findViewById(R.id.gv_image);
         gvImage.setAdapter(mPhotoAdapter);
 
-        List<Directory> directories = PhotoSelector.getInstance().getDirectories();
+        List<Directory> directories = createDirectories();
         if (directories != null && !directories.isEmpty()) {
             mBtnDirectory.setClickable(true);
             SpreadListView lvDirectory = findViewById(R.id.lv_directory);
             DirectoryAdapter adapter = new DirectoryAdapter(directories, this);
             adapter.setOnDirectorySelectedListener(directory -> {
+                mSelectedDirectory = directory;
                 mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                 mBtnDirectory.setText(directory.getName());
-                PhotoSelector.getInstance().setParentDir(directory.getPath());
-                mPhotoAdapter.replaceData(PhotoSelector.getInstance().getDirMediaFiles());
+                mPhotoAdapter.replaceData(directory.getMediaFiles());
             });
             lvDirectory.setAdapter(adapter);
         } else {
@@ -167,14 +173,41 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    @Override
-    public void onCount(int selectCount) {
-        mBtnConfirm.setEnabled(selectCount > 0);
-        mBtnConfirm.setText(String.format(Locale.getDefault(),
-                getString(R.string.confirm), selectCount, PhotoSelector.getInstance().maxSelectCount()));
-        mBtnPreview.setClickable(selectCount > 0);
-        mBtnPreview.setText(selectCount == 0 ? getString(R.string.preview) :
-                String.format(Locale.getDefault(), "%s(%d)", getString(R.string.preview), selectCount));
+    private List<Directory> createDirectories() {
+        List<MediaFile> mediaFiles = PhotoSelector.getInstance().getMediaFiles();
+        if (mediaFiles != null && !mediaFiles.isEmpty()) {
+            Map<String, Directory> directoryMap = new HashMap<>(16);
+            for (MediaFile file : mediaFiles) {
+                String parent = new File(file.getPath()).getParent();
+                if (!TextUtils.isEmpty(parent)) {
+                    Directory directory = directoryMap.get(parent);
+                    if (directory == null) {
+                        directory = new Directory();
+                        directory.setPic(file.getPath());
+                        directory.setPath(parent);
+                        directory.setMediaFiles(new ArrayList<>());
+                        directoryMap.put(parent, directory);
+                    }
+                    directory.getMediaFiles().add(file);
+                }
+            }
+            List<Directory> directories = new ArrayList<>(directoryMap.values());
+            Directory directory = new Directory();
+            directory.setPic(mediaFiles.get(0).getPath());
+            MediaFile.Type mediaType = PhotoSelector.getInstance().mediaType();
+            String name = getString(R.string.picture_and_video);
+            if (mediaType == MediaFile.Type.IMAGE) {
+                name = getString(R.string.all_picture);
+            } else if (mediaType == MediaFile.Type.VIDEO) {
+                name = getString(R.string.all_video);
+            }
+            directory.setSelected(true);
+            directory.setName(name);
+            directory.setMediaFiles(mediaFiles);
+            directories.add(0, directory);
+            return directories;
+        }
+        return null;
     }
 
     @Override
@@ -190,32 +223,15 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
             } else {
                 mBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             }
-        } else if (id == R.id.rb_original) {
-            isOriginalImage = !isOriginalImage;
-            mBtnOriginal.setChecked(isOriginalImage);
         } else if (id == R.id.tv_preview) {
-            if (!PhotoSelector.getInstance().getSelectedMediaFiles().isEmpty()) {
+            if (PhotoSelector.getInstance().selectedCount() > 0) {
                 Intent intent = new Intent(this, PreviewActivity.class);
                 intent.putExtra("isPreviewSelected", true);
                 startActivity(intent);
             }
         } else if (id == R.id.btn_confirm) {
             onBackPressed();
-            PhotoSelector.getInstance().onSelectConfirm();
-        }
-    }
-
-    @Override
-    public void onCameraClick() {
-        /*申请读取存储的权限*/
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
-            } else {
-                takePhoto();
-            }
-        } else {
-            takePhoto();
+            PhotoSelector.getInstance().finish();
         }
     }
 
@@ -270,30 +286,15 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
                 mediaFile.setPath(mPhotoFile.getAbsolutePath());
                 mediaFile.setSize(mPhotoFile.length());
                 mediaFile.setLastModified(mPhotoFile.lastModified());
-                PhotoSelector.getInstance().addSelected(mediaFile);
-                onBackPressed();
-                PhotoSelector.getInstance().onSelectConfirm();
+                mediaFile.setSelected(true);
+                mPhotoAdapter.addData(mediaFile);
             }
         }
-    }
-
-    /**
-     * 获取状态栏高度
-     */
-    public int getStatusBarHeight() {
-        // 获得状态栏高度
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        return getResources().getDimensionPixelSize(resourceId);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        PhotoSelector.getInstance().reset();
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+        PhotoSelector.getInstance().cancel();
     }
 }

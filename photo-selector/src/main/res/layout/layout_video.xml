@@ -4,12 +4,6 @@
     android:layout_height="match_parent"
     android:layout_gravity="center">
 
-    <VideoView
-        android:id="@+id/video"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center" />
-
     <com.github.chrisbanes.photoview.PhotoView
         android:id="@+id/image"
         android:layout_width="match_parent"
