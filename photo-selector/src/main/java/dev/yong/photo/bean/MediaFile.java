@@ -99,15 +99,11 @@ public class MediaFile implements Serializable {
     public void setDuration(long duration) {
         SimpleDateFormat format = new SimpleDateFormat("mm:ss", Locale.getDefault());
         String time = "";
-        if (duration > 1000) {
+        if (duration < 60000 * 60) {
             time = format.format(duration);
         } else {
             long minute = duration / 60000;
-            long seconds = duration % 60000;
-            long second = Math.round((float) seconds / 1000);
-            if (minute < 10) {
-                time += "0";
-            }
+            long second = Math.round((float) duration % 60000 / 1000);
             time += minute + ":";
             if (second < 10) {
                 time += "0";
@@ -122,6 +118,9 @@ public class MediaFile implements Serializable {
     }
 
     public void setLastModified(long lastModified) {
+        if (lastModified + "".length() >= 13) {
+            lastModified /= 1000;
+        }
         this.lastModified = lastModified;
         setDate(new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(lastModified));
     }

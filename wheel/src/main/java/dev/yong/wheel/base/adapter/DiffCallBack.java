@@ -40,7 +40,7 @@ public class DiffCallBack<T> extends DiffUtil.Callback {
                 mCompareListener.compareContent(mOldData.get(oldItemPosition), mNewData.get(newItemPosition));
     }
 
-    public abstract static class CompareListener<T> {
+    public interface CompareListener<T> {
 
         /**
          * 比较两个对象
@@ -49,9 +49,9 @@ public class DiffCallBack<T> extends DiffUtil.Callback {
          * @param newObject 新的对象
          * @return true为相同
          */
-        public abstract boolean compareItem(T oldObject, T newObject);
+        boolean compareItem(T oldObject, T newObject);
 
-        public boolean compareContent(T oldObject, T newObject) {
+        default boolean compareContent(T oldObject, T newObject) {
             return compareItem(oldObject, newObject);
         }
     }

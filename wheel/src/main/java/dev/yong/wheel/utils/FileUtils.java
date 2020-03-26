@@ -80,7 +80,15 @@ public class FileUtils {
     public static File create(String absolutePath) {
         File file = new File(absolutePath);
         if (!file.exists()) {
-            return file.mkdirs() ? file : null;
+            if (file.isDirectory()) {
+                return file.mkdirs() ? file : null;
+            } else {
+                try {
+                    return file.createNewFile() ? file : null;
+                } catch (IOException e) {
+                    return null;
+                }
+            }
         }
         return file;
     }

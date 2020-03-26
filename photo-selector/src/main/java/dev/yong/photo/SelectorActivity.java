@@ -1,8 +1,7 @@
 package dev.yong.photo;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -10,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -23,7 +23,6 @@ import androidx.core.content.FileProvider;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,6 +35,7 @@ import dev.yong.photo.adapter.DirectoryAdapter;
 import dev.yong.photo.adapter.PhotoAdapter;
 import dev.yong.photo.bean.Directory;
 import dev.yong.photo.bean.MediaFile;
+import dev.yong.photo.view.MenuDialog;
 import dev.yong.photo.view.SpreadListView;
 
 /**
@@ -43,8 +43,8 @@ import dev.yong.photo.view.SpreadListView;
  */
 public class SelectorActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final int PERMISSION_CODE = 0x01;
     private static final int TAKE_PHOTO = 0x02;
+    private static final int RECORD_VIDEO = 0x03;
 
     private TextView mBtnConfirm;
     private TextView mBtnDirectory;
@@ -55,6 +55,7 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
     private PhotoAdapter mPhotoAdapter;
     private Directory mSelectedDirectory;
     private File mPhotoFile;
+    private MenuDialog mMenuDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,14 +144,27 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
         //拍照点击
         mPhotoAdapter.setOnCameraClickListener(() -> {
             /*申请读取存储的权限*/
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
-                } else {
-                    takePhoto();
-                }
-            } else {
+            MediaFile.Type type = PhotoSelector.getInstance().mediaType();
+            if (type == MediaFile.Type.IMAGE) {
                 takePhoto();
+            } else if (type == MediaFile.Type.VIDEO) {
+                recordVideo();
+            } else {
+                if (mMenuDialog == null) {
+                    mMenuDialog = new MenuDialog(this);
+                    mMenuDialog.setOnMenuClickListener(new MenuDialog.OnMenuClickListener() {
+                        @Override
+                        public void onTakePhotoClick() {
+                            takePhoto();
+                        }
+
+                        @Override
+                        public void onRecordVideoClick() {
+                            recordVideo();
+                        }
+                    });
+                }
+                mMenuDialog.show();
             }
         });
         GridView gvImage = findViewById(R.id.gv_image);
@@ -235,57 +249,75 @@ public class SelectorActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            takePhoto();
-        }
-    }
-
     /**
      * 拍照
      */
     private void takePhoto() {
+
         //打开相机的Intent
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         //判断系统是否可以打开相机
         if (intent.resolveActivity(getPackageManager()) != null) {
-            String imageFileName = "JPEG_" + new SimpleDateFormat(
-                    "yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + "_";
-            try {
-                mPhotoFile = File.createTempFile(imageFileName, ".jpg",
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES));
-            } catch (IOException e) {
-                e.printStackTrace();
+            String imageFileName = "IMG_" + new SimpleDateFormat(
+                    "yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date()) + ".jpg";
+            mPhotoFile = new File(getExternalFilesDir(Environment.DIRECTORY_DCIM), imageFileName);
+            Uri uri;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                /*7.0以上要通过FileProvider将File转化为Uri*/
+                uri = FileProvider.getUriForFile(this, "dev.yong.photo.fileprovider", mPhotoFile);
+            } else {
+                /*7.0以下则直接使用Uri的fromFile方法将File转化为Uri*/
+                uri = Uri.fromFile(mPhotoFile);
             }
-            if (mPhotoFile != null) {
-                Uri uri;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    /*7.0以上要通过FileProvider将File转化为Uri*/
-                    uri = FileProvider.getUriForFile(this, "dev.yong.photo.fileprovider", mPhotoFile);
-                } else {
-                    /*7.0以下则直接使用Uri的fromFile方法将File转化为Uri*/
-                    uri = Uri.fromFile(mPhotoFile);
-                }
-                //将用于输出的文件Uri传递给相机
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                startActivityForResult(intent, TAKE_PHOTO);
-            }
+            //将用于输出的文件Uri传递给相机
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+
+            startActivityForResult(intent, TAKE_PHOTO);
+        }
+    }
+
+    private void recordVideo() {
+        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            //好使
+            intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, PhotoSelector.getInstance().maxFileSize());
+            startActivityForResult(intent, RECORD_VIDEO);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == TAKE_PHOTO) {
-            if (mPhotoFile != null && mPhotoFile.exists()) {
+        if (resultCode == RESULT_OK) {
+            File file = null;
+            if (requestCode == TAKE_PHOTO) {
+                if (mPhotoFile != null && mPhotoFile.exists()) {
+                    file = mPhotoFile;
+                }
+            } else {
+                if (data != null) {
+                    Uri uri = data.getData();
+                    if (uri != null) {
+                        Log.e("TAG", "onActivityResult: " + uri.toString());
+                        String[] projection = {MediaStore.MediaColumns.DATA};
+
+                        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+
+                        if (cursor != null) {
+                            cursor.moveToFirst();
+                            file = new File(cursor.getString(cursor.getColumnIndex(projection[0])));
+                            cursor.close();
+                        }
+                    }
+                }
+            }
+            if (file != null) {
                 MediaFile mediaFile = new MediaFile();
-                mediaFile.setType(MediaFile.Type.IMAGE);
-                mediaFile.setName(mPhotoFile.getName());
-                mediaFile.setPath(mPhotoFile.getAbsolutePath());
-                mediaFile.setSize(mPhotoFile.length());
-                mediaFile.setLastModified(mPhotoFile.lastModified());
+                mediaFile.setType(requestCode == TAKE_PHOTO ? MediaFile.Type.IMAGE : MediaFile.Type.VIDEO);
+                mediaFile.setName(file.getName());
+                mediaFile.setPath(file.getAbsolutePath());
+                mediaFile.setSize(file.length());
+                mediaFile.setLastModified(file.lastModified());
                 mediaFile.setSelected(true);
                 mPhotoAdapter.addData(mediaFile);
             }

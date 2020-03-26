@@ -69,8 +69,7 @@ public class DirectoryAdapter extends BaseAdapter {
         holder.tvName.setText(directory.getName());
         holder.tvNum.setText(String.format(Locale.getDefault(), "%d张", directory.getMediaFiles().size()));
         holder.rbSelect.setChecked(directory.isSelected());
-        holder.rbSelect.setVisibility(
-                holder.rbSelect.isChecked() ? View.VISIBLE : View.INVISIBLE);
+        holder.rbSelect.setVisibility(holder.rbSelect.isChecked() ? View.VISIBLE : View.INVISIBLE);
         convertView.setOnClickListener(v -> {
             for (int i = 0; i < mDirectories.size(); i++) {
                 mDirectories.get(i).setSelected(i == position);
@@ -97,7 +96,7 @@ public class DirectoryAdapter extends BaseAdapter {
         void onSelected(Directory directory);
     }
 
-    class ViewHolder {
+    static class ViewHolder {
         ImageView ivPic;
         TextView tvName;
         TextView tvNum;

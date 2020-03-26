@@ -79,16 +79,6 @@ public class PhotoSelector {
     }
 
     /**
-     * 配置是否启用裁剪
-     *
-     * @param enable 默认true
-     */
-    public PhotoSelector enableEdit(boolean enable) {
-        mManager.setEnableEdit(enable);
-        return this;
-    }
-
-    /**
      * 配置是否压缩
      *
      * @param enable 默认true
@@ -138,19 +128,19 @@ public class PhotoSelector {
         return this;
     }
 
-    boolean enableCamera() {
-        return mManager.isEnableCamera();
+    int maxFileSize() {
+        return mManager.getMaxFileSize();
     }
 
-    boolean enableEdit() {
-        return mManager.isEnableEdit();
+    boolean enableCamera() {
+        return mManager.isEnableCamera();
     }
 
     boolean enableCompress() {
         return mManager.isEnableCompress();
     }
 
-    MediaFile.Type mediaType() {
+    public MediaFile.Type mediaType() {
         return mManager.getMediaType();
     }
 

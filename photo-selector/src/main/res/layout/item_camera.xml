@@ -5,13 +5,14 @@
     android:background="@drawable/btn_camera_click_selector">
 
     <TextView
+        android:id="@+id/btn_camera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:drawableTop="@drawable/ic_camera"
         android:drawablePadding="5dp"
         android:gravity="center"
-        android:text="@string/take_photo"
+        android:text="@string/open_camera"
         android:textColor="#8a8a8a"
         android:textSize="12sp" />
 

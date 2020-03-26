@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/bg_menu_dialog"
+    android:divider="@drawable/divider"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:showDividers="middle">
+
+    <TextView
+        android:id="@+id/btn_take_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_menu_click"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="@string/take_photo"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/btn_record_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_menu_click"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="@string/record_video"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="#EEEEEE" />
+
+    <TextView
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_menu_click"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="@string/cancel"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
+
+</LinearLayout>

@@ -19,7 +19,6 @@ class PhotoManager {
 
     private MediaFile.Type mediaType;
     private boolean enableCamera = false;
-    private boolean enableEdit = true;
     private boolean enableCompress = true;
     private int maxSelectCount = 9;
     private int minFileSize = 1024;
@@ -114,14 +113,6 @@ class PhotoManager {
         this.enableCamera = enableCamera;
     }
 
-    boolean isEnableEdit() {
-        return enableEdit;
-    }
-
-    void setEnableEdit(boolean enableEdit) {
-        this.enableEdit = enableEdit;
-    }
-
     boolean isEnableCompress() {
         return enableCompress;
     }
@@ -146,6 +137,10 @@ class PhotoManager {
         this.maxFileSize = maxFileSize;
     }
 
+    int getMaxFileSize() {
+        return maxFileSize;
+    }
+
     void setCompressFactory(CompressFactory compressFactory) {
         this.mCompressFactory = compressFactory;
     }
@@ -153,7 +148,6 @@ class PhotoManager {
     void reset() {
         mediaType = null;
         enableCamera = false;
-        enableEdit = true;
         enableCompress = true;
         maxSelectCount = 9;
         minFileSize = 1024;

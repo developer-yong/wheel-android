@@ -213,7 +213,7 @@ public class PhotoAdapter extends BaseAdapter {
         void onCheckedChanged(MediaFile mediaFile, boolean isChecked);
     }
 
-    class ViewHolder {
+    static class ViewHolder {
         ImageView ivPhoto;
         ImageView ivVideo;
         TextView tvDuration;
