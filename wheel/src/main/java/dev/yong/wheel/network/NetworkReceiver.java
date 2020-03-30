@@ -19,7 +19,7 @@ public class NetworkReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+        if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
             int type = Network.getNetworkType(context);
             // 接口回调传过去状态的类型
             if (mListener != null) {

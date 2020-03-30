@@ -1,7 +1,6 @@
 package dev.yong.sample.modules;
 
 import android.Manifest;
-
 import butterknife.OnClick;
 import dev.yong.photo.PhotoSelector;
 import dev.yong.sample.R;
@@ -25,6 +24,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void init() {
         super.init();
+        Logger.e(System.getProperty("line.separator"));
     }
 
     @OnClick(R.id.btn_start)

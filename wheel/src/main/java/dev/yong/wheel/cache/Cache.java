@@ -1,10 +1,9 @@
 package dev.yong.wheel.cache;
 
 import android.content.Context;
-
-import androidx.annotation.NonNull;
-
-import org.simple.eventbus.EventBus;
+import android.text.TextUtils;
+import dev.yong.wheel.AppManager;
+import dev.yong.wheel.utils.JSON;
 
 import java.io.File;
 import java.io.Serializable;
@@ -13,55 +12,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import dev.yong.wheel.AppManager;
-import dev.yong.wheel.utils.JSON;
-
-import static dev.yong.wheel.cache.CacheConfig.CACHE_DIR;
-import static dev.yong.wheel.cache.CacheConfig.MAX_COUNT;
-import static dev.yong.wheel.cache.CacheConfig.MAX_SIZE;
-
 /**
  * @author coderyong
  */
 public class Cache {
 
+    /**
+     * 缓存文件夹，默认为{@link Context#getCacheDir()/Cache}
+     */
+    public static String CACHE_DIR = "";
+
+    /**
+     * 缓存文件最大量，默认50MB
+     */
+    public static long MAX_SIZE = 1024 * 1024 * 50;
+
+    /**
+     * 缓存数据条数最大量，默认{@link Integer#MAX_VALUE}
+     */
+    public static int MAX_COUNT = Integer.MAX_VALUE;
+
     private static Map<String, Cache> sInstanceMap = new HashMap<>();
     private CacheManager mManager;
-    private File mCacheFile;
+    private File mCacheDir;
 
     public static Cache getInstance() {
-        return getInstance(MAX_SIZE, MAX_SIZE);
-    }
-
-    public static Cache getInstance(long maxSize, int maxCount) {
-        return getInstance(AppManager.getInstance().getApplication(), CACHE_DIR, maxSize, maxCount);
-    }
-
-    public static Cache getInstance(@NonNull Context context) {
-        return getInstance(context, CACHE_DIR);
-    }
-
-    public static Cache getInstance(@NonNull Context context, long maxSize, int maxCount) {
-        return getInstance(context, CACHE_DIR, maxSize, maxCount);
-    }
-
-    public static Cache getInstance(@NonNull Context context, String cacheName) {
-        return getInstance(context, cacheName, MAX_SIZE, MAX_SIZE);
-    }
-
-    public static Cache getInstance(@NonNull Context context, String cacheName, long maxSize, int maxCount) {
-        return getInstance(new File(context.getCacheDir(), cacheName), maxSize, maxCount);
-    }
-
-    public static Cache getInstance(@NonNull File cacheDir) {
-        return getInstance(cacheDir, MAX_SIZE, MAX_COUNT);
-    }
-
-    public static Cache getInstance(@NonNull File cacheDir, long maxSize, int maxCount) {
-        Cache cache = sInstanceMap.get(cacheDir.getAbsoluteFile() + myPid());
+        Cache cache = sInstanceMap.get(CACHE_DIR + myPid());
         if (cache == null) {
-            cache = new Cache(cacheDir, maxSize, maxCount);
-            sInstanceMap.put(cacheDir.getAbsolutePath() + myPid(), cache);
+            sInstanceMap.put(CACHE_DIR + myPid(), new Cache());
         }
         return cache;
     }
@@ -70,13 +48,22 @@ public class Cache {
         return "_" + android.os.Process.myPid();
     }
 
-    private Cache(File cacheDir, long maxSize, int maxCount) {
-        if (!cacheDir.exists() && !cacheDir.mkdirs()) {
-            throw new RuntimeException("can't make dirs in " + cacheDir.getAbsolutePath());
+    private Cache() {
+        if (TextUtils.isEmpty(CACHE_DIR)) {
+            CACHE_DIR = AppManager.getInstance().getApplication()
+                    .getApplicationContext().getCacheDir().getAbsolutePath();
         }
-        mCacheFile = cacheDir;
-        mManager = new CacheManager(cacheDir, maxSize, maxCount);
-        EventBus.getDefault().register(this);
+        mCacheDir = new File(CACHE_DIR);
+        if (!mCacheDir.exists() && !mCacheDir.mkdirs()) {
+            throw new RuntimeException("can't make dirs in " + mCacheDir.getAbsolutePath());
+        }
+        mManager = new CacheManager(mCacheDir, MAX_SIZE, MAX_COUNT);
+    }
+
+    public static void init(String cacheDir, long maxSize, int maxCount) {
+        CACHE_DIR = cacheDir;
+        MAX_SIZE = maxSize;
+        MAX_COUNT = maxCount;
     }
 
     /**
@@ -224,6 +211,6 @@ public class Cache {
      * @return CacheDir AbsolutePath
      */
     public String getCacheDir() {
-        return mCacheFile.getAbsolutePath();
+        return mCacheDir.getAbsolutePath();
     }
 }

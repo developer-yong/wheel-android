@@ -43,7 +43,6 @@ public class Keyboard implements ViewTreeObserver.OnGlobalLayoutListener {
     private Keyboard() {
     }
 
-
     /**
      * 初始化软件盘高度
      *
@@ -339,7 +338,7 @@ public class Keyboard implements ViewTreeObserver.OnGlobalLayoutListener {
             hasNavigationBar = rs.getBoolean(id);
         }
         try {
-            Class systemPropertiesClass = Class.forName("android.os.SystemProperties");
+            Class<?> systemPropertiesClass = Class.forName("android.os.SystemProperties");
             Method m = systemPropertiesClass.getMethod("get", String.class);
             String navBarOverride = (String) m.invoke(systemPropertiesClass, "qemu.hw.mainkeys");
             //判断是否隐藏了底部虚拟导航

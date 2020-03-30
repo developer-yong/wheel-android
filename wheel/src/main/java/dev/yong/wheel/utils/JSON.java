@@ -50,7 +50,7 @@ public class JSON {
      * @return List<T> 实例
      */
     public static <T> List<T> parseArray(String jsonStr, Class<T> clazz) {
-        TypeToken typeToken = TypeToken.getArray(clazz);
+        TypeToken<?> typeToken = TypeToken.getArray(clazz);
         if (TextUtils.isEmpty(jsonStr)) {
             return null;
         }

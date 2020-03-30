@@ -1,8 +1,8 @@
 package dev.yong.wheel.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import dev.yong.wheel.AppManager;
 
 import java.util.HashSet;
 import java.util.List;
@@ -11,108 +11,95 @@ import java.util.Set;
 /**
  * @author CoderYong
  */
-
 public class Preferences {
 
-    @SuppressLint("StaticFieldLeak")
-    private static Preferences sInstance;
-
-    private SharedPreferences mPreferences;
-    private Context mContext;
-
-    private Preferences(Context context) {
-        mContext = context.getApplicationContext();
+    public static Builder with(Context context) {
+        return with(context, "config");
     }
 
-    public static Preferences getInstance(Context context, String name) {
-        if (context == null) {
-            throw new NullPointerException("Context must be not null");
+    public static Builder with(String name) {
+        return with(AppManager.getInstance().getApplication(), name);
+    }
+
+    public static Builder with(Context context, String name) {
+        return new Builder(context, name);
+    }
+
+    public static class Builder {
+
+        private SharedPreferences mPreferences;
+
+        public Builder(Context context, String name) {
+            mPreferences = context.getApplicationContext().getSharedPreferences(name, Context.MODE_PRIVATE);
         }
-        if (sInstance == null) {
-            synchronized (Preferences.class) {
-                if (sInstance == null) {
-                    sInstance = new Preferences(context);
-                }
-            }
+
+        public SharedPreferences.Editor getSPEditor() {
+            return mPreferences.edit();
         }
-        sInstance.mPreferences = sInstance.mContext.getSharedPreferences(name, Context.MODE_PRIVATE);
-        return sInstance;
-    }
 
-    public static Preferences getInstance(Context context) {
-        return getInstance(context, "config");
-    }
+        public String getString(String key) {
+            return mPreferences.getString(key, "");
+        }
 
-    public SharedPreferences.Editor getSPEditor() {
-        return mPreferences.edit();
-    }
+        public void putString(String key, String value) {
+            mPreferences.edit().putString(key, value).apply();
+        }
 
-    public String getString(String key) {
-        return mPreferences.getString(key, "");
-    }
+        public long getLong(String key) {
+            return mPreferences.getLong(key, 0);
+        }
 
-    public void putString(String key, String value) {
-        mPreferences.edit().putString(key, value).apply();
-    }
+        public void putLong(String key, long value) {
+            mPreferences.edit().putLong(key, value).apply();
+        }
 
-    public long getLong(String key) {
-        return mPreferences.getLong(key, 0);
-    }
+        public int getInt(String key) {
+            return mPreferences.getInt(key, 0);
+        }
 
-    public void putLong(String key, long value) {
-        mPreferences.edit().putLong(key, value).apply();
-    }
+        public void putInt(String key, int value) {
+            mPreferences.edit().putInt(key, value).apply();
+        }
 
-    public int getInt(String key) {
-        return mPreferences.getInt(key, 0);
-    }
+        public boolean getBoolean(String key, boolean defaultValue) {
+            return mPreferences.getBoolean(key, defaultValue);
+        }
 
-    public void putInt(String key, int value) {
-        mPreferences.edit().putInt(key, value).apply();
-    }
+        public void putBoolean(String key, boolean value) {
+            mPreferences.edit().putBoolean(key, value).apply();
+        }
 
-    public boolean getBoolean(String key, boolean defaultValue) {
-        return mPreferences.getBoolean(key, defaultValue);
-    }
+        public Set<String> getStringSet(String key) {
+            return mPreferences.getStringSet(key, new HashSet<>());
+        }
 
-    public void putBoolean(String key, boolean value) {
-        mPreferences.edit().putBoolean(key, value).apply();
-    }
+        public void putStringSet(String key, Set<String> setValue) {
+            removeFromKey(key);
+            mPreferences.edit().putStringSet(key, setValue).apply();
+        }
 
-    public Set<String> getStringSet(String key) {
-        return mPreferences.getStringSet(key, new HashSet<>());
-    }
+        public void removeFromKey(String key) {
+            mPreferences.edit().remove(key).apply();
+        }
 
-    public void putStringSet(String key, Set<String> setValue) {
-        removeFromKey(key);
-        mPreferences.edit().putStringSet(key, setValue).apply();
-    }
+        public <T> T getObject(String key, Class<T> clazz) {
+            return JSON.parseObject(getString(key), clazz);
+        }
 
-    public void removeFromKey(String key) {
-        mPreferences.edit().remove(key).apply();
-    }
+        public void putObject(String key, Object object) {
+            putString(key, JSON.toJson(object));
+        }
 
-    public SharedPreferences getSharedFile(String key) {
-        return mContext.getSharedPreferences(key, Context.MODE_PRIVATE);
-    }
+        public <T> T getList(String key, Class<T> clazz) {
+            return JSON.parseObject(getString(key), clazz);
+        }
 
-    public <T> T getObject(String key, Class<T> clazz) {
-        return JSON.parseObject(getString(key), clazz);
-    }
+        public void putList(String key, List<?> list) {
+            putString(key, JSON.toJson(list));
+        }
 
-    public void putObject(String key, Object object) {
-        putString(key, JSON.toJson(object));
-    }
-
-    public <T> T getList(String key, Class<T> clazz) {
-        return JSON.parseObject(getString(key), clazz);
-    }
-
-    public void putList(String key, List<?> list) {
-        putString(key, JSON.toJson(list));
-    }
-
-    public void clear() {
-        mPreferences.edit().clear().apply();
+        public void clear() {
+            mPreferences.edit().clear().apply();
+        }
     }
 }

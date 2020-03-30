@@ -79,8 +79,6 @@ public class ProgressRequestBody extends RequestBody {
         requestBody.writeTo(bufferedSink);
         //必须调用flush，否则最后一部分数据可能不会被写入
         bufferedSink.flush();
-
-
     }
 
     /**

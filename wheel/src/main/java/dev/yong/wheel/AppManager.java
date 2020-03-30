@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import com.squareup.leakcanary.LeakCanary;
 
 import org.simple.eventbus.EventBus;
@@ -80,7 +81,7 @@ public class AppManager implements Thread.UncaughtExceptionHandler, Application.
     }
 
     @Override
-    public void uncaughtException(Thread t, Throwable e) {
+    public void uncaughtException(@NonNull Thread t, @NonNull Throwable e) {
         showToast();
         captureException(t, e);
 
@@ -125,13 +126,10 @@ public class AppManager implements Thread.UncaughtExceptionHandler, Application.
     }
 
     private void showToast() {
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-                ToastUtils.show("很抱歉，程序出现异常，即将重启", Toast.LENGTH_LONG);
-                Looper.loop();
-            }
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Looper.prepare();
+            ToastUtils.show("很抱歉，程序出现异常，即将重启", Toast.LENGTH_LONG);
+            Looper.loop();
         });
         try {
             //Toast展示的时间
@@ -193,7 +191,7 @@ public class AppManager implements Thread.UncaughtExceptionHandler, Application.
     /**
      * 销毁所有Activity
      */
-    public void clearAllActivity(){
+    public void clearAllActivity() {
         synchronized (AppManager.class) {
             Iterator<Activity> iterator = mActivities.iterator();
             while (iterator.hasNext()) {
@@ -220,34 +218,34 @@ public class AppManager implements Thread.UncaughtExceptionHandler, Application.
     }
 
     @Override
-    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+    public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
         if (mActivities.indexOf(activity) == -1) {
             mActivities.add(activity);
         }
     }
 
     @Override
-    public void onActivityDestroyed(Activity activity) {
+    public void onActivityDestroyed(@NonNull Activity activity) {
         mActivities.remove(activity);
     }
 
     @Override
-    public void onActivityStarted(Activity activity) {
+    public void onActivityStarted(@NonNull Activity activity) {
     }
 
     @Override
-    public void onActivityResumed(Activity activity) {
+    public void onActivityResumed(@NonNull Activity activity) {
     }
 
     @Override
-    public void onActivityPaused(Activity activity) {
+    public void onActivityPaused(@NonNull Activity activity) {
     }
 
     @Override
-    public void onActivityStopped(Activity activity) {
+    public void onActivityStopped(@NonNull Activity activity) {
     }
 
     @Override
-    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+    public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
     }
 }

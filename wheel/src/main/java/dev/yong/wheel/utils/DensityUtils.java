@@ -18,7 +18,8 @@ public final class DensityUtils {
 
     public static float getDensity() {
         if (density <= 0F) {
-            density = AppManager.getInstance().getApplication().getResources().getDisplayMetrics().density;
+            density = AppManager.getInstance().getApplication()
+                    .getApplicationContext().getResources().getDisplayMetrics().density;
         }
         return density;
     }
@@ -33,7 +34,8 @@ public final class DensityUtils {
 
     public static int getScreenWidth() {
         if (widthPixels <= 0) {
-            widthPixels = AppManager.getInstance().getApplication().getResources().getDisplayMetrics().widthPixels;
+            widthPixels = AppManager.getInstance().getApplication()
+                    .getApplicationContext().getResources().getDisplayMetrics().widthPixels;
         }
         return widthPixels;
     }
@@ -41,7 +43,8 @@ public final class DensityUtils {
 
     public static int getScreenHeight() {
         if (heightPixels <= 0) {
-            heightPixels = AppManager.getInstance().getApplication().getResources().getDisplayMetrics().heightPixels;
+            heightPixels = AppManager.getInstance().getApplication()
+                    .getApplicationContext().getResources().getDisplayMetrics().heightPixels;
         }
         return heightPixels;
     }

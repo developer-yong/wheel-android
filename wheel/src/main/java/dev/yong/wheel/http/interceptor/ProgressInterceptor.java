@@ -41,7 +41,6 @@ public class ProgressInterceptor implements Interceptor {
             Request request = original.newBuilder()
                     .method(original.method(), new ProgressRequestBody(original.body(), mListener))
                     .build();
-
             return chain.proceed(request);
         } else {
             //拦截

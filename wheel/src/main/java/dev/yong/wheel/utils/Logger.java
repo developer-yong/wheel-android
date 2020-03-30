@@ -71,6 +71,12 @@ public class Logger {
         }
     }
 
+    public static void w(Throwable tr) {
+        if (DEBUG) {
+            log(Log.WARN, Log.getStackTraceString(tr));
+        }
+    }
+
     public static void w(Throwable tr, String msg) {
         if (DEBUG) {
             log(Log.WARN, msg + "\n" + Log.getStackTraceString(tr));
@@ -83,7 +89,13 @@ public class Logger {
         }
     }
 
-    public static void e(Throwable tr, String... msg) {
+    public static void e(Throwable tr) {
+        if (DEBUG) {
+            log(Log.ERROR, Log.getStackTraceString(tr));
+        }
+    }
+
+    public static void e(Throwable tr, String msg) {
         if (DEBUG) {
             log(Log.ERROR, msg + "\n" + Log.getStackTraceString(tr));
         }
@@ -127,7 +139,10 @@ public class Logger {
     public static void file(String path, String msg, Throwable tr) {
         File parent = new File(path);
         if (!parent.exists()) {
-            parent.mkdirs();
+            boolean mkdirs = parent.mkdirs();
+            if (!mkdirs && !parent.exists()) {
+                throw new IllegalStateException("LogFile not create");
+            }
         }
         BufferedWriter bw = null;
         try {
@@ -185,7 +200,8 @@ public class Logger {
 
             for (String msg : msgs) {
                 if (msg != null) {
-                    String[] lines = msg.split(System.getProperty("line.separator"));
+                    String property = System.getProperty("line.separator");
+                    String[] lines = msg.split(property != null ? property : "\n");
                     for (String line : lines) {
                         longLog(priority, HORIZONTAL_LINE + "\t" + line);
                     }
@@ -207,7 +223,8 @@ public class Logger {
             if (msgs != null) {
                 for (String msg : msgs) {
                     if (msg != null) {
-                        String[] lines = msg.split(System.getProperty("line.separator"));
+                        String property = System.getProperty("line.separator");
+                        String[] lines = msg.split(property != null ? property : "\n");
                         for (String line : lines) {
                             message.append(HORIZONTAL_LINE + "\t").append(line).append("\n");
                         }
@@ -244,7 +261,7 @@ public class Logger {
                         m = (i == 0 ? "" : HORIZONTAL_LINE + "\t") + msg.substring(i, i + maxLength);
                     } else {
                         //当前截取的长度已经超过了总长度，则打印出剩下的全部信息
-                        m = HORIZONTAL_LINE + "\t" + msg.substring(i, msg.length());
+                        m = HORIZONTAL_LINE + "\t" + msg.substring(i);
                     }
 
                     i += maxLength;

@@ -1,5 +1,6 @@
 package dev.yong.wheel.swipeback;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -108,6 +109,7 @@ public class SwipeBackLayout extends FrameLayout {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mViewDragHelper.processTouchEvent(event);

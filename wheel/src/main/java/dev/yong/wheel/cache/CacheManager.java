@@ -65,8 +65,8 @@ class CacheManager {
     private File get(String key) {
         if (!isObsolete(key)) {
             File file = getFile(key);
-            file.setLastModified(System.currentTimeMillis());
-            mLastModified.put(file, file.lastModified());
+            mLastModified.put(file, file.setLastModified(System.currentTimeMillis())
+                    ? file.lastModified() : System.currentTimeMillis());
             return file;
         }
         return null;
@@ -165,8 +165,8 @@ class CacheManager {
         }
         mCacheSize.addAndGet(valueSize);
 
-        file.setLastModified(System.currentTimeMillis());
-        mLastModified.put(file, file.lastModified());
+        mLastModified.put(file, file.setLastModified(System.currentTimeMillis())
+                ? file.lastModified() : System.currentTimeMillis());
         mCacheFiles.put(getFileKey(file), file);
     }
 

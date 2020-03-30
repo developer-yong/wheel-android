@@ -11,7 +11,6 @@ import androidx.annotation.RequiresPermission;
 
 /**
  * @author coderyong
- * @date 2018/4/24
  */
 public class Bluetooth {
     public static final int REQUEST_BLUETOOTH = 0x01;

@@ -7,17 +7,15 @@ import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.widget.Toast;
-
+import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
+import dev.yong.wheel.AppManager;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.text.DecimalFormat;
-
-import dev.yong.wheel.AppManager;
 
 /**
  * @author CoderYong
@@ -154,8 +152,8 @@ public class FileUtils {
     /**
      * 文件大小格式化
      *
-     * @param length
-     * @return
+     * @param length 文件字节长度
+     * @return 格式字符串
      */
     public static String formatFileSize(long length) {
         DecimalFormat df = new DecimalFormat("#.00");
@@ -173,98 +171,15 @@ public class FileUtils {
     }
 
     /**
-     * 文件md5
-     */
-    private static final char[] HEX_DIGITS =
-            {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
-    /**
-     * 把byte[]数组转换成十六进制字符串表示形式
-     *
-     * @param tmp 要转换的byte[]
-     * @return 十六进制字符串表示形式
-     */
-    private static String byteToHexString(byte[] tmp) {
-
-        // 用字节表示就是 16 个字节
-        // 每个字节用 16 进制表示的话，使用两个字符，
-        char[] c = new char[16 * 2];
-
-        // 所以表示成 16 进制需要 32 个字符
-        // 表示转换结果中对应的字符位置
-        int k = 0;
-        // 从第一个字节开始，对 MD5 的每一个字节
-        for (int i = 0; i < 16; i++) {
-
-            // 转换成 16 进制字符的转换
-            // 取第 i 个字节
-            byte byte0 = tmp[i];
-            // 取字节中高 4 位的数字转换,
-            c[k++] = HEX_DIGITS[byte0 >>> 4 & 0xf];
-
-            // >>> 为逻辑右移，将符号位一起右移
-            // 取字节中低 4 位的数字转换
-            c[k++] = HEX_DIGITS[byte0 & 0xf];
-        }
-        // 换后的结果转换为字符串
-        return new String(c);
-    }
-
-    public static String getMD5(File file) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            FileInputStream in = new FileInputStream(file);
-            byte[] buffer = new byte[2048];
-            int length;
-            while ((length = in.read(buffer)) != -1) {
-                md.update(buffer, 0, length);
-            }
-            byte[] b = md.digest();
-            in.close();
-            return byteToHexString(b);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
      * 文件重命名
      *
      * @param file 原文件
      * @param name 新文件名
-     *             <P>不带后缀</P>
      * @return 新文件名
      */
-    public static String rename(File file, String name) {
-        return rename(file, name);
-    }
-
-
-    /**
-     * 文件重命名
-     *
-     * @param file 原文件
-     * @param path 新文件路径
-     * @param name 新文件名
-     *             <P>不带后缀</P>
-     * @return 新文件名
-     */
-    public static String rename(File file, String path, String name) {
-        if (file != null && file.exists()) {
-            //创建新的文件名
-            name = name + getSuffix(file.getAbsolutePath());
-            //如果新的文件名与原文件名不相同则不做操作
-            if (!name.equals(file.getName())) {
-                String parent = TextUtils.isEmpty(path) ? file.getParent() : path;
-                File newFile = new File(parent, name);
-                if (newFile.exists()) {
-                    newFile.delete();
-                }
-                return file.renameTo(newFile) ? name : file.getName();
-            }
-        }
-        return "";
+    public static String rename(@NonNull File file, @NonNull String name) {
+        File destFile = new File(file.getParent(), name);
+        return file.renameTo(destFile) ? destFile.getName() : file.getName();
     }
 
     /**
@@ -273,7 +188,7 @@ public class FileUtils {
      * @param fromFile 原文件
      * @param toFile   新文件
      */
-    public static void copy(File fromFile, File toFile) {
+    public static void copy(@NonNull File fromFile, @NonNull File toFile) {
         try {
             FileInputStream ins = new FileInputStream(fromFile);
             FileOutputStream out = new FileOutputStream(toFile);
@@ -295,17 +210,12 @@ public class FileUtils {
      * @param file 原文件
      * @param path 新文件路径
      */
-
-    public static File move(File file, String path) {
-        if (file != null && file.exists() && !path.equals(file.getParent())) {
-            File newFile = new File(path, file.getName());
-            if (!newFile.getParentFile().exists()) {
-                newFile.getParentFile().mkdirs();
+    public static File move(@NonNull File file, @NonNull String path) {
+        if (file.exists() && !path.equals(file.getParent())) {
+            File destFile = new File(path, file.getName());
+            if (!destFile.exists() || destFile.delete()) {
+                return create(path) != null && file.renameTo(destFile) ? destFile : file;
             }
-            if (newFile.exists()) {
-                newFile.delete();
-            }
-            return file.renameTo(newFile) ? newFile : file;
         }
         return file;
     }
@@ -397,11 +307,11 @@ public class FileUtils {
     /**
      * 根据路径打开文件
      *
-     * @param context 上下文
-     * @param path    文件路径
+     * @param context      上下文
+     * @param absolutePath 文件绝对路径
      */
-    public static void openFileByPath(Context context, String path) {
-        if (context == null || path == null) {
+    public static void open(Context context, String absolutePath) {
+        if (context == null || absolutePath == null) {
             return;
         }
         Intent intent = new Intent();
@@ -410,7 +320,7 @@ public class FileUtils {
         //文件的类型
         String type = "*/*";
         for (String[] strings : MATCH_ARRAY) {
-            String suffix = getSuffix(path);
+            String suffix = getSuffix(absolutePath);
             //判断文件的格式
             if (!TextUtils.isEmpty(suffix)) {
                 if (suffix.toLowerCase().contains(strings[0])) {
@@ -418,7 +328,7 @@ public class FileUtils {
                     break;
                 }
             } else {
-                if (path.contains(strings[0])) {
+                if (absolutePath.contains(strings[0])) {
                     type = strings[1];
                     break;
                 }
@@ -429,12 +339,12 @@ public class FileUtils {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 Uri contentUri = FileProvider.getUriForFile(
-                        context, context.getApplicationInfo().packageName + ".FileProvider", new File(path));
+                        context, context.getApplicationInfo().packageName + ".FileProvider", new File(absolutePath));
                 intent.setDataAndType(contentUri, type);
             } else {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 //设置intent的data和Type属性
-                intent.setDataAndType(Uri.fromFile(new File(path)), type);
+                intent.setDataAndType(Uri.fromFile(new File(absolutePath)), type);
             }
             //跳转
             context.startActivity(intent);
@@ -443,6 +353,5 @@ public class FileUtils {
             Toast.makeText(context, "无法打开该格式文件!", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
-
     }
 }
