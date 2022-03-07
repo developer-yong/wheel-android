@@ -1,14 +1,10 @@
 package dev.yong.wheel.http.interceptor;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 
-import dev.yong.wheel.AppManager;
-import dev.yong.wheel.network.Network;
-import okhttp3.CacheControl;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -19,18 +15,15 @@ import okhttp3.Response;
  *
  * @author coderyong
  */
-public class NetCacheInterceptor implements Interceptor {
-    /**
-     * 在线的时候的缓存过期时间，如果想要不缓存，直接时间设置为0 (秒)
-     */
-    public static int CACHE_TIME = 0;
+@SuppressWarnings("unused")
+public interface NetCacheInterceptor extends Interceptor {
 
-    @NonNull
+    @NotNull
     @Override
-    public Response intercept(Chain chain) throws IOException {
+    default Response intercept(@NotNull Chain chain) throws IOException {
         Request request = chain.request();
         Response response = chain.proceed(request);
-        if (Network.isAvailable(AppManager.getInstance().getApplication())) {
+        if (onNetworkAvailable()) {
             HttpUrl url = request.url();
             TreeMap<String, String> parameters = new TreeMap<>();
             for (int i = 0; i < url.querySize(); i++) {
@@ -44,9 +37,25 @@ public class NetCacheInterceptor implements Interceptor {
             return response.newBuilder()
                     .request(request.newBuilder().url(urlBuilder.build()).build())
                     .removeHeader("Pragma")
-                    .header("Cache-Control", "public, max-age=" + CACHE_TIME)
+                    .header("Cache-Control", "public, max-age=" + onlineCacheTime())
                     .build();
         }
         return response;
     }
+
+    /**
+     * 在线的时候的缓存过期时间，如果想要不缓存，直接时间设置为0 (秒)
+     *
+     * @return 离线缓存时间
+     */
+    default int onlineCacheTime() {
+        return 0;
+    }
+
+    /**
+     * 网络可用
+     *
+     * @return true 可用
+     */
+    boolean onNetworkAvailable();
 }

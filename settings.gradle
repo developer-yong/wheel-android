@@ -1,1 +1,3 @@
-include ':sample', ':wheel', ':photo-selector'
+include ':wheel'
+include ':app'
+rootProject.name = "wheel"

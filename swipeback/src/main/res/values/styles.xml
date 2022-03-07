@@ -1,7 +1,0 @@
-<resources>
-
-    <style name="TranslucentTheme">
-        <!--是否半透明-->
-        <item name="android:windowIsTranslucent">true</item>
-    </style>
-</resources>

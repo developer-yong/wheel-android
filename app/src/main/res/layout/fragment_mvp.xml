@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dev.yong.wheel.swipeback.SwipeBackLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".mvp.MvpFragment">
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_html"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:boxStrokeColor="@color/black"
+        app:boxStrokeErrorColor="#FF4D4D"
+        app:boxStrokeWidth="0.1dp"
+        app:boxStrokeWidthFocused="0.1dp"
+        app:endIconDrawable="@android:drawable/ic_input_delete"
+        app:endIconMode="clear_text"
+        app:hintEnabled="false"
+        app:prefixText="+86"
+        app:prefixTextColor="@color/black"
+        app:helperText="密码">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_html"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:hint="请输入密码"
+            android:inputType="textPassword"
+            android:paddingStart="0dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="0dp"
+            android:paddingBottom="8dp"
+            android:textSize="18dp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/iv_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</dev.yong.wheel.swipeback.SwipeBackLayout>

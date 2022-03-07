@@ -1,6 +1,6 @@
 package dev.yong.wheel.http.interceptor;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -11,7 +11,9 @@ import okhttp3.Response;
 /**
  * @author coderyong
  */
+@SuppressWarnings("unused")
 public interface BeforeInterceptor extends Interceptor {
+
     /**
      * 响应前
      *
@@ -19,8 +21,7 @@ public interface BeforeInterceptor extends Interceptor {
      * @param chain    chain
      * @return 返回处理后的响应内容，必须不为空
      */
-    @NonNull
-    Response onResponseBefore(Chain chain, Response response);
+    Response onResponseBefore(Interceptor.Chain chain, Response response);
 
     /**
      * 请求前
@@ -28,12 +29,11 @@ public interface BeforeInterceptor extends Interceptor {
      * @param request request
      * @return 返回处理后的请求，必须不为空
      */
-    @NonNull
     Request onRequestBefore(Request request);
 
-    @NonNull
+    @NotNull
     @Override
-    default Response intercept(@NonNull Chain chain) throws IOException {
+    default Response intercept(@NotNull Chain chain) throws IOException {
         return onResponseBefore(chain, chain.proceed(onRequestBefore(chain.request())));
     }
 }

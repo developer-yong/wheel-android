@@ -3,13 +3,14 @@ package dev.yong.wheel.http;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
-import dev.yong.wheel.utils.Logger;
+import okhttp3.Call;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -18,45 +19,38 @@ import okhttp3.ResponseBody;
  */
 public interface Callback<T> extends okhttp3.Callback {
 
-    default void onResponse(@NonNull okhttp3.Call call, @NonNull Response response) {
+    @Override
+    default void onResponse(@NotNull Call call, @NotNull Response response) {
         if (response.isSuccessful()) {
-            ResponseBody responseBody = response.body();
-            if (responseBody == null) {
+            try {
+                //responseBody.string()只能在非UI线程中调用
+                String body = Objects.requireNonNull(response.body()).string();
+                T result = parse(body);
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    onResponse("");
-                    onResponse((T) null);
+                    onResponseString(body);
+                    onResponse(result);
                 });
-            } else {
-                try {
-                    //responseBody.string()只能在非UI线程中调用
-                    String body = responseBody.string();
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        onResponse(body);
-                        onResponse(parse(body));
-                    });
-                } catch (IOException e) {
-                    new Handler(Looper.getMainLooper()).post(() -> onFailure(e, response.body()));
-                }
+            } catch (Exception e) {
+                onFailure(call, new IOException(e));
             }
         } else {
-            new Handler(Looper.getMainLooper()).post(() ->
-                    onFailure(new Exception("Request failed, response's code is: " + response.code()), response.body()));
+            onFailure(call, new IOException("Request failed, response's code is: " + response.code()));
         }
-
     }
 
-    default void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
-        new Handler(Looper.getMainLooper()).post(() -> onFailure(e, null));
+    @Override
+    default void onFailure(@NotNull Call call, @NotNull IOException e) {
+        new Handler(Looper.getMainLooper()).post(() -> onFailure(e));
     }
 
+    @SuppressWarnings("unchecked")
     default T parse(String content) {
         Type type = ((ParameterizedType) getClass()
                 .getGenericInterfaces()[0]).getActualTypeArguments()[0];
-        try {
+        if (type == String.class) {
+            return (T) content;
+        } else {
             return OkHttpHelper.parserFactory().parser(content, type);
-        } catch (Exception e) {
-            Logger.e(e);
-            return null;
         }
     }
 
@@ -70,16 +64,15 @@ public interface Callback<T> extends okhttp3.Callback {
     /**
      * 请求失败
      *
-     * @param t            错误信息
-     * @param responseBody 响应内容
+     * @param t 错误信息
      */
-    void onFailure(Throwable t, ResponseBody responseBody);
+    void onFailure(Throwable t);
 
     /**
      * 请求成功
      *
      * @param responseBody 请求成功后得到的响应数据
      */
-    default void onResponse(String responseBody) {
+    default void onResponseString(String responseBody) {
     }
 }

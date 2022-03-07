@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/projects/android/wheel-android-kotlin/app/src/main/res/layout/layout_bottom.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/drawable/bg_bottom_menu_dialog.xml" value="0.337" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/drawable/divider.xml" value="0.337" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/drawable/ic_arrow_back_24.xml" value="0.337" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/dialog_bottom.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/dialog_bottom_menu.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/dialog_progress.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/layout_action_bar.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/layout_bottom.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/layout_container.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/layout_empty.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/layout_recycler.xml" value="0.3536458333333333" />
+        <entry key="..\:/projects/android/wheel-android-kotlin/wheel/src/main/res/layout/layout_refresh_recycler.xml" value="0.3536458333333333" />
+      </map>
+    </option>
+  </component>
+  <component name="EntryPointsManager">
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="androidx.annotation.RequiresApi" />
+    </list>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

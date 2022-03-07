@@ -1,0 +1,6 @@
+<resources xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <style name="StyleTextInput">
+    </style>
+
+</resources>

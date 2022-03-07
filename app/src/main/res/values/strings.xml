@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">wheel</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="start">start</string>
+    <string name="end">end</string>
+</resources>

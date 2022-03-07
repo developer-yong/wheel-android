@@ -1,13 +1,12 @@
 <resources>
 
-    <style name="ProgressDialog" parent="Theme.AppCompat.Dialog">
+    <style name="DialogTransparent" parent="Theme.AppCompat.Dialog">
         <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:textSize">18sp</item>
     </style>
 
     <style name="BottomMenuDialog" parent="Theme.AppCompat.Dialog">
-        <item name="android:windowBackground">@android:color/transparent</item>
+<!--        <item name="android:windowBackground">@android:color/transparent</item>-->
         <item name="android:windowContentOverlay">@null</item>
     </style>
 

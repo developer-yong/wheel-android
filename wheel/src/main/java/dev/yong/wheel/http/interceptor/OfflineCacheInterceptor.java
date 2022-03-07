@@ -1,13 +1,11 @@
 package dev.yong.wheel.http.interceptor;
 
-import androidx.annotation.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
-import dev.yong.wheel.AppManager;
-import dev.yong.wheel.network.Network;
 import okhttp3.CacheControl;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -15,22 +13,19 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
+ * /**
  * 离线缓存拦截器
  *
  * @author coderyong
  */
-public class OfflineCacheInterceptor implements Interceptor {
+@SuppressWarnings("unused")
+public interface OfflineCacheInterceptor extends Interceptor {
 
-    /**
-     * 离线缓存过期时间（秒）
-     */
-    public static int CACHE_TIME = 60;
-
-    @NonNull
+    @NotNull
     @Override
-    public Response intercept(Chain chain) throws IOException {
+    default Response intercept(@NotNull Chain chain) throws IOException {
         Request request = chain.request();
-        if (!Network.isAvailable(AppManager.getInstance().getApplication())) {
+        if (!onNetworkUnavailable()) {
             //离线的时候的缓存的过期时间
             HttpUrl url = request.url();
             TreeMap<String, String> parameters = new TreeMap<>();
@@ -44,13 +39,30 @@ public class OfflineCacheInterceptor implements Interceptor {
             }
             request = request.newBuilder()
                     .url(urlBuilder.build())
-                    .cacheControl(new CacheControl.Builder()
-                            .maxStale(CACHE_TIME, TimeUnit.SECONDS)
-                            .onlyIfCached()
-                            .build()
+                    .cacheControl(
+                            new CacheControl.Builder()
+                                    .maxStale(offlineCacheTime(), TimeUnit.SECONDS)
+                                    .onlyIfCached()
+                                    .build()
                     )
                     .build();
         }
         return chain.proceed(request);
     }
+
+    /**
+     * 离线缓存过期时间，默认60（秒）
+     *
+     * @return 离线缓存时间
+     */
+    default int offlineCacheTime() {
+        return 60;
+    }
+
+    /**
+     * 网络可用
+     *
+     * @return true 不可用
+     */
+    boolean onNetworkUnavailable();
 }
