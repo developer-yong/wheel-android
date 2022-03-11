@@ -3,17 +3,17 @@
 package dev.yong.wheel.web
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import android.webkit.*
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.view.children
 import dev.yong.wheel.R
+import dev.yong.wheel.view.EmptyView
 
 /**
  * @author coderyong
@@ -69,11 +69,14 @@ class WebDelegate private constructor() {
         }
     }
 
-    class WebClient : WebViewClient() {
+    open class WebClient : WebViewClient() {
+
+        var mNoNetworkView: View? = null
 
         @SuppressLint("SetJavaScriptEnabled")
         fun applySettings(webView: WebView) {
             webView.settings.javaScriptEnabled = true
+            webView.settings.domStorageEnabled = true
             //自适应屏幕
             webView.settings.loadWithOverviewMode = true
             webView.settings.useWideViewPort = true
@@ -99,9 +102,27 @@ class WebDelegate private constructor() {
                 )
             }
         }
+
+        override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+            EmptyView.with(view).hide()
+        }
+
+        override fun onReceivedError(
+            view: WebView,
+            request: WebResourceRequest?,
+            error: WebResourceError?
+        ) {
+            super.onReceivedError(view, request, error)
+            if (mNoNetworkView == null) {
+                mNoNetworkView = View.inflate(view.context, R.layout.layout_no_network, null)
+                mNoNetworkView!!.setOnClickListener { view.reload() }
+            }
+            EmptyView.with(view).show(mNoNetworkView!!)
+        }
     }
 
-    class ChromeClient : WebChromeClient() {
+    open class ChromeClient : WebChromeClient() {
 
         override fun onProgressChanged(view: WebView, newProgress: Int) {
             super.onProgressChanged(view, newProgress)
@@ -125,7 +146,7 @@ class WebDelegate private constructor() {
             val parent = view?.parent
             if (parent is LinearLayout) {
                 val tvTitle = parent.findViewById<TextView>(R.id.action_title)
-                if (TextUtils.isEmpty(tvTitle.text)) {
+                if (tvTitle != null && TextUtils.isEmpty(tvTitle.text)) {
                     tvTitle.text = title
                 }
             }

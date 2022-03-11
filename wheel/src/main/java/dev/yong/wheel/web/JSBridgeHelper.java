@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.webkit.WebView;
 
+import androidx.activity.ComponentActivity;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +50,7 @@ public class JSBridgeHelper {
     public JSBridgeHelper removeJavascriptInterface(JSBridge bridge) {
         if (mBridges != null) {
             if (bridge != null) {
-                bridge.detach();
+                bridge.onDetach();
             }
             mBridges.remove(bridge);
         }
@@ -76,7 +78,7 @@ public class JSBridgeHelper {
         List<JSBridge> bridges = getInstance().mBridges;
         if (bridges != null) {
             for (JSBridge bridge : bridges) {
-                bridge.attach(webView);
+                bridge.onAttach(webView);
             }
         }
     }
@@ -88,7 +90,7 @@ public class JSBridgeHelper {
         List<JSBridge> bridges = getInstance().mBridges;
         if (bridges != null) {
             for (JSBridge bridge : bridges) {
-                bridge.destroy();
+                bridge.onDestroy();
             }
         }
     }
@@ -109,20 +111,24 @@ public class JSBridgeHelper {
             return mNamespaces;
         }
 
+        public ComponentActivity requireActivity() {
+            return (ComponentActivity) mWebView.getContext();
+        }
+
         @SuppressLint({"JavascriptInterface", "SetJavaScriptEnabled", "AddJavascriptInterface"})
-        private void attach(WebView webView) {
+        protected void onAttach(WebView webView) {
             this.mWebView = webView;
             mWebView.getSettings().setJavaScriptEnabled(true);
             mWebView.addJavascriptInterface(this, mNamespaces);
         }
 
-        private void detach() {
+        protected void onDetach() {
             if (mWebView != null) {
                 mWebView.removeJavascriptInterface(mNamespaces);
             }
         }
 
-        private void destroy() {
+        protected void onDestroy() {
             if (mWebView != null) {
                 mWebView.removeJavascriptInterface(mNamespaces);
                 mWebView = null;

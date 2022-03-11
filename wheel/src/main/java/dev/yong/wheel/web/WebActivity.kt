@@ -2,19 +2,16 @@ package dev.yong.wheel.web
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import dev.yong.wheel.AppManager
 import dev.yong.wheel.R
 import dev.yong.wheel.Router
 import dev.yong.wheel.base.ViewBindActivity
 import dev.yong.wheel.databinding.LayoutContainerBinding
-import dev.yong.wheel.swipeback.ISwipeBack
 import dev.yong.wheel.utils.StatusBar
 
 /**
  * @author coderyong
  */
-class WebActivity : ViewBindActivity<LayoutContainerBinding>(), ISwipeBack {
+open class WebActivity : ViewBindActivity<LayoutContainerBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +28,4 @@ class WebActivity : ViewBindActivity<LayoutContainerBinding>(), ISwipeBack {
             .open(WebFragment::class.java, WebFragment::class.java.name)
     }
 
-    override fun prevView(): View {
-        return AppManager.instance.preActivity!!.window.decorView
-    }
 }
