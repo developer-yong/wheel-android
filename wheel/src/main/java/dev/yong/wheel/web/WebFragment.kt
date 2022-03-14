@@ -19,6 +19,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
 import dev.yong.wheel.R
@@ -87,6 +88,11 @@ const val PARAM_PROGRESS_COLOR = "web_progress_color"
 const val PARAM_SUPPORT_FILE_CHOOSER = "web_support_file_chooser"
 
 /**
+ * WebContainer handle_back_pressed 参数
+ */
+const val PARAM_HANDLE_BACK_PRESSED = "web_handle_back_pressed"
+
+/**
  * @author coderyong
  */
 open class WebFragment : Fragment(), IPermissionResult, IFileChooserResult {
@@ -108,6 +114,7 @@ open class WebFragment : Fragment(), IPermissionResult, IFileChooserResult {
     private var progressBarColor = Color.BLUE
 
     private var supportFileChooser = false
+    private var handleOnBackPressed = true
 
     private var mPermissionResultLauncher: ActivityResultLauncher<Array<String>>? = null
     private var mFileResultLauncher: ActivityResultLauncher<FileChooserResult>? =
@@ -134,6 +141,8 @@ open class WebFragment : Fragment(), IPermissionResult, IFileChooserResult {
         progressBarColor = arguments.getInt(PARAM_PROGRESS_COLOR, progressBarColor)
         //获取是否支持文件选择
         supportFileChooser = arguments.getBoolean(PARAM_SUPPORT_FILE_CHOOSER, supportFileChooser)
+        //获取是否处理返回键事件
+        handleOnBackPressed = arguments.getBoolean(PARAM_HANDLE_BACK_PRESSED, handleOnBackPressed)
     }
 
     override fun onCreateView(
@@ -249,9 +258,20 @@ open class WebFragment : Fragment(), IPermissionResult, IFileChooserResult {
             }
         }
         mWeb.webChromeClient = chromeClient
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            object : OnBackPressedCallback(handleOnBackPressed) {
+                override fun handleOnBackPressed() {
+                    back()
+                }
+            })
     }
 
-    private fun back() {
+    open fun canGoBack(): Boolean {
+        return mWeb.canGoBack()
+    }
+
+    open fun back() {
         if (mWeb.canGoBack()) {
             mWeb.goBack()
         } else {
