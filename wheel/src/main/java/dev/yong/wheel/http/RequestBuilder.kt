@@ -28,7 +28,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
     protected var requestProgressListener: ProgressInterceptor.ProgressListener? = null
 
     /************************ HttpUrl.Builder  ************************/
-    fun addPathSegment(pathSegment: String): RequestBuilder {
+    open fun addPathSegment(pathSegment: String): RequestBuilder {
         urlBuilder.addPathSegment(pathSegment)
         return this
     }
@@ -37,12 +37,12 @@ open class RequestBuilder internal constructor(url: String, private val method: 
      * Adds a set of path segments separated by a slash (either `\` or `/`). If
      * `pathSegments` starts with a slash, the resulting URL will have empty path segment.
      */
-    fun addPathSegments(pathSegments: String): RequestBuilder {
+    open fun addPathSegments(pathSegments: String): RequestBuilder {
         urlBuilder.addPathSegments(pathSegments)
         return this
     }
 
-    fun addEncodedPathSegment(encodedPathSegment: String): RequestBuilder {
+    open fun addEncodedPathSegment(encodedPathSegment: String): RequestBuilder {
         urlBuilder.addEncodedPathSegment(encodedPathSegment)
         return this
     }
@@ -52,37 +52,37 @@ open class RequestBuilder internal constructor(url: String, private val method: 
      * `encodedPathSegments` starts with a slash, the resulting URL will have empty path
      * segment.
      */
-    fun addEncodedPathSegments(encodedPathSegments: String): RequestBuilder {
+    open fun addEncodedPathSegments(encodedPathSegments: String): RequestBuilder {
         urlBuilder.addEncodedPathSegments(encodedPathSegments)
         return this
     }
 
-    fun setPathSegment(index: Int, pathSegment: String): RequestBuilder {
+    open fun setPathSegment(index: Int, pathSegment: String): RequestBuilder {
         urlBuilder.setPathSegment(index, pathSegment)
         return this
     }
 
-    fun setEncodedPathSegment(index: Int, encodedPathSegment: String): RequestBuilder {
+    open fun setEncodedPathSegment(index: Int, encodedPathSegment: String): RequestBuilder {
         urlBuilder.setEncodedPathSegment(index, encodedPathSegment)
         return this
     }
 
-    fun removePathSegment(index: Int): RequestBuilder {
+    open fun removePathSegment(index: Int): RequestBuilder {
         urlBuilder.removePathSegment(index)
         return this
     }
 
-    fun encodedPath(encodedPath: String): RequestBuilder {
+    open fun encodedPath(encodedPath: String): RequestBuilder {
         urlBuilder.encodedPath(encodedPath)
         return this
     }
 
-    fun query(query: String?): RequestBuilder {
+    open fun query(query: String?): RequestBuilder {
         urlBuilder.query(query)
         return this
     }
 
-    fun encodedQuery(encodedQuery: String?): RequestBuilder {
+    open fun encodedQuery(encodedQuery: String?): RequestBuilder {
         urlBuilder.encodedQuery(encodedQuery)
         return this
     }
@@ -90,7 +90,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
     /**
      * Encodes the query parameter using UTF-8 and adds it to this URL's query string.
      */
-    fun addQueryParameter(name: String, value: String?): RequestBuilder {
+    open fun addQueryParameter(name: String, value: String?): RequestBuilder {
         urlBuilder.addQueryParameter(name, value)
         return this
     }
@@ -98,37 +98,37 @@ open class RequestBuilder internal constructor(url: String, private val method: 
     /**
      * Adds the pre-encoded query parameter to this URL's query string.
      */
-    fun addEncodedQueryParameter(encodedName: String, encodedValue: String?): RequestBuilder {
+    open fun addEncodedQueryParameter(encodedName: String, encodedValue: String?): RequestBuilder {
         urlBuilder.addEncodedQueryParameter(encodedName, encodedValue)
         return this
     }
 
-    fun setQueryParameter(name: String, value: String?): RequestBuilder {
+    open fun setQueryParameter(name: String, value: String?): RequestBuilder {
         urlBuilder.setQueryParameter(name, value)
         return this
     }
 
-    fun setEncodedQueryParameter(encodedName: String, encodedValue: String?): RequestBuilder {
+    open fun setEncodedQueryParameter(encodedName: String, encodedValue: String?): RequestBuilder {
         urlBuilder.setEncodedQueryParameter(encodedName, encodedValue)
         return this
     }
 
-    fun removeAllQueryParameters(name: String): RequestBuilder {
+    open fun removeAllQueryParameters(name: String): RequestBuilder {
         urlBuilder.removeAllQueryParameters(name)
         return this
     }
 
-    fun removeAllEncodedQueryParameters(encodedName: String): RequestBuilder {
+    open fun removeAllEncodedQueryParameters(encodedName: String): RequestBuilder {
         urlBuilder.removeAllEncodedQueryParameters(encodedName)
         return this
     }
 
-    fun fragment(fragment: String?): RequestBuilder {
+    open fun fragment(fragment: String?): RequestBuilder {
         urlBuilder.fragment(fragment)
         return this
     }
 
-    fun encodedFragment(encodedFragment: String?): RequestBuilder {
+    open fun encodedFragment(encodedFragment: String?): RequestBuilder {
         urlBuilder.encodedFragment(encodedFragment)
         return this
     }
@@ -162,7 +162,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
     /**
      * 添加响应进度拦截器
      */
-    fun addResponseProgressListener(progressListener: ProgressInterceptor.ProgressListener): RequestBuilder {
+    open fun addResponseProgressListener(progressListener: ProgressInterceptor.ProgressListener): RequestBuilder {
         this.responseProgressListener = progressListener
         return this
     }
@@ -263,19 +263,19 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         private val formBuilder: FormBody.Builder = FormBody.Builder()
         private var jsonContent: String? = null
 
-        fun setMediaType(mediaType: MediaType): FormBuilder {
+        open fun setMediaType(mediaType: MediaType): FormBuilder {
             this.mediaType = mediaType
             return this
         }
 
-        fun add(name: String, vararg values: String): FormBuilder {
+        open fun add(name: String, vararg values: String): FormBuilder {
             for (value in values) {
                 formBuilder.add(name, value)
             }
             return this
         }
 
-        fun add(params: Map<String, String?>): FormBuilder {
+        open fun add(params: Map<String, String?>): FormBuilder {
             for (name in params.keys) {
                 val value = params[name]
                 if (value != null) {
@@ -285,14 +285,14 @@ open class RequestBuilder internal constructor(url: String, private val method: 
             return this
         }
 
-        fun addEncoded(name: String, vararg values: String): FormBuilder {
+        open fun addEncoded(name: String, vararg values: String): FormBuilder {
             for (value in values) {
                 formBuilder.addEncoded(name, value)
             }
             return this
         }
 
-        fun addEncoded(params: Map<String, String?>): FormBuilder {
+        open fun addEncoded(params: Map<String, String?>): FormBuilder {
             for (name in params.keys) {
                 val value = params[name]
                 if (value != null) {
@@ -310,7 +310,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
          * @param jsonContent Json 字符串内容
          * @return SubmitBuilder
          */
-        fun setJson(jsonContent: String): FormBuilder {
+        open fun setJson(jsonContent: String): FormBuilder {
             this.mediaType = "application/json".toMediaType()
             this.jsonContent = jsonContent
             return this
@@ -319,7 +319,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         /**
          * 添加请求进度拦截器
          */
-        fun addRequestProgressListener(progressListener: ProgressInterceptor.ProgressListener): RequestBuilder {
+        open fun addRequestProgressListener(progressListener: ProgressInterceptor.ProgressListener): RequestBuilder {
             this.requestProgressListener = progressListener
             return this
         }
@@ -354,7 +354,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
          * [MultipartBody.PARALLEL] and
          * [MultipartBody.FORM].
          */
-        fun setType(type: MediaType): MultipartBuilder {
+        open fun setType(type: MediaType): MultipartBuilder {
             multipartBuilder.setType(type)
             return this
         }
@@ -362,7 +362,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         /**
          * Add a part to the body.
          */
-        fun addPart(part: MultipartBody.Part): MultipartBuilder {
+        open fun addPart(part: MultipartBody.Part): MultipartBuilder {
             multipartBuilder.addPart(part)
             return this
         }
@@ -370,7 +370,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         /**
          * Add a part to the body.
          */
-        fun addPart(body: RequestBody): MultipartBuilder {
+        open fun addPart(body: RequestBody): MultipartBuilder {
             multipartBuilder.addPart(MultipartBody.Part.create(body))
             return this
         }
@@ -378,7 +378,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         /**
          * Add a part to the body.
          */
-        fun addPart(headers: Headers?, body: RequestBody): MultipartBuilder {
+        open fun addPart(headers: Headers?, body: RequestBody): MultipartBuilder {
             multipartBuilder.addPart(MultipartBody.Part.create(headers, body))
             return this
         }
@@ -386,7 +386,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         /**
          * Add a form data part to the body.
          */
-        fun addFormDataPart(name: String, vararg values: String): MultipartBuilder {
+        open fun addFormDataPart(name: String, vararg values: String): MultipartBuilder {
             for (value in values) {
                 multipartBuilder.addPart(MultipartBody.Part.createFormData(name, value))
             }
@@ -396,7 +396,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         /**
          * Add a form data part to the body.
          */
-        fun addFormDataPart(
+        open fun addFormDataPart(
             name: String,
             filename: String?,
             body: RequestBody
@@ -405,7 +405,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
             return this
         }
 
-        fun addFormDataParts(
+        open fun addFormDataParts(
             mediaType: MediaType?,
             name: String,
             vararg filePaths: String
@@ -427,7 +427,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         /**
          * 添加请求进度拦截器
          */
-        fun addRequestProgressListener(progressListener: ProgressInterceptor.ProgressListener): RequestBuilder {
+        open fun addRequestProgressListener(progressListener: ProgressInterceptor.ProgressListener): RequestBuilder {
             this.requestProgressListener = progressListener
             return this
         }
