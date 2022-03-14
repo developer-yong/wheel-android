@@ -256,7 +256,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         return EMPTY_REQUEST
     }
 
-    class FormBuilder internal constructor(url: String, method: String) :
+    open class FormBuilder internal constructor(url: String, method: String) :
         RequestBuilder(url, method) {
 
         private var mediaType: MediaType? = null
@@ -341,7 +341,7 @@ open class RequestBuilder internal constructor(url: String, private val method: 
         }
     }
 
-    class MultipartBuilder internal constructor(url: String, method: String) :
+    open class MultipartBuilder internal constructor(url: String, method: String) :
         RequestBuilder(url, method) {
 
         private val multipartBuilder: MultipartBody.Builder = MultipartBody.Builder()
