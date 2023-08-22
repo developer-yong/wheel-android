@@ -1,13 +1,9 @@
 package dev.yong.wheel.base
 
-import android.app.Activity
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
-import dev.yong.wheel.utils.StatusBar
-import dev.yong.wheel.utils.getStatusBarHeight
 import java.lang.reflect.ParameterizedType
 
 /**

@@ -22,10 +22,12 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
+import com.beijzc.wheel.web.IFileChooserResult
 import dev.yong.wheel.R
 import dev.yong.wheel.permission.IPermissionResult
 import dev.yong.wheel.permission.registerPermissionResult
-import dev.yong.wheel.web.IFileChooserResult.FileChooserResult
+import com.beijzc.wheel.web.IFileChooserResult.FileChooserResult
+import com.beijzc.wheel.web.registerFileChooserResult
 
 /**
  * WebContainer title 参数
@@ -156,7 +158,7 @@ open class WebFragment : Fragment(), IPermissionResult, IFileChooserResult {
         layoutContainer.orientation = LinearLayout.VERTICAL
         //添加TitleBar
         if (isShowTitle) {
-            val actionBar = inflater.inflate(R.layout.layout_action_bar, layoutContainer, false)
+            val actionBar = inflater.inflate(R.layout.layout_web_action_bar, layoutContainer, false)
             actionBar.setBackgroundColor(titleBarColor)
             actionBar.findViewById<ImageView>(R.id.action_back)
                 .setOnClickListener { back() }
@@ -173,7 +175,7 @@ open class WebFragment : Fragment(), IPermissionResult, IFileChooserResult {
         //添加进度条
         if (isShowProgress) {
             mProgressBar = ProgressBar(
-                requireContext(), null, android.R.attr.progressBarStyleHorizontal
+                layoutContainer.context, null, android.R.attr.progressBarStyleHorizontal
             )
             mProgressBar!!.layoutParams =
                 LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, progressBarHeight)
@@ -183,7 +185,7 @@ open class WebFragment : Fragment(), IPermissionResult, IFileChooserResult {
             mProgressBar!!.visibility = View.GONE
             layoutContainer.addView(mProgressBar)
         }
-        mWeb = WebView(requireContext())
+        mWeb = WebView(layoutContainer.context)
         val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0)
         params.weight = 1f
         mWeb.layoutParams = params
@@ -275,7 +277,7 @@ open class WebFragment : Fragment(), IPermissionResult, IFileChooserResult {
         if (mWeb.canGoBack()) {
             mWeb.goBack()
         } else {
-            requireActivity().onBackPressed()
+            requireActivity().finish()
         }
     }
 

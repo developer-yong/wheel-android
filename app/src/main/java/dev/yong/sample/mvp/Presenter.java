@@ -1,9 +1,10 @@
 package dev.yong.sample.mvp;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 import dev.yong.wheel.http.Callback;
 import dev.yong.wheel.http.OkHttpHelper;
+import okhttp3.Call;
 
 /**
  * @author wuyongzhi (rwuyongzhi_v@didiglobal.com)
@@ -15,12 +16,12 @@ public class Presenter {
         OkHttpHelper.get("")
                 .enqueue(new Callback<String>() {
                     @Override
-                    public void onResponse(String s) {
+                    public void onResponse(@NonNull String s) {
 
                     }
 
                     @Override
-                    public void onFailure(@NotNull Throwable t) {
+                    public void onFailed(@NonNull Call call, @NonNull Throwable t) {
 
                     }
                 });

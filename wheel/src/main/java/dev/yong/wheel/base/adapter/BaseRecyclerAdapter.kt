@@ -2,6 +2,7 @@
 
 package dev.yong.wheel.base.adapter
 
+import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.util.Linkify
@@ -326,23 +327,39 @@ abstract class BaseRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     fun addData(vararg ts: T) {
+        val index = mList.size
         mList.addAll(listOf(*ts))
-        notifyDataSetChanged()
+        notifyItemChanged(index)
     }
 
-    fun addData(list: List<T>?) {
+    fun addData(list: List<T>?, index: Int = mList.size) {
         if (list != null) {
-            mList.addAll(list)
-            notifyDataSetChanged()
+            mList.addAll(index, list)
+            notifyItemChanged(index)
         }
     }
 
-    fun replaceData(list: List<T>?) {
+    fun addData(t: T, index: Int = mList.size) {
+        mList.add(index, t)
+        notifyItemChanged(index)
+    }
+
+    fun removeAt(index: Int, notifyChange: Boolean = true) {
+        mList.removeAt(index)
+        if (notifyChange) {
+            notifyItemChanged(index)
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun replaceData(list: List<T>?, notifyChange: Boolean = true) {
         mList.clear()
         if (list != null) {
             mList.addAll(list)
         }
-        notifyDataSetChanged()
+        if (notifyChange) {
+            notifyDataSetChanged()
+        }
     }
 
     fun getChildAt(position: Int): T {
@@ -352,11 +369,13 @@ abstract class BaseRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerView.ViewHo
     val data: List<T>
         get() = mList
 
+    @SuppressLint("NotifyDataSetChanged")
     fun clearData() {
         mList.clear()
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun clear() {
         mList.clear()
         mSpecialItems.clear()

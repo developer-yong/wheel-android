@@ -36,7 +36,7 @@ class MainActivity : ViewBindActivity<LayoutContainerBinding>() {
     }
 
     override fun onBackPressed() {
-        Router.finish(this, 0, 0)
+        Router.popStackImmediate(this, 0, 0)
     }
 
 }

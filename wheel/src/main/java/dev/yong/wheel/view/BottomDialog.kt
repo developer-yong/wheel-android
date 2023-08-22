@@ -14,7 +14,7 @@ import androidx.annotation.StyleRes
 /**
  * @author CoderYong
  */
-class BottomDialog(context: Context, private val mContentView: View) : Dialog(context) {
+open class BottomDialog(context: Context, private val mContentView: View) : Dialog(context) {
 
     private var mWidth = WindowManager.LayoutParams.MATCH_PARENT
     private var mHeight = WindowManager.LayoutParams.WRAP_CONTENT
@@ -32,7 +32,7 @@ class BottomDialog(context: Context, private val mContentView: View) : Dialog(co
         View.inflate(context, layoutRes, null)
     )
 
-    override fun onCreate(savedInstanceState: Bundle) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val layoutRoot = FrameLayout(context)
         layoutRoot.layoutParams = WindowManager.LayoutParams(mWidth, mHeight)

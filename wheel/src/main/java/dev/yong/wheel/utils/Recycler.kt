@@ -119,7 +119,7 @@ object Recycler {
  * @param pageSize 分页大小
  * @return 下一页的分页页码
  */
-fun calculatePageNumber(totalSize: Float, pageSize: Float): Int {
+fun calculatePageNumber(totalSize: Int, pageSize: Int): Int {
     //向上取整并加1
     return ceil((totalSize / pageSize).toDouble()).toInt() + 1
 }

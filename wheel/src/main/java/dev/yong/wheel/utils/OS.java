@@ -1,5 +1,7 @@
 package dev.yong.wheel.utils;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.text.TextUtils;
 
@@ -50,6 +52,22 @@ public class OS {
             }
         }
         return false;
+    }
+
+    /**
+     * 检查应用是否安装过
+     *
+     * @param c           Context
+     * @param packageName 应用包名
+     */
+    public static boolean checkInstalled(Context c, String packageName) {
+        try {
+            c.getApplicationContext().getPackageManager().getApplicationInfo(packageName,
+                    PackageManager.GET_UNINSTALLED_PACKAGES);
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
     }
 
     /**

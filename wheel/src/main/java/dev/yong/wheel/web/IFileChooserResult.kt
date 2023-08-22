@@ -1,4 +1,4 @@
-package dev.yong.wheel.web
+package com.beijzc.wheel.web
 
 import android.app.Activity
 import android.content.Context
@@ -23,7 +23,7 @@ import java.io.File
 fun ComponentActivity.registerFileChooserResult(iChooserResult: IFileChooserResult)
         : ActivityResultLauncher<IFileChooserResult.FileChooserResult> {
     return this.registerForActivityResult(
-        object : ActivityResultContract<IFileChooserResult.FileChooserResult, Array<Uri>>() {
+        object : ActivityResultContract<IFileChooserResult.FileChooserResult, Array<Uri>?>() {
             var chooserResult: IFileChooserResult.FileChooserResult? = null
             override fun createIntent(
                 context: Context,

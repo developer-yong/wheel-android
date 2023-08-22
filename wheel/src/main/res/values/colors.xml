@@ -2,5 +2,5 @@
 <resources>
     <color name="colorGray">#DDDDDD</color>
     <color name="colorGrayLight">#EEEEEE</color>
-    <color name="colorTranslucent">#11000000</color>
+    <color name="colorTranslucent">#05000000</color>
 </resources>

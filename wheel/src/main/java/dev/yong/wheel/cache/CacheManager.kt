@@ -122,6 +122,19 @@ internal class CacheManager(
      * @param timeout 设置超时删除
      * @param unit    时间单位[TimeUnit]
      */
+    fun put(key: String, value: String, timeout: Long, unit: TimeUnit) {
+        put(key, value.toByteArray(), timeout, unit)
+    }
+
+
+    /**
+     * 添加缓存文件
+     *
+     * @param key     缓存文件key
+     * @param value   缓存数据
+     * @param timeout 设置超时删除
+     * @param unit    时间单位[TimeUnit]
+     */
     fun put(key: String, value: ByteArray, timeout: Long, unit: TimeUnit) {
         val file = newFile(key, timeout, unit)
         writeDataToFile(file, value)
@@ -176,7 +189,8 @@ internal class CacheManager(
      * @return String 数据
      */
     fun getString(key: String): String? {
-        return getSerializable(key) as String?
+        val bytes = getByte(key)
+        return if (bytes == null) null else String(bytes)
     }
 
     /**

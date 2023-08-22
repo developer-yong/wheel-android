@@ -1,19 +1,18 @@
 @file:Suppress("unused")
 
-package dev.yong.wheel.utils
+package com.beijzc.wheel.utils
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.text.DecimalFormat
 import java.util.*
 
@@ -333,6 +332,71 @@ object FileUtils {
         } catch (e: Exception) {
             //当系统没有携带文件打开软件，提示
             Toast.makeText(context, "无法打开该格式文件!", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * 根据指定文件获取Uri
+     *
+     * @param context  Context
+     * @param file     指定文件
+     * @param mimeType 文件类型
+     */
+    fun getUriForFile(context: Context, file: File, mimeType: String): Uri? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val contentValues = ContentValues()
+            contentValues.put(MediaStore.Images.Media.DATA, file.absolutePath)
+            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
+            context.contentResolver
+                .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(
+                context,
+                context.applicationInfo.packageName + ".FileProvider",
+                file
+            )
+        } else Uri.fromFile(file)
+    }
+
+    /**
+     * 解析Uri到文件
+     *
+     * @param context   Context
+     * @param inUri     输入Uri
+     * @param outFile   输出文件
+     */
+    fun parseForUri(context: Context, inUri: Uri, outFile: File) {
+        try {
+            if (!outFile.exists() && !outFile.createNewFile()) {
+                return
+            }
+            val input = context.contentResolver.openInputStream(inUri) ?: return
+            var out: FileOutputStream? = null
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                out = FileOutputStream(outFile)
+                android.os.FileUtils.copy(input, out)
+            } else {
+                val arrayOutputStream = ByteArrayOutputStream()
+                val buffer = ByteArray(1024 * 10)
+                while (true) {
+                    val len = input.read(buffer)
+                    if (len == -1) {
+                        break
+                    }
+                    arrayOutputStream.write(buffer, 0, len)
+                }
+                arrayOutputStream.close()
+                val dataByte = arrayOutputStream.toByteArray()
+                if (dataByte.isNotEmpty()) {
+                    out = FileOutputStream(outFile)
+                    out.write(dataByte)
+                }
+            }
+            out?.close()
+            input.close()
+        } catch (e: IOException) {
             e.printStackTrace()
         }
     }

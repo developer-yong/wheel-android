@@ -19,7 +19,7 @@ class DownloadBuilder {
     private var mNotificationTitle: String? = null
     private var mNotificationDescription: String? = null
     private var mVisibility = DownloadManager.Request.VISIBILITY_VISIBLE
-    private var mFlags = DownloadManager.Request.NETWORK_WIFI
+    private var mFlags = 0
 
     constructor(manager: DownloadManager, url: String) {
         mUrl = url
@@ -103,7 +103,7 @@ class DownloadBuilder {
             val manager = DLManager.getInstance()
             var downloadId = manager.getDownloadId(mUrl)
             if (downloadId > 0 && (manager.checkResumeStatus(downloadId) || manager.open(downloadId))) {
-                return -1
+                return downloadId
             } else {
                 manager.removeDownloadId(mUrl)
             }
@@ -115,7 +115,9 @@ class DownloadBuilder {
             if (!TextUtils.isEmpty(mNotificationDescription)) {
                 mRequest.setDescription(mNotificationDescription)
             }
-            mRequest.setAllowedNetworkTypes(mFlags)
+            if (mFlags > 0) {
+                mRequest.setAllowedNetworkTypes(mFlags)
+            }
             // 设置下载文件的保存位置
             if (mSaveFile != null) {
                 mRequest.setDestinationUri(Uri.fromFile(mSaveFile))

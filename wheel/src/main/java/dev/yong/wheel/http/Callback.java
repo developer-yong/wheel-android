@@ -3,6 +3,8 @@ package dev.yong.wheel.http;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.google.gson.reflect.TypeToken;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -12,7 +14,6 @@ import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * @author coderyong
@@ -40,17 +41,45 @@ public interface Callback<T> extends okhttp3.Callback {
 
     @Override
     default void onFailure(@NotNull Call call, @NotNull IOException e) {
-        new Handler(Looper.getMainLooper()).post(() -> onFailure(e));
+        new Handler(Looper.getMainLooper()).post(() -> onFailed(call, e));
     }
 
     @SuppressWarnings("unchecked")
     default T parse(String content) {
-        Type type = ((ParameterizedType) getClass()
-                .getGenericInterfaces()[0]).getActualTypeArguments()[0];
+        Type type = findCallbackGenericType();
         if (type == String.class) {
             return (T) content;
         } else {
             return OkHttpHelper.parserFactory().parser(content, type);
+        }
+    }
+
+    default Type findCallbackGenericType() {
+        Type parameterizedType = null;
+        Type typeArgument = null;
+        for (Type gInterface : getClass().getGenericInterfaces()) {
+            if (gInterface.toString().contains(Callback.class.getName())) {
+                parameterizedType = ((ParameterizedType) gInterface).getActualTypeArguments()[0];
+                break;
+            } else {
+                for (Class<?> sInterface : getClass().getInterfaces()) {
+                    for (Type sGInterface : sInterface.getGenericInterfaces()) {
+                        if (sGInterface.toString().contains(Callback.class.getName())) {
+                            typeArgument = ((ParameterizedType) gInterface).getActualTypeArguments()[0];
+                            parameterizedType = ((ParameterizedType) sGInterface).getActualTypeArguments()[0];
+                            if (parameterizedType instanceof ParameterizedType) {
+                                parameterizedType = ((ParameterizedType) parameterizedType).getRawType();
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (typeArgument == null) {
+            return parameterizedType;
+        } else {
+            return TypeToken.getParameterized(parameterizedType, typeArgument).getType();
         }
     }
 
@@ -59,14 +88,15 @@ public interface Callback<T> extends okhttp3.Callback {
      *
      * @param t 请求成功后得到的响应数据
      */
-    void onResponse(T t);
+    void onResponse(@NotNull T t);
 
     /**
      * 请求失败
      *
-     * @param t 错误信息
+     * @param call 请求Call
+     * @param t    错误信息
      */
-    void onFailure(Throwable t);
+    void onFailed(@NotNull Call call, @NotNull Throwable t);
 
     /**
      * 请求成功

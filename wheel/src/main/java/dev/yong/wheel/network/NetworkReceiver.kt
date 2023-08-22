@@ -1,17 +1,11 @@
 package dev.yong.wheel.network
 
-import android.content.Intent
-import androidx.annotation.RequiresPermission
-import android.net.NetworkInfo
-import android.net.ConnectivityManager
-import android.telephony.TelephonyManager
-import android.net.wifi.WifiManager
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
-import dev.yong.wheel.network.NetworkReceiver.OnNetworkListener
-import dev.yong.wheel.network.NetworkReceiver
+import android.content.Intent
 import android.content.IntentFilter
+import android.net.ConnectivityManager
 
 /**
  * 网络广播接收器

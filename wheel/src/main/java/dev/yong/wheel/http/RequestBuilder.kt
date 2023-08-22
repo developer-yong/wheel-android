@@ -9,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.internal.EMPTY_REQUEST
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.util.*
@@ -329,12 +330,27 @@ open class RequestBuilder internal constructor(url: String, private val method: 
                 if (jsonContent != null && "" != jsonContent!!.trim { it <= ' ' }) {
                     return jsonContent!!.toRequestBody(mediaType)
                 }
-                val parameters: MutableMap<String, String?> = HashMap()
+                val parameters = JSONObject()
                 val formBody: FormBody = formBuilder.build()
                 for (i in 0 until formBody.size) {
-                    parameters[formBody.name(i)] = formBody.value(i)
+                    val name = formBody.name(i)
+                    if (parameters.has(name)) {
+                        val value = parameters.get(name)
+                        if (value is JSONArray) {
+                            value.put(formBody.value(i))
+                            parameters.put(name, value)
+                        } else {
+                            parameters.remove(name)
+                            val array = JSONArray()
+                            array.put(value)
+                            array.put(formBody.value(i))
+                            parameters.put(name, array)
+                        }
+                    } else {
+                        parameters.put(name, formBody.value(i))
+                    }
                 }
-                JSONObject(parameters as Map<*, *>).toString().toRequestBody(mediaType)
+                parameters.toString().toRequestBody(mediaType)
             } else {
                 formBuilder.build()
             }

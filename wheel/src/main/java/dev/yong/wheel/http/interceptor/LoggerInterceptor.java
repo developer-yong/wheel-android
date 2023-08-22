@@ -160,7 +160,7 @@ public interface LoggerInterceptor extends Interceptor {
                 requestMessage += "\n\tRequest-Body: " + bodyMessage;
             }
         }
-        if (!"".equals(requestMessage)) {
+        if ("".equals(requestMessage)) {
             requestMessage = "request:$requestMessage";
         }
         return requestMessage;
@@ -257,5 +257,5 @@ public interface LoggerInterceptor extends Interceptor {
     /**
      * 打印网络信息
      */
-    void print(String url, String request, String response);
+    void print(@NotNull String url, @NotNull String request, @NotNull String response);
 }

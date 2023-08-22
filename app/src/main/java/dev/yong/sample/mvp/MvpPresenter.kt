@@ -3,6 +3,7 @@ package dev.yong.sample.mvp
 import dev.yong.wheel.base.mvp.IPresenter
 import dev.yong.wheel.http.Callback
 import dev.yong.wheel.http.OkHttpHelper
+import okhttp3.Call
 
 class MvpPresenter : IPresenter<MvpView> {
 
@@ -19,7 +20,7 @@ class MvpPresenter : IPresenter<MvpView> {
                     mView.showWeb(t)
                 }
 
-                override fun onFailure(t: Throwable) {
+                override fun onFailed(call: Call, t: Throwable) {
                     mView.showError(t.toString())
                 }
             })

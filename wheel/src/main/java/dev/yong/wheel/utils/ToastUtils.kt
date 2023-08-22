@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
  * Toast显示位置
  * @see android.widget.Toast.setGravity
  */
-var GRAVITY = Gravity.BOTTOM
+var GRAVITY = Gravity.CENTER
 var X_OFFSET = 0
 var Y_OFFSET = 0
 
@@ -69,7 +69,7 @@ fun Context.toast(view: View, duration: Int = Toast.LENGTH_SHORT) {
  * @param duration 提示时长
  */
 fun Fragment.toast(message: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
-    requireContext().toast(message, duration)
+    context?.toast(message, duration)
 }
 
 /**
@@ -79,7 +79,7 @@ fun Fragment.toast(message: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
  * @param duration 提示时长
  */
 fun Fragment.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
-    requireContext().toast(resId, duration)
+    context?.toast(resId, duration)
 }
 
 /**
@@ -89,5 +89,5 @@ fun Fragment.toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
  * @param duration 提示时长
  */
 fun Fragment.toast(view: View, duration: Int = Toast.LENGTH_SHORT) {
-    requireContext().toast(view, duration)
+    context?.toast(view, duration)
 }

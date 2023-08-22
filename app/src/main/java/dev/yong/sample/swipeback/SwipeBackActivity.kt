@@ -9,8 +9,6 @@ import dev.yong.wheel.base.ViewBindActivity
 import dev.yong.wheel.databinding.LayoutContainerBinding
 import dev.yong.wheel.swipeback.ISwipeBack
 import dev.yong.wheel.swipeback.registerSwipeBack
-import dev.yong.wheel.utils.Logger
-import java.net.URLEncoder
 
 open class SwipeBackActivity : ViewBindActivity<LayoutContainerBinding>(), ISwipeBack {
 
@@ -23,11 +21,11 @@ open class SwipeBackActivity : ViewBindActivity<LayoutContainerBinding>(), ISwip
     }
 
     override fun prevView(): View {
-        return AppManager.instance.preActivity!!.window.decorView
+        return AppManager.getInstance().preActivity!!.window.decorView
     }
 
     override fun onBackPressed() {
-        Router.finish(this, 0, 0)
+        Router.popStackImmediate(this, 0, 0)
     }
 }
 

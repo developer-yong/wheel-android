@@ -37,20 +37,20 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        init(this, MainActivity::class.java)
+        init(this)
 
 //        Router.registerFragmentPage("B", BFragment::class.java)
         Router.registerActivityPage("test", TestActivity::class.java)
         Router.registerFragmentPage("list", ListFragment::class.java)
         Router.registerFragmentPage("mvp", MvpFragment::class.java)
         Router.registerFragmentPage("viewpager", ViewPagerFragment::class.java)
-        Router.init(this, Router.RouterInterceptor {
-            if (it.startsWith("http")) {
+        Router.init(this, object : Router.RouterInterceptor {
+            override fun intercept(pagePath: String): Boolean {
                 Router.with()
-                    .putExtra(PARAM_WEB_URL, it)
+                    .putExtra(PARAM_WEB_URL, pagePath)
                     .start(WebActivity::class.java)
+                return false
             }
-            return@RouterInterceptor false
         })
     }
 

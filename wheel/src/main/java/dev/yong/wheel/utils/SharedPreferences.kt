@@ -5,6 +5,7 @@ package dev.yong.wheel.utils
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.fragment.app.Fragment
+import dev.yong.wheel.AppManager
 
 /**
  * 获取SharedPreferences [Context.getSharedPreferences]
@@ -30,7 +31,8 @@ fun Fragment.getSharedPreferences(
     name: String = "config",
     mode: Int = Context.MODE_PRIVATE
 ): SharedPreferences {
-    return this.requireContext().getSharedPreferences(name, mode)
+    val context = context ?: AppManager.getInstance().application
+    return context.getSharedPreferences(name, mode)
 }
 
 fun SharedPreferences.putString(key: String, value: String?): SharedPreferences {

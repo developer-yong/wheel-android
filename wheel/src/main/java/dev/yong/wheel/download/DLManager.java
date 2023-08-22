@@ -444,11 +444,15 @@ public class DLManager {
      * @param downloadId 下载ID
      */
     public boolean open(long downloadId) {
-        if (mContext == null || downloadId < 0) {
+        int status = queryDownloadStatus(downloadId);
+        if (mContext == null || downloadId < 0
+                || status != DownloadManager.STATUS_SUCCESSFUL) {
             return false;
         }
         try {
-            if (ContextCompat.checkSelfPermission(mContext,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                    && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                    && ContextCompat.checkSelfPermission(mContext,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(mContext, "请允许手机读写存储权限后尝试", Toast.LENGTH_SHORT).show();
                 return true;

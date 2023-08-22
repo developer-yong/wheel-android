@@ -3,9 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="dev.yong.wheel">
 
-    <application
-        android:networkSecurityConfig="@xml/network_security_config"
-        tools:targetApi="n">
+    <application tools:targetApi="n">
 
         <activity
             android:name=".web.WebActivity"

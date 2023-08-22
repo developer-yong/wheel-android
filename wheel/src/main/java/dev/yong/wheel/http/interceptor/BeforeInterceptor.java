@@ -21,7 +21,9 @@ public interface BeforeInterceptor extends Interceptor {
      * @param chain    chain
      * @return 返回处理后的响应内容，必须不为空
      */
-    Response onResponseBefore(Interceptor.Chain chain, Response response);
+    default Response onResponseBefore(Interceptor.Chain chain, Response response) {
+        return response;
+    }
 
     /**
      * 请求前

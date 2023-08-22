@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize">
+
+    <ImageView
+        android:id="@+id/action_back"
+        android:layout_width="?attr/actionBarSize"
+        android:layout_height="?attr/actionBarSize"
+        android:padding="12dp"
+        android:src="@drawable/ic_arrow_back_24" />
+
+    <TextView
+        android:id="@+id/action_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingStart="?attr/actionBarSize"
+        android:paddingEnd="?attr/actionBarSize"
+        android:textColor="@android:color/black"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/action_divider"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/divider" />
+
+</FrameLayout>

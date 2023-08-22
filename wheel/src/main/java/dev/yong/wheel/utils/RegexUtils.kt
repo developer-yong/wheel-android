@@ -13,6 +13,11 @@ val REGEX_LINK by lazy { Regex("^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-
 val REGEX_EMAIL by lazy { Regex("^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)+$") }
 
 /**
+ * 正则表达式：验证手机号
+ */
+val REGEX_PHONE by lazy { Regex("^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\\d{8}\$") }
+
+/**
  * 正则表达式：验证中文字符
  */
 val REGEX_CHINESE by lazy { Regex("[\\u4e00-\\u9fa5]") }
@@ -56,7 +61,6 @@ fun String.isLink(): Boolean {
     return this.matches(REGEX_LINK)
 }
 
-
 /**
  * 是否是邮箱
  *
@@ -66,6 +70,14 @@ fun String.isEmail(): Boolean {
     return this.matches(REGEX_EMAIL)
 }
 
+/**
+ * 是否是手机号
+ *
+ * @return 是否匹配
+ */
+fun String.isPhone(): Boolean {
+    return this.matches(REGEX_PHONE)
+}
 
 /**
  * 是否是中文

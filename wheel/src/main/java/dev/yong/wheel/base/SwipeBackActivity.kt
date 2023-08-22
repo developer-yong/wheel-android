@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.viewbinding.ViewBinding
 import dev.yong.wheel.swipeback.ISwipeBack
 import dev.yong.wheel.swipeback.registerSwipeBack
-import dev.yong.wheel.utils.putBoolean
 
 /**
  * @author coderyong

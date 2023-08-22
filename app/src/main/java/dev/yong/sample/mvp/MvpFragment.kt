@@ -2,9 +2,7 @@ package dev.yong.sample.mvp
 
 import android.os.Bundle
 import android.view.View
-import androidx.core.content.ContextCompat
 import dev.yong.sample.databinding.FragmentMvpBinding
-import dev.yong.wheel.Router
 import dev.yong.wheel.base.SwipeBackFragment
 import dev.yong.wheel.base.mvp.registerMvp
 import dev.yong.wheel.utils.showSnack
@@ -38,7 +36,7 @@ class MvpFragment : SwipeBackFragment<FragmentMvpBinding>(), MvpView {
 
     override fun showError(error: String) {
         EmptyView.with(mRoot.etHtml).show()
-        showSnack(requireView(), error)
+        mRoot.root.showSnack(error)
     }
 
     override fun attachPresenter(presenter: MvpPresenter) {

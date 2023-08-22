@@ -2,8 +2,8 @@
 
 package dev.yong.wheel.http
 
-import dev.yong.wheel.http.RequestBuilder.MultipartBuilder
 import dev.yong.wheel.http.RequestBuilder.FormBuilder
+import dev.yong.wheel.http.RequestBuilder.MultipartBuilder
 import dev.yong.wheel.http.interceptor.ProgressInterceptor
 import dev.yong.wheel.utils.JSON.fromJson
 import okhttp3.OkHttpClient
@@ -47,8 +47,10 @@ class OkHttpHelper private constructor() {
 
     companion object {
 
-        private val instance
-            get() = OkHttpHelperHolder.INSTANCE
+        @JvmStatic
+        fun getInstance(): OkHttpHelper {
+            return OkHttpHelperHolder.INSTANCE
+        }
 
         /**
          * 创建OkHttp构建对象
@@ -58,6 +60,7 @@ class OkHttpHelper private constructor() {
          */
         @JvmStatic
         fun okHttp(): OkHttpClient.Builder {
+            val instance = getInstance()
             if (instance.clientBuilder == null) {
                 instance.clientBuilder = OkHttpClient.Builder()
                 instance.clientBuilder!!.addInterceptor(instance.progressListener)
@@ -72,7 +75,7 @@ class OkHttpHelper private constructor() {
          */
         @JvmStatic
         fun setParserFactory(parserFactory: ParserFactory) {
-            instance.parserFactory = parserFactory
+            getInstance().parserFactory = parserFactory
         }
 
         /**
@@ -82,6 +85,7 @@ class OkHttpHelper private constructor() {
          */
         @JvmStatic
         fun parserFactory(): ParserFactory {
+            val instance = getInstance()
             if (instance.parserFactory == null) {
                 instance.parserFactory = object : ParserFactory {
                     override fun <T> parser(content: String, type: Type): T {
@@ -97,7 +101,7 @@ class OkHttpHelper private constructor() {
          */
         @JvmStatic
         fun progressListener(): ProgressInterceptor {
-            return instance.progressListener
+            return getInstance().progressListener
         }
 
         /**
@@ -107,6 +111,7 @@ class OkHttpHelper private constructor() {
          */
         @JvmStatic
         fun client(): OkHttpClient {
+            val instance = getInstance()
             if (instance.httpClient == null) {
                 instance.httpClient = okHttp().build()
             }

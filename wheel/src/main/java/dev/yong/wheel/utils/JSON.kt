@@ -60,6 +60,42 @@ object JSON {
             object : TypeToken<TreeMap<String, Any>>() {}
         return GsonBuilder()
             .registerTypeAdapter(
+                Int::class.java,
+                JsonDeserializer { json: JsonElement, _: Type, _: JsonDeserializationContext ->
+                    try {
+                        return@JsonDeserializer json.asInt
+                    } catch (e: NumberFormatException) {
+                        return@JsonDeserializer -1
+                    }
+                })
+            .registerTypeAdapter(
+                Long::class.java,
+                JsonDeserializer { json: JsonElement, _: Type, _: JsonDeserializationContext ->
+                    try {
+                        return@JsonDeserializer json.asLong
+                    } catch (e: NumberFormatException) {
+                        return@JsonDeserializer -1L
+                    }
+                })
+            .registerTypeAdapter(
+                Float::class.java,
+                JsonDeserializer { json: JsonElement, _: Type, _: JsonDeserializationContext ->
+                    try {
+                        return@JsonDeserializer json.asFloat
+                    } catch (e: NumberFormatException) {
+                        return@JsonDeserializer -1.0F
+                    }
+                })
+            .registerTypeAdapter(
+                Double::class.java,
+                JsonDeserializer { json: JsonElement, _: Type, _: JsonDeserializationContext ->
+                    try {
+                        return@JsonDeserializer json.asDouble
+                    } catch (e: NumberFormatException) {
+                        return@JsonDeserializer -1.0
+                    }
+                })
+            .registerTypeAdapter(
                 typeToken.type,
                 JsonDeserializer { json: JsonElement, _: Type, _: JsonDeserializationContext ->
                     val map = TreeMap<String, Any>()

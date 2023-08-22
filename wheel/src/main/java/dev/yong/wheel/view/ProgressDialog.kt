@@ -22,7 +22,7 @@ class ProgressDialog @JvmOverloads constructor(
 ) {
     private val mTvMessage: TextView
     private val mView: View = View.inflate(context, R.layout.dialog_progress, null)
-    override fun onCreate(savedInstanceState: Bundle) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(mView)
         setCancelable(false)
@@ -32,9 +32,14 @@ class ProgressDialog @JvmOverloads constructor(
         show(context.getString(resId))
     }
 
-    fun show(message: CharSequence) {
+    fun show(message: CharSequence = "") {
         this.show()
-        mTvMessage.text = message
+        if (message.isEmpty()) {
+            mTvMessage.visibility = View.GONE
+        } else {
+            mTvMessage.visibility = View.VISIBLE
+            mTvMessage.text = message
+        }
     }
 
     init {

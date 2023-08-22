@@ -6,4 +6,6 @@ package dev.yong.wheel.base.mvp
 interface IPresenter<V> {
 
     fun attachView(view: V)
+
+    fun onDestroy(){}
 }

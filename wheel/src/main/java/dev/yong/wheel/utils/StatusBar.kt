@@ -20,6 +20,7 @@ import java.lang.reflect.Method
 /**
  * 获取状态栏高度
  */
+@SuppressLint("InternalInsetResource", "DiscouragedApi")
 fun getStatusBarHeight(): Int {
     val resources = Resources.getSystem()
     // 获得状态栏高度
@@ -45,7 +46,7 @@ object StatusBar {
      * @param height   状态栏高度
      */
     @JvmStatic
-    fun setColor(activity: Activity, @ColorInt color: Int, height: Int = getStatusBarHeight()) {
+    fun setColor(activity: Activity, @ColorInt color: Int, height: Int = getStatusBarHeight() + 1) {
         if (color != 0) {
             //创建一个假的状态栏
             val statusView = View(activity)
@@ -100,20 +101,20 @@ object StatusBar {
     @Suppress("DEPRECATION")
     fun immersiveStatusBar(activity: Activity, toDark: Boolean = false) {
         val window = activity.window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
-                val decorView = window.decorView
-                //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
-                val option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                        if (toDark && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR else 0
-                decorView.systemUiVisibility = option
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                window.statusBarColor = Color.TRANSPARENT
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
+            val decorView = window.decorView
+            //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
+            val option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                    if (toDark && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR else 0
+            decorView.systemUiVisibility = option
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.statusBarColor = Color.TRANSPARENT
 
-            } else {
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             }
         }
@@ -162,7 +163,7 @@ object StatusBar {
                         activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
                     }
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             }
         }
     }
@@ -192,7 +193,7 @@ object StatusBar {
                 }
                 meizuFlags.setInt(lp, value)
                 window.attributes = lp
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             }
         }
     }

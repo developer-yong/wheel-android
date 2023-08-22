@@ -2,7 +2,6 @@
 
 package dev.yong.wheel.cache
 
-import android.os.Process
 import android.text.TextUtils
 import dev.yong.wheel.AppManager
 import java.io.File
@@ -106,8 +105,15 @@ class Cache private constructor() {
      * @param key 缓存文件key
      * @return 是否移除成功
      */
-    fun remove(key: String): Boolean {
-        return mManager.remove(key)
+    fun remove(vararg key: String): Boolean {
+        var success = true
+        for (i in key.indices) {
+            if (!mManager.remove(key[i])) {
+                success = false
+                break
+            }
+        }
+        return success
     }
 
     /**
@@ -143,30 +149,34 @@ class Cache private constructor() {
         private val sInstanceMap: MutableMap<String, Cache> = HashMap()
 
         @JvmStatic
-        val instance: Cache
-            get() {
-                val cache = sInstanceMap[CACHE_DIR + myPid()]
-                if (cache == null) {
-                    sInstanceMap[CACHE_DIR + myPid()] = Cache()
-                }
-                return cache!!
+        fun getInstance(): Cache {
+            var cache = sInstanceMap[CACHE_DIR + myPid()]
+            if (cache == null) {
+                cache = Cache()
+                sInstanceMap[CACHE_DIR + myPid()] = cache
             }
+            return cache
+        }
 
         private fun myPid(): String {
-            return "_" + Process.myPid()
+            return "_" + AppManager.getInstance().application.applicationInfo.packageName
         }
 
         @JvmStatic
-        fun init(cacheDir: String, maxSize: Long, maxCount: Int) {
+        fun init(cacheDir: String, maxSize: Long = MAX_SIZE, maxCount: Int = MAX_COUNT) {
             CACHE_DIR = cacheDir
             MAX_SIZE = maxSize
             MAX_COUNT = maxCount
+            val cache = sInstanceMap[CACHE_DIR + myPid()]
+            if (cache == null) {
+                sInstanceMap[CACHE_DIR + myPid()] = Cache()
+            }
         }
     }
 
     init {
         if (TextUtils.isEmpty(CACHE_DIR)) {
-            CACHE_DIR = AppManager.instance.application.cacheDir.absolutePath
+            CACHE_DIR = AppManager.getInstance().application.cacheDir.absolutePath
         }
         mCacheDir = File(CACHE_DIR)
         if (!mCacheDir.exists() && !mCacheDir.mkdirs()) {
