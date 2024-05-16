@@ -17,10 +17,6 @@ open class ViewBindActivity<V : ViewBinding> : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mRoot = onCreateViewBinding(layoutInflater)
         setContentView(mRoot.root)
-//        StatusBar.setColor(
-//            this, Color.WHITE,
-//            getStatusBarHeight() + getActionBarHeight()
-//        )
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -43,5 +39,4 @@ open class ViewBindActivity<V : ViewBinding> : AppCompatActivity() {
         attrs.recycle()
         return height
     }
-
 }

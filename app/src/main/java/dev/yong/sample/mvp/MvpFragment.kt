@@ -6,6 +6,7 @@ import dev.yong.sample.databinding.FragmentMvpBinding
 import dev.yong.wheel.base.SwipeBackFragment
 import dev.yong.wheel.base.mvp.registerMvp
 import dev.yong.wheel.utils.showSnack
+import dev.yong.wheel.utils.visible
 import dev.yong.wheel.view.EmptyView
 
 class MvpFragment : SwipeBackFragment<FragmentMvpBinding>(), MvpView {
@@ -14,7 +15,7 @@ class MvpFragment : SwipeBackFragment<FragmentMvpBinding>(), MvpView {
         super.onViewCreated(view, savedInstanceState)
 
         registerMvp(this)
-        mRoot.layoutHtml.prefixTextView.visibility = View.VISIBLE
+        mRoot?.layoutHtml?.prefixTextView?.visible()
 //        mRoot.layoutHtml.editText?.isFocusable = true;
 //        mRoot.layoutHtml.editText?.isFocusableInTouchMode = true
 //        mRoot.layoutHtml.editText?.requestFocus()
@@ -26,17 +27,23 @@ class MvpFragment : SwipeBackFragment<FragmentMvpBinding>(), MvpView {
     }
 
     override fun showWeb(html: String) {
-        EmptyView.with(mRoot.etHtml).hide()
-        mRoot.etHtml.setText(html)
+        mRoot?.run {
+            EmptyView.with(etHtml).hide()
+        }
+        mRoot?.etHtml?.setText(html)
     }
 
     override fun showEmpty() {
-        EmptyView.with(mRoot.etHtml).show()
+        mRoot?.run {
+            EmptyView.with(etHtml).show()
+        }
     }
 
     override fun showError(error: String) {
-        EmptyView.with(mRoot.etHtml).show()
-        mRoot.root.showSnack(error)
+        mRoot?.run {
+            EmptyView.with(etHtml).show()
+        }
+        mRoot?.root?.showSnack(error)
     }
 
     override fun attachPresenter(presenter: MvpPresenter) {

@@ -37,16 +37,18 @@ class ViewPagerFragment : ViewBindFragment<FragmentViewPagerBinding>() {
         adapter.addFragment(BFragment())
         adapter.addFragment(CFragment())
 
-        mRoot.viewpager.adapter = adapter
+        mRoot?.run {
+            viewpager.adapter = adapter
 
-        TabLayoutMediator(
-            mRoot.tab, mRoot.viewpager
-        ) { tab, position ->
-            when (position) {
-                0 -> tab.text = "First"
-                1 -> tab.text = "Second"
-                else -> tab.text = "Third"
-            }
-        }.attach()
+            TabLayoutMediator(
+                tab, viewpager
+            ) { tab, position ->
+                when (position) {
+                    0 -> tab.text = "First"
+                    1 -> tab.text = "Second"
+                    else -> tab.text = "Third"
+                }
+            }.attach()
+        }
     }
 }

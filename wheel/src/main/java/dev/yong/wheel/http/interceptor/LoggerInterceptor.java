@@ -2,6 +2,8 @@ package dev.yong.wheel.http.interceptor;
 
 import android.text.TextUtils;
 
+import dev.yong.wheel.BuildConfig;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,9 +12,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -46,21 +46,25 @@ public interface LoggerInterceptor extends Interceptor {
     @NotNull
     @Override
     default Response intercept(@NotNull Chain chain) throws IOException {
-        Request request = chain.request();
-        String url = request.method() + ' ' + request.url();
-        String requestMessage = createRequestMessage(request);
-        long startNs = System.nanoTime();
+        if (BuildConfig.DEBUG) {
+            Request request = chain.request();
+            String url = request.method() + ' ' + request.url();
+            String requestMessage = createRequestMessage(request);
+            long startNs = System.nanoTime();
 
-        Response response = chain.proceed(request);
+            Response response = chain.proceed(request);
 
-        long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
-        url += "\t(" + tookMs + "ms)";
-        String responseMessage = createResponseMessage(response);
+            long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
+            url += "\t(" + tookMs + "ms)";
+            String responseMessage = createResponseMessage(response);
 
-        //打印网络日志信息
-        print(url, requestMessage, responseMessage);
+            //打印网络日志信息
+            print(url, requestMessage, responseMessage);
 
-        return response;
+            return response;
+        } else {
+            return chain.proceed(chain.request());
+        }
     }
 
     default String createRequestMessage(Request request) throws IOException {
@@ -73,24 +77,12 @@ public interface LoggerInterceptor extends Interceptor {
                         .append(headers.value(i));
             }
             if (!"".equals(headersMessage.toString())) {
-                requestMessage += "\n\tHeaders: " + headersMessage.toString();
+                requestMessage += "\n\tHeaders: " + headersMessage;
             }
         }
         RequestBody requestBody = request.body();
         if (requestBody != null) {
-            if (requestBody instanceof FormBody) {
-                StringBuilder paramsMessage = new StringBuilder();
-                for (int i = 0; i < ((FormBody) requestBody).size(); i++) {
-                    paramsMessage.append("\n\t\t")
-                            .append(((FormBody) requestBody).name(i))
-                            .append(": ")
-                            .append(((FormBody) requestBody).value(i));
-                }
-
-                if (!"".equals(paramsMessage.toString())) {
-                    requestMessage += "\n\tParameters: {" + paramsMessage.toString() + "\n\t}";
-                }
-            } else if (requestBody instanceof MultipartBody) {
+            if (requestBody instanceof MultipartBody) {
                 Buffer buffer = new Buffer();
                 requestBody.writeTo(buffer);
                 String postParams = buffer.readUtf8();
@@ -129,21 +121,7 @@ public interface LoggerInterceptor extends Interceptor {
             } else {
                 Buffer buffer = new Buffer();
                 requestBody.writeTo(buffer);
-                try {
-                    JSONObject json = new JSONObject(buffer.readUtf8());
-                    StringBuilder paramsMessage = new StringBuilder();
-                    Iterator<String> names = json.keys();
-                    while (names.hasNext()) {
-                        String name = names.next();
-                        paramsMessage.append("\n\t\t")
-                                .append(name).append(": ").append(json.opt(name));
-                    }
-                    if (!"".equals(paramsMessage.toString())) {
-                        requestMessage += "\n\tParameters: {" + paramsMessage + "\n\t}";
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                requestMessage += "\n\tParameters: " + buffer.readUtf8();
             }
             String bodyMessage = "";
             if (requestBody.contentType() != null) {
@@ -165,6 +143,7 @@ public interface LoggerInterceptor extends Interceptor {
         }
         return requestMessage;
     }
+
     @SuppressWarnings("deprecation")
     default String createResponseMessage(Response response) {
 
@@ -178,7 +157,7 @@ public interface LoggerInterceptor extends Interceptor {
             for (int i = 0; i < headers.size(); i++) {
                 headersMessage.append("\n\t\t").append(headers.name(i)).append(": ").append(headers.value(i));
             }
-            responseMessage += "\n\tHeaders: " + headersMessage.toString();
+            responseMessage += "\n\tHeaders: " + headersMessage;
         }
 
         ResponseBody responseBody = response.body();
@@ -196,13 +175,12 @@ public interface LoggerInterceptor extends Interceptor {
 
             if (contentLength != 0) {
                 MediaType contentType = responseBody.contentType();
-                String body = buffer.clone().readString(Charset.forName("UTF-8"));
-                bodyMessage += "\n" + (isJson(contentType) ? jsonFormat(body)
-                        : isXml(contentType) ? xmlFormat(body) : body);
+                String body = buffer.clone().readString(StandardCharsets.UTF_8);
+                bodyMessage += body;
             }
 
             if (!"".equals(bodyMessage)) {
-                responseMessage += "\n\tBody: " + bodyMessage;
+                responseMessage += "\n\tBody: \n" + bodyMessage;
             }
         }
 

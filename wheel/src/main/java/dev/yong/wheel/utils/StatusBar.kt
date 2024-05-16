@@ -101,23 +101,17 @@ object StatusBar {
     @Suppress("DEPRECATION")
     fun immersiveStatusBar(activity: Activity, toDark: Boolean = false) {
         val window = activity.window
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
-            val decorView = window.decorView
-            //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
-            val option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    if (toDark && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR else 0
-            decorView.systemUiVisibility = option
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = Color.TRANSPARENT
+        //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
+        val decorView = window.decorView
+        //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
+        val option = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                if (toDark && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR else 0
+        decorView.systemUiVisibility = option
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = Color.TRANSPARENT
 
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            }
-        }
         if (OS.isMIUI()) {
             setMIUIStatusBarTextMode(activity, toDark)
         } else if (OS.isFlyme()) {

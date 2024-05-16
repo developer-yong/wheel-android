@@ -168,13 +168,7 @@ object Logger {
                 "yyyy-MM-dd HH:mm:ss", Locale.getDefault()
             )
             msg = format.format(Date()) + " — " + msg
-            bw.write(
-                """
-    $msg
-    ${Log.getStackTraceString(tr)}
-    
-    """.trimIndent()
-            )
+            bw.write("$msg\n${Log.getStackTraceString(tr)}")
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
         } catch (e: IOException) {

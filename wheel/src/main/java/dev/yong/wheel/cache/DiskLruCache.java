@@ -3,7 +3,6 @@ package dev.yong.wheel.cache;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.os.Build;
 import android.os.StatFs;
 import android.text.TextUtils;
 import android.util.LruCache;
@@ -179,11 +178,7 @@ public class DiskLruCache {
         try {
             sCacheDir = getAppContext().getExternalCacheDir().getAbsolutePath() + "/" + TAG;
             StatFs stats = new StatFs(sCacheDir);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                maxSize = stats.getBlockSizeLong() * stats.getAvailableBlocksLong();
-            } else {
-                maxSize = (long) stats.getBlockSize() * stats.getAvailableBlocks();
-            }
+            maxSize = stats.getBlockSizeLong() * stats.getAvailableBlocksLong();
         } catch (Exception ignored) {
             maxSize = 200 * 1048576;
         }

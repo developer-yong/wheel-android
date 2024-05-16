@@ -12,32 +12,33 @@ import dev.yong.wheel.Router
 import dev.yong.wheel.base.ViewBindFragment
 import dev.yong.wheel.base.adapter.BaseRecyclerAdapter
 import dev.yong.wheel.utils.Recycler
-import dev.yong.wheel.view.BottomDialog
 import dev.yong.wheel.web.PARAM_WEB_TITLE
 
 class ListFragment : ViewBindFragment<FragmentListBinding>(),
     BaseRecyclerAdapter.OnItemClickListener {
 
-    private lateinit var mAdapter: ListAdapter
+    private var mAdapter: ListAdapter? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mAdapter = Recycler.with(mRoot.recycler).build()
+        mRoot?.run {
+            mAdapter = Recycler.with(recycler).build()
 
-        mAdapter.setOnItemClickListener(this)
+            mAdapter?.setOnItemClickListener(this@ListFragment)
 
-        mAdapter.addData("Mvp")
-        mAdapter.addData("滑动返回")
-        mAdapter.addData("Web")
-        mAdapter.addData("Map")
-        mAdapter.addData("viewpager")
-        mAdapter.addData("bottom-menu")
+            mAdapter?.addData("Mvp")
+            mAdapter?.addData("滑动返回")
+            mAdapter?.addData("Web")
+            mAdapter?.addData("Map")
+            mAdapter?.addData("viewpager")
+            mAdapter?.addData("bottom-menu")
+        }
 
     }
 
     override fun onItemClick(position: Int) {
-        when (mAdapter.getChildAt(position)) {
+        when (mAdapter?.getChildAt(position)) {
             "Mvp" -> {
                 Router.with(requireActivity(), R.id.layout_container)
                     .open(MvpFragment::class.java, null)
@@ -60,9 +61,7 @@ class ListFragment : ViewBindFragment<FragmentListBinding>(),
                     .open(ViewPagerFragment::class.java, null)
             }
             "bottom-menu" -> {
-                BottomDialog(requireContext(), R.layout.layout_bottom)
-                    .setMargin(30)
-                    .show()
+
             }
         }
     }

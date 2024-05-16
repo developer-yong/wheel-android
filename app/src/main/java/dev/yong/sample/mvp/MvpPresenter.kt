@@ -2,8 +2,7 @@ package dev.yong.sample.mvp
 
 import dev.yong.wheel.base.mvp.IPresenter
 import dev.yong.wheel.http.Callback
-import dev.yong.wheel.http.OkHttpHelper
-import okhttp3.Call
+import dev.yong.wheel.http.Transfer
 
 class MvpPresenter : IPresenter<MvpView> {
 
@@ -14,14 +13,10 @@ class MvpPresenter : IPresenter<MvpView> {
     }
 
     fun loadData() {
-        OkHttpHelper.get("https://www.baidu.com/")
-            .enqueue(object : Callback<String> {
+        Transfer.get("https://www.baidu.com/")
+            .execute(object : Callback<String> {
                 override fun onResponse(t: String) {
                     mView.showWeb(t)
-                }
-
-                override fun onFailed(call: Call, t: Throwable) {
-                    mView.showError(t.toString())
                 }
             })
     }

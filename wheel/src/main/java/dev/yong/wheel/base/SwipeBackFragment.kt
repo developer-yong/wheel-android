@@ -18,11 +18,15 @@ open class SwipeBackFragment<V : ViewBinding> : ViewBindFragment<V>(), ISwipeBac
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         val rootView = super.onCreateView(inflater, container, savedInstanceState)
-        val swipeBackLayout = SwipeBackLayout(rootView.context)
-        swipeBackLayout.addView(rootView)
-        return swipeBackLayout
+        return if (rootView != null) {
+            val swipeBackLayout = SwipeBackLayout(rootView.context)
+            swipeBackLayout.addView(rootView)
+            swipeBackLayout
+        } else {
+            null
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

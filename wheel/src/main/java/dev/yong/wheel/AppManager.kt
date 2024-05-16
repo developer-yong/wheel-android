@@ -1,5 +1,4 @@
 @file:Suppress("unused")
-
 package dev.yong.wheel
 
 import android.annotation.SuppressLint
@@ -14,6 +13,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.os.Process
 import android.widget.Toast
+import androidx.lifecycle.*
 import dev.yong.wheel.utils.Logger
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
@@ -43,12 +43,20 @@ class AppManager private constructor() : Thread.UncaughtExceptionHandler,
      *
      * @return PackageInfo
      */
+    @Suppress("DEPRECATION")
     val packageInfo: PackageInfo?
         get() {
             return try {
                 val packageName = application.packageName
-                application.packageManager.getPackageInfo(packageName, 0)
-            } catch (e: PackageManager.NameNotFoundException) {
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    application.packageManager.getPackageInfo(
+                        packageName,
+                        PackageManager.PackageInfoFlags.of(0)
+                    )
+                } else {
+                    application.packageManager.getPackageInfo(packageName, 0)
+                }
+            } catch (e: Exception) {
                 e.printStackTrace()
                 null
             }
@@ -130,14 +138,14 @@ class AppManager private constructor() : Thread.UncaughtExceptionHandler,
 
     @SuppressLint("UnspecifiedImmutableFlag")
     fun restart(intent: Intent? = null) {
-        mApplication?.let {
+        mApplication?.run {
             var rIntent = intent
             if (rIntent == null) {
-                rIntent = it.packageManager.getLaunchIntentForPackage(it.packageName)
+                rIntent = packageManager.getLaunchIntentForPackage(packageName)
             }
             rIntent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             rIntent?.putExtra("restart", true)
-            it.startActivity(rIntent)
+            startActivity(rIntent)
             exit()
         }
     }
@@ -158,8 +166,8 @@ class AppManager private constructor() : Thread.UncaughtExceptionHandler,
 
     override fun uncaughtException(t: Thread, e: Throwable) {
         captureException(t, e)
-        showToast()
-        restart()
+//        showToast()
+//        restart()
     }
 
     /**
@@ -300,4 +308,25 @@ class AppManager private constructor() : Thread.UncaughtExceptionHandler,
             application.registerActivityLifecycleCallbacks(instance)
         }
     }
+}
+
+@SuppressLint("PrivateApi")
+fun getAppContext(): Application? {
+    var application: Application? = null
+    try {
+        application = Class.forName("android.app.ActivityThread")
+            .getMethod("currentApplication").invoke(null, null) as Application
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+    if (application == null) {
+        try {
+            application = Class.forName("android.app.AppGlobals")
+                .getMethod("getInitialApplication")
+                .invoke(null, null) as Application
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    return application
 }

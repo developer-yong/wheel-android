@@ -46,7 +46,7 @@ object Permission {
                 }
                 val fragment = findPermissionsFragment(activity)
                 if (fragment is PermissionsFragment) {
-                    permissions?.let { fragment.requestPermissions(listener, it) }
+                    permissions?.run { fragment.requestPermissions(listener, this) }
                 }
             }
         }

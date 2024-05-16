@@ -12,12 +12,14 @@ class AFragment : ViewBindFragment<FragmentABinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mRoot.btnA.setOnClickListener {
-            Router.with(requireActivity(), R.id.layout_container)
-                .open(BFragment::class.java, null)
-        }
-        mRoot.btnBack.setOnClickListener {
-            Router.finish(this)
+        mRoot?.run {
+            btnA.setOnClickListener {
+                Router.with(requireActivity(), R.id.layout_container)
+                    .open(BFragment::class.java, null)
+            }
+            btnBack.setOnClickListener {
+                Router.finish(this@AFragment)
+            }
         }
     }
 }

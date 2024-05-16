@@ -12,12 +12,14 @@ class BFragment : SwipeBackFragment<FragmentBBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mRoot.btnB.setOnClickListener {
-            Router.with(requireActivity(), R.id.layout_container)
-                .open(CFragment::class.java, null)
-        }
-        mRoot.btnBack.setOnClickListener {
-            Router.finish(this)
+        mRoot?.run {
+            btnB.setOnClickListener {
+                Router.with(requireActivity(), R.id.layout_container)
+                    .open(CFragment::class.java, null)
+            }
+            btnBack.setOnClickListener {
+                Router.finish(this@BFragment)
+            }
         }
     }
 }

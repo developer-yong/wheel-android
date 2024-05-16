@@ -5,6 +5,18 @@ package dev.yong.wheel.utils
 import android.content.res.Resources
 import android.util.TypedValue
 
+fun dp2px(dpValue: Int): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        dpValue.toFloat(), Resources.getSystem().displayMetrics
+    ).toInt()
+}
+
+fun px2dip(pxValue: Int): Int {
+    val density = Resources.getSystem().displayMetrics.density
+    return (pxValue / density + 0.5f).toInt()
+}
+
 fun dp2px(dpValue: Float): Float {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,

@@ -5,6 +5,8 @@ package dev.yong.wheel.base.adapter
 import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.os.Handler
+import android.os.Looper
 import android.text.util.Linkify
 import android.util.SparseArray
 import android.view.LayoutInflater
@@ -15,7 +17,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.*
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
-import androidx.annotation.NonNull
+import androidx.core.util.keyIterator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -48,6 +50,7 @@ fun RecyclerView.ViewHolder.text(@IdRes viewId: Int): TextView {
  * @param viewId TextView 资源id
  * @return ViewHolder
  */
+@Suppress("DEPRECATION")
 fun RecyclerView.ViewHolder.addLinks(@IdRes viewId: Int): RecyclerView.ViewHolder {
     Linkify.addLinks((get<View>(viewId) as TextView?)!!, Linkify.ALL)
     return this
@@ -182,9 +185,9 @@ fun RecyclerView.ViewHolder.setChecked(
  */
 abstract class BaseRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    protected var mList: MutableList<T> = ArrayList()
     private val mSpecialItems = SparseArray<View>()
-    private var mListener: OnItemClickListener? = null
+    protected var mList: MutableList<T> = ArrayList()
+    protected var mListener: OnItemClickListener? = null
 
     /**
      * 创建ItemView
@@ -247,11 +250,7 @@ abstract class BaseRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerView.ViewHo
      * @return ItemView
      */
     fun createItemByLayoutId(
-        @NonNull
-        parent: ViewGroup,
-        @LayoutRes
-        layoutResId: Int,
-        isHorizontalFill: Boolean = true,
+        parent: ViewGroup, @LayoutRes layoutResId: Int, isHorizontalFill: Boolean = true,
     ): View {
         val view = LayoutInflater.from(parent.context)
             .inflate(layoutResId, parent, false)
@@ -306,6 +305,22 @@ abstract class BaseRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerView.ViewHo
      */
     fun addView(position: Int, view: View) {
         mSpecialItems.put(position, view)
+        Handler(Looper.getMainLooper()).post {
+            notifyItemChanged(position)
+        }
+    }
+
+    /**
+     * 获取特殊ItemView
+     *
+     * @param position item位置
+     */
+    fun getView(position: Int): View? {
+        return try {
+            mSpecialItems[position]
+        } catch (_: Throwable) {
+            null
+        }
     }
 
     /**
@@ -329,25 +344,33 @@ abstract class BaseRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerView.ViewHo
     fun addData(vararg ts: T) {
         val index = mList.size
         mList.addAll(listOf(*ts))
-        notifyItemChanged(index)
+        Handler(Looper.getMainLooper()).post {
+            notifyItemChanged(index)
+        }
     }
 
     fun addData(list: List<T>?, index: Int = mList.size) {
         if (list != null) {
             mList.addAll(index, list)
-            notifyItemChanged(index)
+            Handler(Looper.getMainLooper()).post {
+                notifyItemChanged(index)
+            }
         }
     }
 
     fun addData(t: T, index: Int = mList.size) {
         mList.add(index, t)
-        notifyItemChanged(index)
+        Handler(Looper.getMainLooper()).post {
+            notifyItemChanged(index)
+        }
     }
 
     fun removeAt(index: Int, notifyChange: Boolean = true) {
         mList.removeAt(index)
         if (notifyChange) {
-            notifyItemChanged(index)
+            Handler(Looper.getMainLooper()).post {
+                notifyItemChanged(index)
+            }
         }
     }
 
@@ -362,6 +385,44 @@ abstract class BaseRecyclerAdapter<T> : RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
+    /**
+     * 获取指定视图位置数据下标
+     *
+     * @param vPosition 视图下标
+     * @return 所处数据中的真实下标
+     */
+    fun getPosition(vPosition: Int): Int {
+        var position = vPosition
+        mSpecialItems.keyIterator().forEach {
+            if (it <= vPosition) {
+                position--
+            }
+        }
+        return position
+    }
+
+    /**
+     * 获取指定位置真实下标
+     *
+     * @param position 数据下标
+     * @return 所处列表中的真实下标
+     */
+    fun getViewPosition(position: Int): Int {
+        var vPosition = position
+        mSpecialItems.keyIterator().forEach {
+            if (it <= vPosition) {
+                vPosition++
+            }
+        }
+        return vPosition
+    }
+
+    /**
+     * 获取指定位置数据
+     *
+     * @param position 数据下标
+     * @return 指定位置数据
+     */
     fun getChildAt(position: Int): T {
         return mList[position]
     }

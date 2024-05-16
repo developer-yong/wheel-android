@@ -22,12 +22,10 @@ import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.fragment.app.Fragment
-import com.beijzc.wheel.web.IFileChooserResult
 import dev.yong.wheel.R
 import dev.yong.wheel.permission.IPermissionResult
 import dev.yong.wheel.permission.registerPermissionResult
-import com.beijzc.wheel.web.IFileChooserResult.FileChooserResult
-import com.beijzc.wheel.web.registerFileChooserResult
+import dev.yong.wheel.web.IFileChooserResult.FileChooserResult
 
 /**
  * WebContainer title 参数

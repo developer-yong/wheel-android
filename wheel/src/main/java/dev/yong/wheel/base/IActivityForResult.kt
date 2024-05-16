@@ -12,7 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.core.content.FileProvider
-import com.beijzc.wheel.utils.FileUtils
+import dev.yong.wheel.utils.FileUtils
 import dev.yong.wheel.utils.Logger
 import java.io.File
 

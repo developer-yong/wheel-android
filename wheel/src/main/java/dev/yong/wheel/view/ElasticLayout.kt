@@ -8,6 +8,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.*
 import android.widget.FrameLayout
+import androidx.annotation.Keep
 import dev.yong.wheel.R
 import kotlin.math.abs
 
@@ -205,11 +206,13 @@ class ElasticLayout @JvmOverloads constructor(
         return if (index < 0) -1F else ev.getY(index)
     }
 
+    @Keep
     override fun setTranslationY(y: Float) {
         clearAnimation()
         super.setTranslationY(y)
     }
 
+    @Keep
     override fun setY(y: Float) {
         clearAnimation()
         super.setY(y)

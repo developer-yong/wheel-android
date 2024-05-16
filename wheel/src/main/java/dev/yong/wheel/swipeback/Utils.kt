@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityOptions
 import android.os.Build
+import androidx.annotation.RequiresApi
 
 object Utils {
 
@@ -84,6 +85,7 @@ object Utils {
      * Calling the convertToTranslucent method on platforms after Android 5.0
      */
     @SuppressLint("DiscouragedPrivateApi")
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     private fun convertActivityToTranslucentAfterL(activity: Activity) {
         try {
             val getActivityOptions = Activity::class.java.getDeclaredMethod("getActivityOptions")

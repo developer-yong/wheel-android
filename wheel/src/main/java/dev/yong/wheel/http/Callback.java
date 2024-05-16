@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.google.gson.reflect.TypeToken;
+import dev.yong.wheel.utils.JSON;
+import dev.yong.wheel.utils.Logger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -26,11 +28,7 @@ public interface Callback<T> extends okhttp3.Callback {
             try {
                 //responseBody.string()只能在非UI线程中调用
                 String body = Objects.requireNonNull(response.body()).string();
-                T result = parse(body);
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    onResponseString(body);
-                    onResponse(result);
-                });
+                Result.call(this, parse(body));
             } catch (Exception e) {
                 onFailure(call, new IOException(e));
             }
@@ -41,16 +39,18 @@ public interface Callback<T> extends okhttp3.Callback {
 
     @Override
     default void onFailure(@NotNull Call call, @NotNull IOException e) {
-        new Handler(Looper.getMainLooper()).post(() -> onFailed(call, e));
+        //网络请求失败，服务器链接异常或者数据解析异常
+        Logger.e(e, call.request().url().toString());
+        Result.call(this, e);
     }
 
     @SuppressWarnings("unchecked")
-    default T parse(String content) {
+    default T parse(String body) {
         Type type = findCallbackGenericType();
         if (type == String.class) {
-            return (T) content;
+            return (T) body;
         } else {
-            return OkHttpHelper.parserFactory().parser(content, type);
+            return JSON.fromJson(body, type);
         }
     }
 
@@ -93,16 +93,56 @@ public interface Callback<T> extends okhttp3.Callback {
     /**
      * 请求失败
      *
-     * @param call 请求Call
-     * @param t    错误信息
+     * @param t 错误信息
      */
-    void onFailed(@NotNull Call call, @NotNull Throwable t);
+    default void onFailed(@NotNull Throwable t) {
+    }
 
-    /**
-     * 请求成功
-     *
-     * @param responseBody 请求成功后得到的响应数据
-     */
-    default void onResponseString(String responseBody) {
+    class Result<T> implements Runnable {
+
+        private final Callback<T> mCallback;
+        private T mResult;
+        private Throwable mThrowable;
+
+        public Result(Callback<T> callback, T result) {
+            mCallback = callback;
+            mResult = result;
+        }
+
+        public Result(Callback<T> callback, Throwable throwable) {
+            mCallback = callback;
+            mThrowable = throwable;
+        }
+
+        /**
+         * When an object implementing interface <code>Runnable</code> is used
+         * to create a thread, starting the thread causes the object's
+         * <code>run</code> method to be called in that separately executing
+         * thread.
+         * <p>
+         * The general contract of the method <code>run</code> is that it may
+         * take any action whatsoever.
+         *
+         * @see Thread#run()
+         */
+        @Override
+        public void run() {
+            if (mCallback != null) {
+                if (mResult != null) {
+                    mCallback.onResponse(mResult);
+                }
+                if (mThrowable != null) {
+                    mCallback.onFailed(mThrowable);
+                }
+            }
+        }
+
+        static <T> void call(Callback<T> callback, T result) {
+            new Handler(Looper.getMainLooper()).post(new Result<>(callback, result));
+        }
+
+        static <T> void call(Callback<T> callback, Throwable throwable) {
+            new Handler(Looper.getMainLooper()).post(new Result<>(callback, throwable));
+        }
     }
 }

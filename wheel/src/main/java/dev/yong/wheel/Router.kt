@@ -74,7 +74,7 @@ class Router private constructor() {
                 }
             }
             if (isActivity(pagePath)) {
-                mRouter.mPages[pagePath]?.let { setClass(mContext, it) }
+                mRouter.mPages[pagePath]?.run { setClass(mContext, this) }
                 //添加参数
                 putExtras(parseUri(Uri.parse(pagePath)))
                 mContext.startActivity(this)
@@ -377,7 +377,7 @@ class Router private constructor() {
          */
         @Throws(InstantiationException::class, IllegalAccessException::class)
         fun open(
-            fClass: Class<out Fragment>, tag: String?,
+            fClass: Class<out Fragment>, tag: String? = "",
             @AnimatorRes @AnimRes enter: Int = RouterHolder.INSTANCE.mEnter,
             @AnimatorRes @AnimRes exit: Int = RouterHolder.INSTANCE.mExit
         ) {

@@ -6,24 +6,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewbinding.ViewBinding
-import dev.yong.wheel.view.ProgressDialog
 import java.lang.reflect.ParameterizedType
 
 /**
  * @author coderyong
  */
-open class ViewBindFragment<V : ViewBinding> : Fragment() {
+open class ViewBindFragment<LayoutBinding : ViewBinding> : Fragment() {
 
-    protected lateinit var mRoot: V
-    private var mLoadingDialog: ProgressDialog? = null
+    protected var mRoot: LayoutBinding? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View? {
         mRoot = onCreateViewBinding(inflater)
-        return mRoot.root
+        return mRoot?.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -32,24 +30,10 @@ open class ViewBindFragment<V : ViewBinding> : Fragment() {
     }
 
     @Suppress("UNCHECKED_CAST")
-    protected fun onCreateViewBinding(inflater: LayoutInflater): V {
+    protected fun onCreateViewBinding(inflater: LayoutInflater): LayoutBinding {
         val vClass = (javaClass.genericSuperclass as ParameterizedType)
-            .actualTypeArguments[0] as Class<V>
+            .actualTypeArguments[0] as Class<LayoutBinding>
         return vClass.getMethod("inflate", LayoutInflater::class.java)
-            .invoke(this, inflater) as V
-    }
-
-    open fun showLoading(message: String = "") {
-        if (mLoadingDialog == null) {
-            context?.let {
-                mLoadingDialog = ProgressDialog(it)
-            }
-        }
-        mLoadingDialog?.show(message)
-    }
-
-    open fun cancelLoading() {
-        mLoadingDialog?.dismiss()
-        mLoadingDialog = null
+            .invoke(this, inflater) as LayoutBinding
     }
 }

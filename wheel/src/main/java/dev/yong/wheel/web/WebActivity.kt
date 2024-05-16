@@ -2,11 +2,11 @@ package dev.yong.wheel.web
 
 import android.graphics.Color
 import android.os.Bundle
-import dev.yong.wheel.base.ViewBindActivity
-import dev.yong.wheel.utils.StatusBar
 import dev.yong.wheel.R
 import dev.yong.wheel.Router
+import dev.yong.wheel.base.ViewBindActivity
 import dev.yong.wheel.databinding.LayoutContainerBinding
+import dev.yong.wheel.utils.StatusBar
 
 /**
  * @author coderyong

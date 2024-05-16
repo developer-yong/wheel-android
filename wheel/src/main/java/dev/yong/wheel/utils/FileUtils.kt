@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.beijzc.wheel.utils
+package dev.yong.wheel.utils
 
 import android.content.ContentValues
 import android.content.Context

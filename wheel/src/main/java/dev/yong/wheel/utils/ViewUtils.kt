@@ -5,22 +5,25 @@ import android.view.View
 /**
  * 视图显示
  */
-fun View.visible() {
+fun <V : View> V.visible(): V {
     this.visibility = View.VISIBLE
+    return this
 }
 
 /**
  * 视图占位隐藏
  */
-fun View.invisible() {
+fun <V : View> V.invisible(): V {
     this.visibility = View.INVISIBLE
+    return this
 }
 
 /**
  * 视图无占位隐藏
  */
-fun View.gone() {
+fun <V : View> V.gone(): V {
     this.visibility = View.GONE
+    return this
 }
 
 /**

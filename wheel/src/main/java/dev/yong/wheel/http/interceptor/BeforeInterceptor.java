@@ -15,6 +15,16 @@ import okhttp3.Response;
 public interface BeforeInterceptor extends Interceptor {
 
     /**
+     * 请求前
+     *
+     * @param request request
+     * @return 返回处理后的请求，必须不为空
+     */
+    default Request onRequestBefore(Request request) {
+        return request;
+    }
+
+    /**
      * 响应前
      *
      * @param response response
@@ -24,14 +34,6 @@ public interface BeforeInterceptor extends Interceptor {
     default Response onResponseBefore(Interceptor.Chain chain, Response response) {
         return response;
     }
-
-    /**
-     * 请求前
-     *
-     * @param request request
-     * @return 返回处理后的请求，必须不为空
-     */
-    Request onRequestBefore(Request request);
 
     @NotNull
     @Override

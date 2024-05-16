@@ -1,4 +1,4 @@
-package com.beijzc.wheel.web
+package dev.yong.wheel.web
 
 import android.app.Activity
 import android.content.Context

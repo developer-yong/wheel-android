@@ -11,8 +11,8 @@ class MVVMFragment : ViewBindFragment<FragmentMvvmBinding>() {
         super.onCreate(savedInstanceState)
 
         val model = getModelWithActivity(MVVMModel::class.java)
-        model.getData().observe(this, {
+        model.getData().observe(this) {
 
-        })
+        }
     }
 }

@@ -17,6 +17,7 @@ import java.util.Set;
 /**
  * 设备系统工具类
  */
+@SuppressWarnings("unused")
 public class OS {
 
     //MIUI标识
@@ -47,9 +48,7 @@ public class OS {
         }
         if (getInstance().containsKey(KEY_FLYME_ID_FALG_KEY)) {
             String romName = getInstance().getProperty(KEY_FLYME_ID_FALG_KEY);
-            if (!TextUtils.isEmpty(romName) && romName.contains(KEY_FLYME_ID_FALG_VALUE_KEYWORD)) {
-                return true;
-            }
+            return !TextUtils.isEmpty(romName) && romName.contains(KEY_FLYME_ID_FALG_VALUE_KEYWORD);
         }
         return false;
     }

@@ -404,7 +404,7 @@ public class DLManager {
      * @return 移除数量
      */
     public long remove(long... downloadIds) {
-        return mManager.remove();
+        return mManager.remove(downloadIds);
     }
 
     public void destroy() {

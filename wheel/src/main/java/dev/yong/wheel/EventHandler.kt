@@ -105,7 +105,7 @@ class EventHandler private constructor() : Handler(Looper.getMainLooper()) {
      * @param what    事件标识，同[Message.what]用法相同
      * @param newData 事件所携带数据，如没有可设置为null
      */
-    fun resume(what: Int, newData: Any?) {
+    fun resume(what: Int, newData: Any? = null) {
         if (has(what)) {
             return
         }

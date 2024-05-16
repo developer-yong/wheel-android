@@ -100,7 +100,7 @@ class DownloadBuilder {
      */
     fun download(): Long {
         return try {
-            val manager = DLManager.getInstance()
+            val manager = dev.yong.wheel.download.DLManager.getInstance()
             var downloadId = manager.getDownloadId(mUrl)
             if (downloadId > 0 && (manager.checkResumeStatus(downloadId) || manager.open(downloadId))) {
                 return downloadId
